@@ -11,6 +11,10 @@ dev = [
     "ruff>=0.9.3",
 ]
 
+[tool.basedpyright]
+typeCheckingMode = "strict"
+ignore = []
+
 [tool.ruff.lint]
 select = [
   "E",      # pycodestyle errors
