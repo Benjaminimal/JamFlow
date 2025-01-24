@@ -3,7 +3,10 @@ name = "JamFlow-backend"
 version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["fastapi[standard]>=0.115.7"]
+dependencies = [
+    "fastapi[standard]>=0.115.7",
+    "pydantic-settings>=2.7.1",
+]
 
 [dependency-groups]
 dev = [
