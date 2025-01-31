@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.core.config import settings
-from app.core.db import init_db
+from jamflow.core.config import settings
+from jamflow.core.db import init_db
 
 
 @asynccontextmanager
