@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
 
     DEBUG: bool = False
+    TESTING: bool = False
 
     DB_HOST: str
     DB_PORT: int
@@ -23,11 +24,12 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        db_name = f"{self.DB_NAME}_test" if self.TESTING else self.DB_NAME
         return PostgresDsn.build(
             scheme="postgresql+asyncpg",
             host=self.DB_HOST,
             port=self.DB_PORT,
-            path=self.DB_NAME,
+            path=db_name,
             username=self.DB_USER,
             password=self.DB_PASSWORD,
         )

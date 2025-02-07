@@ -24,6 +24,7 @@ test = [
   # Testing
   "pytest>=8.3.4",
   "httpx>=0.28.1",
+  "pytest-asyncio>=0.25.3",
 ]
 
 [tool.basedpyright]
