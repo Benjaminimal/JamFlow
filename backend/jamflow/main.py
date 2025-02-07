@@ -1,23 +1,8 @@
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 
 from jamflow.core.config import settings
-from jamflow.core.db import init_db
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    # app startup
-    await init_db()
-    yield
-    # app teardown
-
-
-app = FastAPI(
-    lifespan=lifespan,
-)
+app = FastAPI()
 
 
 @app.get("/")
