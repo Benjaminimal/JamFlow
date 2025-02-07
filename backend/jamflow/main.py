@@ -22,7 +22,7 @@ app = FastAPI(
 
 @app.get("/")
 async def read_root():
-    return {"Hello": f"World. Welcome to {settings.PROJECT_NAME}!"}
+    return {"message": f"Hello World. Welcome to {settings.PROJECT_NAME}!"}
 
 
 @app.get("/items/{item_id}")
