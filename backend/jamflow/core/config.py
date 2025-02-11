@@ -2,18 +2,16 @@ import importlib
 import os
 
 from pydantic import PostgresDsn, computed_field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 from sqlalchemy.pool import Pool
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        # Use top level .env file (one level above ./backend/)
-        env_file=os.getenv("ENV_FILE", "../.env"),
-        env_ignore_empty=True,
-        extra="ignore",
-    )
-
+class Settings(
+    BaseSettings,
+    env_file=os.getenv("ENV_FILE", "../.env"),
+    env_ignore_empty=True,
+    extra="ignore",
+):
     PROJECT_NAME: str = "JamFlow"
 
     DEBUG: bool = False
