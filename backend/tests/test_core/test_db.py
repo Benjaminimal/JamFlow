@@ -3,7 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import text
 
 
-@pytest.mark.dependency()
+@pytest.mark.asyncio
+async def test_database_name_ends_with_test(session: AsyncSession):
+    # Get the current database name
+    result = await session.execute(text("SELECT current_database()"))
+    db_name = result.scalar()
+
+    # Ensure the database name ends with "_test"
+    assert db_name, "Database name is empty"
+    assert db_name.endswith("_test"), (
+        f"Database name '{db_name}' does not end with '_test'"
+    )
+
+
+@pytest.mark.dependency(depends=["test_database_name_ends_with_test"])
 @pytest.mark.asyncio
 async def test_rollbacks_between_functions_create_table(session: AsyncSession):
     # Create the table
