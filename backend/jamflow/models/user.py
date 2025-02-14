@@ -1,6 +1,6 @@
 import uuid
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel  # pyright: ignore [reportUnknownVariableType]
 
 
 class User(SQLModel, table=True):
