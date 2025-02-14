@@ -1,9 +1,7 @@
-import importlib
 import os
 
 from pydantic import PostgresDsn, computed_field
 from pydantic_settings import BaseSettings
-from sqlalchemy.pool import Pool
 
 
 class Settings(
@@ -45,16 +43,6 @@ class Settings(
             username=self.DB_USER,
             password=self.DB_PASSWORD,
         )
-
-    @computed_field
-    @property
-    def DB_POOL_CLASS(self) -> Pool | None:
-        if not self.DB_POOL:
-            return None
-
-        pool_module = importlib.import_module("sqlalchemy.pool")
-        pool_class = getattr(pool_module, self.DB_POOL)
-        return pool_class
 
 
 settings = Settings()  # pyright: ignore [reportCallIssue]

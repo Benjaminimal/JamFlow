@@ -8,7 +8,6 @@ engine = create_async_engine(
     str(settings.SQLALCHEMY_DATABASE_URI),
     future=True,
     echo=settings.DEBUG,
-    poolclass=settings.DB_POOL_CLASS,
 )
 session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
