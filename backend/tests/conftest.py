@@ -1,9 +1,7 @@
 import pytest
-from fastapi.testclient import TestClient
 from sqlmodel import SQLModel
 
 from jamflow.core.db import engine, session_factory
-from jamflow.main import app
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -32,13 +30,3 @@ async def session():
             finally:
                 # Roll back the transaction so that changes are not committed
                 await transaction.rollback()
-
-
-@pytest.fixture
-def client():
-    with TestClient(
-        app=app,
-        # TODO: use the correct base url
-        # base_url=f"http://{settings.api_v1_prefix}"
-    ) as client:
-        yield client
