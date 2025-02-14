@@ -3,6 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import text
 
 
+def test_fail():
+    assert None == ""
+
+
 @pytest.mark.asyncio
 async def test_rollbacks_between_functions_create_table(db_session: AsyncSession):
     # Create the table
