@@ -1,10 +1,13 @@
 name: Test Backend
 
 on:
-  workflow_run:
-    workflows: [Build Backend]
+  push:
+    branches:
+      - main
+  pull_request:
     types:
-      - completed
+      - opened
+      - synchronize
 
 jobs:
   test-backend:
@@ -18,16 +21,19 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U test_user -d test_db"
+          --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t jamflow-backend ./backend
       - name: Run tests
         run: |
           docker run \
+            --rm \
             --network host \
             -e DB_HOST=localhost \
             -e DB_PORT=5432 \
