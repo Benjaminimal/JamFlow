@@ -19,7 +19,6 @@ class Settings(
     DB_NAME: str
     DB_USER: str
     DB_PASSWORD: str
-    DB_POOL: str | None = None
 
     @computed_field
     @property
