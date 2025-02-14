@@ -37,6 +37,17 @@ class Settings(
 
     @computed_field
     @property
+    def SQLALCHEMY_DATABASE_ROOT_URI(self) -> PostgresDsn:
+        return PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            host=self.DB_HOST,
+            port=self.DB_PORT,
+            username=self.DB_USER,
+            password=self.DB_PASSWORD,
+        )
+
+    @computed_field
+    @property
     def DB_POOL_CLASS(self) -> Pool | None:
         if not self.DB_POOL:
             return None

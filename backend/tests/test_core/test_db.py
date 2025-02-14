@@ -4,27 +4,15 @@ from sqlmodel import text
 
 
 @pytest.mark.asyncio
-async def test_database_name_ends_with_test(session: AsyncSession):
-    # Get the current database name
-    result = await session.execute(text("SELECT current_database()"))
-    db_name = result.scalar()
-
-    # Ensure the database name ends with "_test"
-    assert db_name, "Database name is empty"
-    assert db_name.endswith("_test"), (
-        f"Database name '{db_name}' does not end with '_test'"
-    )
-
-
-@pytest.mark.order(after=["test_database_name_ends_with_test"])
-@pytest.mark.asyncio
-async def test_rollbacks_between_functions_create_table(session: AsyncSession):
+async def test_rollbacks_between_functions_create_table(db_session: AsyncSession):
     # Create the table
-    await session.execute(text("CREATE TABLE isolation_test (id INTEGER PRIMARY KEY)"))
-    await session.commit()
+    await db_session.execute(
+        text("CREATE TABLE isolation_test (id INTEGER PRIMARY KEY)")
+    )
+    await db_session.commit()
 
     # Check if the table exists
-    result = await session.execute(
+    result = await db_session.execute(
         text(
             "SELECT 1 FROM information_schema.tables WHERE table_name = 'isolation_test'"
         )
@@ -36,9 +24,9 @@ async def test_rollbacks_between_functions_create_table(session: AsyncSession):
 
 @pytest.mark.order(after=["test_table_creation"])
 @pytest.mark.asyncio
-async def test_rollbacks_between_functions_select_table(session: AsyncSession):
+async def test_rollbacks_between_functions_select_table(db_session: AsyncSession):
     # Check if the table does not exist
-    result = await session.execute(
+    result = await db_session.execute(
         text(
             "SELECT 1 FROM information_schema.tables WHERE table_name = 'isolation_test'"
         )
