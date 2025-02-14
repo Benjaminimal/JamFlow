@@ -16,7 +16,7 @@ async def test_database_name_ends_with_test(session: AsyncSession):
     )
 
 
-@pytest.mark.dependency(depends=["test_database_name_ends_with_test"])
+@pytest.mark.order(after=["test_database_name_ends_with_test"])
 @pytest.mark.asyncio
 async def test_rollbacks_between_functions_create_table(session: AsyncSession):
     # Create the table
@@ -34,7 +34,7 @@ async def test_rollbacks_between_functions_create_table(session: AsyncSession):
     assert table_exists, "Table 'isolation_test' was not created"
 
 
-@pytest.mark.dependency(depens=["test_table_creation"])
+@pytest.mark.order(after=["test_table_creation"])
 @pytest.mark.asyncio
 async def test_rollbacks_between_functions_select_table(session: AsyncSession):
     # Check if the table does not exist
