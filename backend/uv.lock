@@ -288,6 +288,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "pydantic-settings" },
     { name = "sqlmodel" },
+    { name = "structlog" },
 ]
 
 [package.dev-dependencies]
@@ -310,6 +311,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.7" },
     { name = "pydantic-settings", specifier = ">=2.7.1" },
     { name = "sqlmodel", specifier = ">=0.0.22" },
+    { name = "structlog", specifier = ">=25.1.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -712,6 +714,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/90/4f/e1c9f4ec3dae67a94c9285ed275355d5f7cf0f3a5c34538c8ae5412af550/starlette-0.45.2.tar.gz", hash = "sha256:bba1831d15ae5212b22feab2f218bab6ed3cd0fc2dc1d4442443bb1ee52260e0", size = 2574026 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/aa/ab/fe4f57c83620b39dfc9e7687ebad59129ff05170b99422105019d9a65eec/starlette-0.45.2-py3-none-any.whl", hash = "sha256:4daec3356fb0cb1e723a5235e5beaf375d2259af27532958e2d79df549dad9da", size = 71505 },
+]
+
+[[package]]
+name = "structlog"
+version = "25.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/25/fe/578db23e17392a8693b45a7b7dc6985370f51dd937157def8ecc7b20930d/structlog-25.1.0.tar.gz", hash = "sha256:2ef2a572e0e27f09664965d31a576afe64e46ac6084ef5cec3c2b8cd6e4e3ad3", size = 1364973 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/14/e9aed6c820fa166e8a19a19e663e98bd5538004d68a70c5752458ca3656e/structlog-25.1.0-py3-none-any.whl", hash = "sha256:843fe4f254540329f380812cbe612e1af5ec5b8172205ae634679cd35a6d6321", size = 68921 },
 ]
 
 [[package]]
