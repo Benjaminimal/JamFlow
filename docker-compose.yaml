@@ -3,10 +3,12 @@ services:
     image: postgres:17
     volumes:
       - db_data:/var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER?Variable not set}
+      - POSTGRES_PASSWORD=${DB_PASSWORD?Variable not set}
+      - POSTGRES_DB=${DB_NAME?Variable not set}
     expose:
       - 5432
     ports:
