@@ -17,6 +17,7 @@ class Settings(
     DB_NAME: str
     DB_USER: str
     DB_PASSWORD: str
+    DB_ROOT_NAME: str
 
     @computed_field
     @property
@@ -37,6 +38,7 @@ class Settings(
             scheme="postgresql+asyncpg",
             host=self.DB_HOST,
             port=self.DB_PORT,
+            path=self.DB_ROOT_NAME,
             username=self.DB_USER,
             password=self.DB_PASSWORD,
         )
