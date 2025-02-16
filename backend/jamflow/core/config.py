@@ -12,6 +12,8 @@ class Settings(
 
     DEBUG: bool = False
 
+    LOG_LEVEL: str = "INFO"
+
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
