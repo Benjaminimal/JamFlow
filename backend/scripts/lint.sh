@@ -3,5 +3,6 @@
 set -e
 set -x
 
+pyright
 ruff check jamflow tests
 ruff format --check jamflow tests
