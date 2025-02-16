@@ -32,10 +32,9 @@ test = [
 
 [tool.pyright]
 typeCheckingMode = "strict"
-include = ["jamflow"]
-exclude = ["**/__pycache__", "migrations"]
+include = ["jamflow", "tests"]
+exclude = ["**/__pycache__"]
 ignore = []
-executionEnvironments = [{ root = "tests", typeCheckingMode = "basic" }]
 
 [tool.ruff.lint]
 select = [
