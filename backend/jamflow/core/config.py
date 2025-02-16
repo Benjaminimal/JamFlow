@@ -1,12 +1,10 @@
-import os
-
 from pydantic import PostgresDsn, computed_field
 from pydantic_settings import BaseSettings
 
 
 class Settings(
     BaseSettings,
-    env_file=os.getenv("ENV_FILE", "../.env"),
+    env_file="../.env",
     env_ignore_empty=True,
     extra="ignore",
 ):

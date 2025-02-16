@@ -26,7 +26,6 @@ test = [
   "pytest>=8.3.4",
   "httpx>=0.28.1",
   "pytest-asyncio>=0.25.3",
-  "pytest-env>=1.1.5",
   "pytest-order>=1.3.0",
 ]
 
@@ -59,5 +58,3 @@ keep-runtime-typing = true
 [tool.pytest.ini_options]
 # https://pytest-asyncio.readthedocs.io/en/latest/reference/configuration.html
 asyncio_mode = "auto"
-# https://github.com/pytest-dev/pytest-env?tab=readme-ov-file#via-pytest-configurations
-env = ["ENV_FILE=./.env.test"]
