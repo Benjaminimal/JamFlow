@@ -27,11 +27,11 @@ def bind_log_context(**kwargs: Any) -> None:
     contextvars.bind_contextvars(**kwargs)
 
 
-def unbind_log_context(**kwargs: Any) -> None:
+def unbind_log_context(*keys: str) -> None:
     """
-    Remove key-value pairs from the current log context.
+    Remove keys from the current log context.
     """
-    contextvars.unbind_contextvars(**kwargs)
+    contextvars.unbind_contextvars(*keys)
 
 
 def configure_logging() -> None:
