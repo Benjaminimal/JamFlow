@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
@@ -19,7 +20,11 @@ async def request_bind_log_context_middleware(
     Log the request and bind related information to the log context.
     """
     clear_log_context()
-    bind_log_context(method=request.method, path=request.url.path)
+    bind_log_context(
+        request_id=str(uuid.uuid4()),
+        method=request.method,
+        path=request.url.path,
+    )
 
     response = await call_next(request)
 
