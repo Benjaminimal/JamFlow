@@ -3,3 +3,7 @@ class ServiceException(Exception):
 
     def __init__(self, message: str):
         super().__init__(message)
+
+
+class StorageException(ServiceException):
+    """Exception class for storage errors."""
