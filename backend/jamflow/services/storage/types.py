@@ -27,3 +27,14 @@ class StorageService(Protocol):
         :raises StorageException: if the file could not be stored.
         """
         ...
+
+    async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
+        """
+        Generate an URL for accessing a file that will expire after some time.
+
+        param path: The path to the file in storage.
+        :param expiration: Time in seconds for the presigned URL to remain valid.
+                           Defaults to 3600 seconds (1 hour).
+        :raises StorageException: if the URL could not be generated.
+        """
+        ...
