@@ -42,5 +42,9 @@ jobs:
             -e DB_PASSWORD=password \
             -e DB_NAME=jamflowdb \
             -e DB_ROOT_NAME=postgres \
+            -e DB_ROOT_NAME=postgres \
+            -e STORAGE_URL=http://localhost:9000/ \
+            -e STORAGE_ACCESS_KEY=replace-me \
+            -e STORAGE_SECRET_KEY=with-a-real-key \
             jamflow-backend \
             pytest
