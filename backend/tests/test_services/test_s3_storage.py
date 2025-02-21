@@ -2,8 +2,11 @@ import pytest
 from botocore.client import ClientError
 from botocore.exceptions import BotoCoreError
 from pytest_mock import MockerFixture
+from types_aiobotocore_s3.client import S3Client
 
-from jamflow.services.storage.s3 import S3StorageService, StorageException
+from jamflow.core.config import settings
+from jamflow.services.exceptions import StorageException
+from jamflow.services.storage.s3 import S3StorageService, get_storage_client
 
 
 @pytest.fixture
@@ -126,3 +129,51 @@ async def test_generate_expiring_url_failure(mock_s3_client):
         Params={"Bucket": "test-bucket", "Key": "test/path"},
         ExpiresIn=3600,
     )
+
+
+TEST_BUCKET_NAME = "test-storage-service-bucket"
+
+
+@pytest.fixture(scope="module")
+async def s3_client():
+    client = await get_storage_client()
+
+    yield client
+
+    await client.close()
+
+
+@pytest.fixture(scope="module")
+async def s3_storage(s3_client: S3Client):
+    async with S3StorageService(TEST_BUCKET_NAME) as storage:
+        yield storage
+
+    # Delete all files and remove bucket
+    objects = await s3_client.list_objects_v2(Bucket=TEST_BUCKET_NAME)
+    if "Contents" in objects:
+        for obj in objects["Contents"]:
+            await s3_client.delete_object(Bucket=TEST_BUCKET_NAME, Key=obj["Key"])
+    await s3_client.delete_bucket(Bucket=TEST_BUCKET_NAME)
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio(loop_scope="module")
+async def test_store_file(s3_storage: S3StorageService, s3_client: S3Client):
+    file_data = b"test content"
+    await s3_storage.store_file("some_dir/test-file.txt", file_data)
+
+    response = await s3_client.get_object(
+        Bucket=TEST_BUCKET_NAME, Key="some_dir/test-file.txt"
+    )
+    content = await response["Body"].read()
+
+    assert content == file_data
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio(loop_scope="module")
+async def test_generate_presigned_url(s3_storage: S3StorageService):
+    await s3_storage.store_file("test-file.txt", b"test content")
+    url = await s3_storage.generate_expiring_url("test-file.txt")
+    assert "test-file.txt" in url
+    assert str(settings.STORAGE_URL) in url
