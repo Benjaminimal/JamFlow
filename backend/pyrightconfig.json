@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/vscode-pyright/schemas/pyrightconfig.schema.json",
-  "include": ["."],
+  "include": ["jamflow"],
   "typeCheckingMode": "strict",
   "exclude": ["**/__pycache__", "tests", "migrations"],
   "ignore": []
