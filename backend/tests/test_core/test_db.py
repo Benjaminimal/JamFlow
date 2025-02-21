@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import text
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_rollbacks_between_functions_create_table(db_session: AsyncSession):
     # Create the table
@@ -23,6 +24,7 @@ async def test_rollbacks_between_functions_create_table(db_session: AsyncSession
 
 
 @pytest.mark.order(after=["test_table_creation"])
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_rollbacks_between_functions_select_table(db_session: AsyncSession):
     # Check if the table does not exist

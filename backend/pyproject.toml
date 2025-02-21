@@ -56,3 +56,5 @@ keep-runtime-typing = true
 [tool.pytest.ini_options]
 # https://pytest-asyncio.readthedocs.io/en/latest/reference/configuration.html
 asyncio_mode = "auto"
+# https://docs.pytest.org/en/stable/how-to/mark.html#registering-marks
+markers = ["unit", "integration"]

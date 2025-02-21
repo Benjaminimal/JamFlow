@@ -16,6 +16,7 @@ def mock_s3_client(mocker: MockerFixture):
     return mock_client
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_invlaid_credentials(mocker: MockerFixture):
     # raise an exception to simulate invalid credentials
@@ -30,6 +31,7 @@ async def test_invlaid_credentials(mocker: MockerFixture):
     mock_session.return_value.create_client.assert_called_once()
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_bucket_not_exists_auto_created(mock_s3_client):
     # raise an exception to simulate a non-existent bucket
@@ -43,6 +45,7 @@ async def test_bucket_not_exists_auto_created(mock_s3_client):
     mock_s3_client.create_bucket.assert_called_once_with(Bucket="test-bucket")
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_bucket_exists_not_auto_created(mock_s3_client):
     # not raise an exception to simulate an existing bucket
@@ -55,6 +58,7 @@ async def test_bucket_exists_not_auto_created(mock_s3_client):
     mock_s3_client.create_bucket.assert_not_called()
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_store_file_success(mock_s3_client):
     # not raise an exception to simulate a successful file storage
@@ -68,6 +72,7 @@ async def test_store_file_success(mock_s3_client):
     )
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_store_file_failure(mock_s3_client):
     # raise an error on put_object to simulate a failure when storing a file
@@ -84,6 +89,7 @@ async def test_store_file_failure(mock_s3_client):
     )
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_generate_expiring_url_success(mock_s3_client):
     # mock the return value of generate_presigned_url
@@ -103,6 +109,7 @@ async def test_generate_expiring_url_success(mock_s3_client):
     assert url == "http://example.com/presigned-url"
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 async def test_generate_expiring_url_failure(mock_s3_client):
     # raise an error on generate_presigned_url to simulate a failure
