@@ -25,9 +25,11 @@ services:
     command: server --console-address ":9090" /data
     volumes:
       - storage_data:/data
+    env_file:
+      - .env
     environment:
-      - MINIO_ROOT_USER=admin
-      - MINIO_ROOT_PASSWORD=password
+      - MINIO_ROOT_USER=${STORAGE_ACCESS_KEY?Variable not set}
+      - MINIO_ROOT_PASSWORD=${STORAGE_SECRET_KEY?Variable not set}
     ports:
       - "9000:9000"
       - "9090:9090"
@@ -37,6 +39,18 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - storage
 
 volumes:
   db_data: {}
