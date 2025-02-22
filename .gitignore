@@ -174,9 +174,6 @@ poetry.toml
 # ruff
 .ruff_cache/
 
-# LSP config files
-pyrightconfig.json
-
 ### Vim ###
 # Swap
 [._]*.s[a-v][a-z]

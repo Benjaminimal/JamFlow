@@ -25,6 +25,7 @@ async def request_bind_log_context_middleware(
         method=request.method,
         path=request.url.path,
     )
+    await log.ainfo("Request received")
 
     response = await call_next(request)
 

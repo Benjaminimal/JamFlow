@@ -12,35 +12,20 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: jamflowdb
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d jamflowdb"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up environment
+        run: mv .env.test .env
       - name: Build Docker image
-        run: docker build -t jamflow-backend ./backend
-      - name: Run tests
+        run: docker compose build backend
+      - name: Start services
         run: |
-          docker run \
-            --rm \
-            --network host \
-            -e DB_HOST=localhost \
-            -e DB_PORT=5432 \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=password \
-            -e DB_NAME=jamflowdb \
-            -e DB_ROOT_NAME=postgres \
-            jamflow-backend \
-            pytest
+          docker compose up --detach db storage
+          docker ps
+      - name: Run tests
+        run: docker compose run -e CI=1 backend scripts/test.sh
+      - name: Clean up
+        if: always()
+        run: docker compose down --volumes

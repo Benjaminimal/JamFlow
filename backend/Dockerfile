@@ -35,6 +35,7 @@ COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
 COPY ./migrations /app/migrations
 COPY ./tests /app/tests
 COPY ./jamflow /app/jamflow
+COPY ./scripts /app/scripts
 
 # Expose the port
 EXPOSE 8000

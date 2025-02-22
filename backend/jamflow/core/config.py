@@ -1,4 +1,4 @@
-from pydantic import PostgresDsn, computed_field
+from pydantic import HttpUrl, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings
 
 
@@ -13,6 +13,10 @@ class Settings(
     DEBUG: bool = False
 
     LOG_LEVEL: str = "INFO"
+
+    STORAGE_URL: HttpUrl
+    STORAGE_ACCESS_KEY: str
+    STORAGE_SECRET_KEY: str
 
     DB_HOST: str
     DB_PORT: int
