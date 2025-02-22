@@ -3,7 +3,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
-from jamflow.core.config import settings
+from jamflow.api import api_router
 from jamflow.core.log import bind_log_context, clear_log_context, get_logger
 
 app = FastAPI()
@@ -33,11 +33,4 @@ async def request_bind_log_context_middleware(
     return response
 
 
-@app.get("/")
-async def read_root():
-    return {"message": f"Hello World. Welcome to {settings.PROJECT_NAME}!"}
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+app.include_router(api_router, prefix="/api/v1")
