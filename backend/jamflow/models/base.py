@@ -6,7 +6,7 @@ from sqlmodel import Field, SQLModel  # pyright: ignore [reportUnknownVariableTy
 from jamflow.utils import timezone_now
 
 
-class UUIDModel(SQLModel):
+class BaseSQLModel(SQLModel):
     """Base class for models that have a UUID primary key and timestamps."""
 
     id: uuid.UUID = Field(primary_key=True, default_factory=uuid.uuid4)
