@@ -21,7 +21,6 @@ async def get_storage_client() -> S3Client:
             aws_access_key_id=settings.STORAGE_ACCESS_KEY,
             aws_secret_access_key=settings.STORAGE_SECRET_KEY,
         ) as client:
-            client: S3Client
             return client
     except BotoCoreError as exc:
         log.error("Failed to create s3 client", exc_info=True)

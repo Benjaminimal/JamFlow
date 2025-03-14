@@ -15,5 +15,5 @@ class BaseSQLModel(SQLModel):
         default_factory=timezone_now, sa_column_kwargs={"onupdate": timezone_now}
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__} id={self.id}>"

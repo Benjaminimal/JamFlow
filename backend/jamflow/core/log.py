@@ -10,7 +10,8 @@ from jamflow.core.config import settings
 
 def get_logger() -> stdlib.BoundLogger:
     """Get a fresh logger."""
-    return structlog.get_logger()
+    logger: stdlib.BoundLogger = structlog.get_logger()
+    return logger
 
 
 def clear_log_context() -> None:
