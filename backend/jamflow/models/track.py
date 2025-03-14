@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlmodel import Field  # pyright: ignore [reportUnknownVariableType]
+from sqlmodel import Field
 
 from .base import BaseSQLModel
 from .enums import FileFormat

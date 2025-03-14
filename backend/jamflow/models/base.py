@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlmodel import Field, SQLModel  # pyright: ignore [reportUnknownVariableType]
+from sqlmodel import Field, SQLModel
 
 from jamflow.utils import timezone_now
 

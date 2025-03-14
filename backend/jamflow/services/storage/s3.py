@@ -15,7 +15,7 @@ log = get_logger()
 async def get_storage_client() -> S3Client:
     session = get_session()
     try:
-        async with session.create_client(  # pyright: ignore [reportUnknownMemberType]
+        async with session.create_client(
             "s3",
             endpoint_url=str(settings.STORAGE_URL),
             aws_access_key_id=settings.STORAGE_ACCESS_KEY,

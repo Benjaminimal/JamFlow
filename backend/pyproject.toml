@@ -18,9 +18,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+  "mypy>=1.15.0",
   # Code quality
   "pre-commit>=4.1.0",
-  "pyright>=1.1.394",
   "ruff>=0.9.3",
   "types-aiobotocore[s3]>=2.19.0",
 ]
@@ -48,6 +48,11 @@ ignore = [
   "E501", # line too long, handled by formatter
   "B008", # do not perform function calls in argument defaults
 ]
+
+[tool.mypy]
+strict = true
+exclude = ["^migrations/", "^tests/", "^.*/__pycache__/", "^.venv/"]
+
 
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
