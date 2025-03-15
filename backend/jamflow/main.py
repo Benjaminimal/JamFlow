@@ -3,7 +3,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
-from jamflow.api import api_router
+from jamflow.api import router as api_router
 from jamflow.core.log import bind_log_context, clear_log_context, get_logger
 
 app = FastAPI()
@@ -33,4 +33,4 @@ async def request_bind_log_context_middleware(
     return response
 
 
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router)
