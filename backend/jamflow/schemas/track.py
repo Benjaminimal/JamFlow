@@ -1,13 +1,17 @@
 from datetime import date, datetime
+from typing import Annotated
 
 from fastapi import File, Form, UploadFile
-from pydantic import UUID4, BaseModel, field_validator
+from pydantic import UUID4, BaseModel, StringConstraints, field_validator
 
 from jamflow.models.enums import FileFormat
 
 
 class TrackCreateDto(BaseModel):
-    title: str = Form(..., max_length=255)
+    title: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, max_length=255),
+    ] = Form(...)
     recorded_date: date | None = Form(None)
     upload_file: UploadFile = File(...)
 

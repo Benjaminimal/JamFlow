@@ -24,9 +24,7 @@ async def track_create(
     *,
     track_create_dto: TrackCreateDto,
 ) -> TrackReadDto:
-    # TODO: ensure non empty string in the dto
-    # TODO: find out how to strip whitespace in the dto
-    if track_create_dto.title.strip() == "":
+    if track_create_dto.title == "":
         raise TitleEmpyException()
 
     file_size = track_create_dto.upload_file.size

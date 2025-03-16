@@ -75,7 +75,7 @@ async def test_track_create_empty_title(
     mock_track_storage,
     track_create_dto: TrackCreateDto,
 ):
-    track_create_dto.title = " \t\n"
+    track_create_dto.title = ""
 
     with pytest.raises(TitleEmpyException):
         await track_create(session=mock_session, track_create_dto=track_create_dto)
