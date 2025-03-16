@@ -72,7 +72,7 @@ async def test_track_create_success(
 @pytest.mark.asyncio
 async def test_track_create_empty_title(
     mock_session,
-    mock_track_storage,  # noqa: ARG001
+    mock_track_storage,
     track_create_dto: TrackCreateDto,
 ):
     track_create_dto.title = " \t\n"
@@ -85,7 +85,7 @@ async def test_track_create_empty_title(
 @pytest.mark.asyncio
 async def test_track_create_file_too_large(
     mock_session,
-    mock_track_storage,  # noqa: ARG001
+    mock_track_storage,
     track_create_dto: TrackCreateDto,
 ):
     track_create_dto.upload_file.size = MAX_FILE_SIZE + 1
@@ -101,7 +101,7 @@ async def test_track_create_file_too_large(
 @pytest.mark.asyncio
 async def test_track_create_invalid_format(
     mock_session,
-    mock_track_storage,  # noqa: ARG001
+    mock_track_storage,
     track_create_dto: TrackCreateDto,
 ):
     track_create_dto.upload_file.filename = "test.txt"
