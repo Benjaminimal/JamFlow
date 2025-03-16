@@ -5,9 +5,8 @@ import pytest
 from fastapi import UploadFile
 from pytest_mock import MockerFixture
 
-from jamflow.models import Track
 from jamflow.models.enums import FileFormat
-from jamflow.schemas.track import TrackCreateDto
+from jamflow.schemas.track import TrackCreateDto, TrackReadDto
 from jamflow.services.exceptions import ServiceException
 from jamflow.services.track import MAX_FILE_SIZE, track_create
 
@@ -53,12 +52,15 @@ def track_create_dto(dummy_mp3_upload_file):
 async def test_track_create_success(
     mock_session, mock_track_storage, track_create_dto: TrackCreateDto
 ):
-    track = await track_create(session=mock_session, track_create_dto=track_create_dto)
+    track_read_dto = await track_create(
+        session=mock_session, track_create_dto=track_create_dto
+    )
 
-    assert isinstance(track, Track)
-    assert track.title == track_create_dto.title
-    assert track.file_size == track_create_dto.upload_file.size
-    assert track.file_format == FileFormat.MP3
+    assert isinstance(track_read_dto, TrackReadDto)
+    assert track_read_dto.title == track_create_dto.title
+    assert track_read_dto.file_size == track_create_dto.upload_file.size
+    assert track_read_dto.file_format == FileFormat.MP3
+    mock_track_storage.store_file.assert_called_once()
     mock_track_storage.store_file.assert_called_once()
 
 

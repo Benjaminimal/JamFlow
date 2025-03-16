@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from jamflow.models import Track
 from jamflow.models.enums import FileFormat
-from jamflow.schemas.track import TrackCreateDto
+from jamflow.schemas.track import TrackCreateDto, TrackReadDto
 from jamflow.services.exceptions import ServiceException
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
@@ -17,7 +17,7 @@ async def track_create(
     session: AsyncSession,
     *,
     track_create_dto: TrackCreateDto,
-) -> Track:
+) -> TrackReadDto:
     # TODO: ensure non empty string in the dto
     # TODO: find out how to strip whitespace in the dto
     if track_create_dto.title.strip() == "":
@@ -66,7 +66,9 @@ async def track_create(
     await session.commit()
     await session.refresh(track)
 
-    return track
+    track_read_dto = TrackReadDto.model_validate(track)
+
+    return track_read_dto
 
 
 def _generate_file_path(extension: str) -> str:
