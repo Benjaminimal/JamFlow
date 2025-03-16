@@ -6,7 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jamflow.models import Track
 from jamflow.models.enums import FileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.exceptions import ServiceException
+from jamflow.services.exceptions.validation import (
+    FileEmpyException,
+    FileFormatException,
+    FileNameEmptyException,
+    FileTooLargeException,
+    TitleEmpyException,
+)
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
 
@@ -21,19 +27,17 @@ async def track_create(
     # TODO: ensure non empty string in the dto
     # TODO: find out how to strip whitespace in the dto
     if track_create_dto.title.strip() == "":
-        raise ServiceException("Title is empty")
+        raise TitleEmpyException()
 
     file_size = track_create_dto.upload_file.size
     if not file_size:
-        raise ServiceException("File is empty")
+        raise FileEmpyException()
 
     if file_size > MAX_FILE_SIZE:
-        raise ServiceException(
-            f"File size exceeds the maximum limit of {MAX_FILE_SIZE / (1024 * 1024)} MB"
-        )
+        raise FileTooLargeException(max_size=MAX_FILE_SIZE, current_size=file_size)
 
     if not track_create_dto.upload_file.filename:
-        raise ServiceException("File name is empty")
+        raise FileNameEmptyException()
 
     # TODO: look at the actual file to find the file format
     file_extension = Path(track_create_dto.upload_file.filename).suffix.replace(
@@ -41,8 +45,8 @@ async def track_create(
     )
     file_format = file_extension.upper()
     if file_format not in FileFormat:
-        raise ServiceException(
-            f"File format not in allowed formats: {', '.join(FileFormat)}"
+        raise FileFormatException(
+            file_format=file_format, allowed_formats=list(FileFormat)
         )
 
     file_path = _generate_file_path(file_extension)
