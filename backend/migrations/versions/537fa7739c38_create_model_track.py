@@ -1,8 +1,8 @@
 """create model track
 
-Revision ID: 9aea445a2f15
+Revision ID: 537fa7739c38
 Revises:
-Create Date: 2025-03-06 12:15:51.606038
+Create Date: 2025-03-17 20:32:57.726078
 
 """
 
@@ -13,7 +13,7 @@ import sqlmodel
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "9aea445a2f15"
+revision: str = "537fa7739c38"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -24,8 +24,8 @@ def upgrade() -> None:
     op.create_table(
         "track",
         sa.Column("id", sa.Uuid(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column(
             "title", sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False
         ),
