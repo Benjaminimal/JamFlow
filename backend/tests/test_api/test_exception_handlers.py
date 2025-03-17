@@ -38,11 +38,11 @@ def test_validation_exception_handler(client: TestClient):
 def test_resource_not_found_exception_handler(client: TestClient):
     @app.get("/not-found-error")
     async def not_found_error():
-        raise ResourceNotFoundException("Resource not found")
+        raise ResourceNotFoundException("Something")
 
     response = client.get("/not-found-error")
     assert response.status_code == 404
-    assert response.json() == {"detail": {"msg": "Resource not found"}}
+    assert response.json() == {"detail": {"msg": "Something not found"}}
 
 
 @pytest.mark.integration

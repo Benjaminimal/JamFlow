@@ -16,6 +16,11 @@ class ValidationException(ServiceException):
 class ResourceNotFoundException(ServiceException):
     """Raised when a referenced resource is not found."""
 
+    def __init__(self, ressource_name: str) -> None:
+        message = f"{ressource_name} not found"
+        super().__init__(message)
+        self.resource_name = ressource_name
+
 
 class ConflictException(ServiceException):
     """Raised when there is a conflict, such as duplicate entries."""
