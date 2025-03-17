@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jamflow.models import Track
 from jamflow.models.enums import FileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.exceptions.validation import (
+from jamflow.services.exceptions import (
     FileEmpyException,
     FileFormatException,
     FileNameEmptyException,
