@@ -34,7 +34,7 @@ def mock_track_storage(mocker: MockerFixture):
 
 
 @pytest.fixture
-def dummy_mp3_upload_file():
+def dummy_mp3_upload_file() -> UploadFile:
     dummy_file = BytesIO(b"dummy content")
     size = len(dummy_file.getvalue())
     upload_file = UploadFile(filename="test.mp3", size=size, file=dummy_file)
@@ -42,7 +42,7 @@ def dummy_mp3_upload_file():
 
 
 @pytest.fixture
-def track_create_dto(dummy_mp3_upload_file):
+def track_create_dto(dummy_mp3_upload_file: UploadFile):
     dto = TrackCreateDto(
         title="Test Track",
         recorded_date=date.today(),
@@ -52,7 +52,6 @@ def track_create_dto(dummy_mp3_upload_file):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_track_create_success(
     mock_session, mock_track_storage, track_create_dto: TrackCreateDto
 ):
@@ -69,7 +68,6 @@ async def test_track_create_success(
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_track_create_empty_title(
     mock_session,
     mock_track_storage,
@@ -82,7 +80,6 @@ async def test_track_create_empty_title(
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_track_create_file_too_large(
     mock_session,
     mock_track_storage,
@@ -98,7 +95,6 @@ async def test_track_create_file_too_large(
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_track_create_invalid_format(
     mock_session,
     mock_track_storage,

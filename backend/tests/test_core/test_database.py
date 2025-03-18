@@ -4,7 +4,6 @@ from sqlmodel import text
 
 
 @pytest.mark.integration
-@pytest.mark.asyncio
 async def test_rollbacks_between_functions_ping(db_session: AsyncSession):
     # Check if the table does not exist
     result = await db_session.execute(
@@ -34,7 +33,6 @@ async def test_rollbacks_between_functions_ping(db_session: AsyncSession):
 
 
 @pytest.mark.integration
-@pytest.mark.asyncio
 async def test_rollbacks_between_functions_pong(db_session: AsyncSession):
     # Check if the table does not exist
     result = await db_session.execute(

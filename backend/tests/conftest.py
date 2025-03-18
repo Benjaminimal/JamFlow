@@ -50,7 +50,7 @@ async def db_engine():
     await root_engine.dispose()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def db_session(db_engine: AsyncEngine):
     """
     Create a new connection and transaction for each test.

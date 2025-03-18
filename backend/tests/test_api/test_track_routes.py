@@ -1,6 +1,6 @@
 import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 
 @pytest.fixture
@@ -17,8 +17,8 @@ def track_file():
 
 
 @pytest.mark.integration
-def test_create_track(client: TestClient, track_data, track_file):
-    response = client.post("/api/v1/tracks/", files=track_file, data=track_data)
+async def test_create_track(client: AsyncClient, track_data, track_file):
+    response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     data = response.json()
     assert "id" in data
@@ -32,38 +32,42 @@ def test_create_track(client: TestClient, track_data, track_file):
 
 
 @pytest.mark.integration
-def test_create_track_none_recorded_date(client: TestClient, track_data, track_file):
+async def test_create_track_none_recorded_date(
+    client: AsyncClient, track_data, track_file
+):
     track_data["recorded_date"] = None
-    response = client.post("/api/v1/tracks/", files=track_file, data=track_data)
+    response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     data = response.json()
     assert data["recorded_date"] is None
 
 
 @pytest.mark.integration
-def test_create_track_missing_recorded_date(client: TestClient, track_data, track_file):
+async def test_create_track_missing_recorded_date(
+    client: AsyncClient, track_data, track_file
+):
     del track_data["recorded_date"]
-    response = client.post("/api/v1/tracks/", files=track_file, data=track_data)
+    response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     data = response.json()
     assert data["recorded_date"] is None
 
 
 @pytest.mark.integration
-def test_create_track_blank_title(client: TestClient, track_data, track_file):
+async def test_create_track_blank_title(client: AsyncClient, track_data, track_file):
     track_data["title"] = "\n \t"
-    response = client.post("/api/v1/tracks/", files=track_file, data=track_data)
+    response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.integration
-def test_create_track_missing_file(client: TestClient, track_data, track_file):
-    response = client.post("/api/v1/tracks/", data=track_data)
+async def test_create_track_missing_file(client: AsyncClient, track_data, track_file):
+    response = await client.post("/api/v1/tracks/", data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.integration
-def test_create_track_empty_file(client: TestClient, track_data, track_file):
+async def test_create_track_empty_file(client: AsyncClient, track_data, track_file):
     track_file["upload_file"] = ("empty.mp3", b"", "audio/mpeg")
-    response = client.post("/api/v1/tracks/", files=track_file, data=track_data)
+    response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY

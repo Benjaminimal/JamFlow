@@ -20,7 +20,6 @@ def mock_s3_client(mocker: MockerFixture):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_invlaid_credentials(mocker: MockerFixture):
     # raise an exception to simulate invalid credentials
     mock_session = mocker.patch("jamflow.services.storage.s3.get_session")
@@ -35,7 +34,6 @@ async def test_invlaid_credentials(mocker: MockerFixture):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_bucket_not_exists_auto_created(mock_s3_client):
     # raise an exception to simulate a non-existent bucket
     mock_s3_client.head_bucket.side_effect = ClientError({"Error": {"Code": "404"}}, "")
@@ -49,7 +47,6 @@ async def test_bucket_not_exists_auto_created(mock_s3_client):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_bucket_exists_not_auto_created(mock_s3_client):
     # not raise an exception to simulate an existing bucket
 
@@ -62,7 +59,6 @@ async def test_bucket_exists_not_auto_created(mock_s3_client):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_store_file_success(mock_s3_client):
     # not raise an exception to simulate a successful file storage
 
@@ -76,7 +72,6 @@ async def test_store_file_success(mock_s3_client):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_store_file_failure(mock_s3_client):
     # raise an error on put_object to simulate a failure when storing a file
     mock_s3_client.put_object.side_effect = BotoCoreError()
@@ -93,7 +88,6 @@ async def test_store_file_failure(mock_s3_client):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_generate_expiring_url_success(mock_s3_client):
     # mock the return value of generate_presigned_url
     mock_s3_client.generate_presigned_url.return_value = (
@@ -113,7 +107,6 @@ async def test_generate_expiring_url_success(mock_s3_client):
 
 
 @pytest.mark.unit
-@pytest.mark.asyncio
 async def test_generate_expiring_url_failure(mock_s3_client):
     # raise an error on generate_presigned_url to simulate a failure
     mock_s3_client.generate_presigned_url.side_effect = BotoCoreError()
