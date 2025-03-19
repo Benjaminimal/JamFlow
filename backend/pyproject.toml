@@ -67,3 +67,5 @@ keep-runtime-typing = true
 asyncio_mode = "auto"
 # https://docs.pytest.org/en/stable/how-to/mark.html#registering-marks
 markers = ["unit", "integration"]
+# https://docs.pytest.org/en/stable/how-to/capture-warnings.html#controlling-warnings
+filterwarnings = ["ignore::DeprecationWarning:botocore.auth"]

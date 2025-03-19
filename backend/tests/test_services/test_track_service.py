@@ -18,6 +18,7 @@ from jamflow.services.track import MAX_FILE_SIZE, track_create
 @pytest.fixture
 def mock_session(mocker: MockerFixture):
     session = mocker.AsyncMock()
+    session.add = mocker.Mock()  # Explicitly mock `add` as a synchronous method
     return session
 
 
