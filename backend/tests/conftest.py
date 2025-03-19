@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
@@ -11,7 +12,7 @@ TEST_DB_URI = TEST_DB_NAME.join(
 )
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def db_engine():
     """
     Set up and tear down a fresh test database including tables for the entire test session.
