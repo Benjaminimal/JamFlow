@@ -38,7 +38,9 @@ class S3StorageService:
             await self._client.put_object(Bucket=self._bucket_name, Key=path, Body=file)
         except (BotoCoreError, ClientError) as exc:
             log.error("Failed to store file", exc_info=True, path=path)
-            raise StorageException(f"Failed to store file {path}") from exc
+            raise StorageException(
+                f"Failed to store file {path} in {self._bucket_name}"
+            ) from exc
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         try:
@@ -51,7 +53,7 @@ class S3StorageService:
         except (BotoCoreError, ClientError) as exc:
             log.error("Failed to generate presigned URL", exc_info=True, path=path)
             raise StorageException(
-                f"Failed to generate presigned URL for {path}"
+                f"Failed to generate presigned URL for {path} in {self._bucket_name}"
             ) from exc
         pass
 
