@@ -17,6 +17,7 @@ class Settings(
     STORAGE_URL: HttpUrl
     STORAGE_ACCESS_KEY: str
     STORAGE_SECRET_KEY: str
+    STORAGE_NAME_TRACK: str
 
     DB_HOST: str
     DB_PORT: int
