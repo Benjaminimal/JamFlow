@@ -1,5 +1,4 @@
 import pytest
-import pytest_asyncio
 from botocore.client import ClientError
 from botocore.exceptions import BotoCoreError
 from pytest_mock import MockerFixture
@@ -128,16 +127,17 @@ async def test_generate_expiring_url_failure(mock_s3_client):
 TEST_BUCKET_NAME = "test-storage-service-bucket"
 
 
-@pytest_asyncio.fixture(scope="module", loop_scope="module")
+@pytest.fixture
 async def s3_client():
     client = await get_storage_client()
 
-    yield client
+    try:
+        yield client
+    finally:
+        await client.close()
 
-    await client.close()
 
-
-@pytest_asyncio.fixture(scope="module", loop_scope="module")
+@pytest.fixture
 async def s3_storage(s3_client: S3Client):
     async with S3StorageService(TEST_BUCKET_NAME) as storage:
         yield storage
@@ -151,7 +151,6 @@ async def s3_storage(s3_client: S3Client):
 
 
 @pytest.mark.integration
-@pytest.mark.asyncio(loop_scope="module")
 async def test_store_file(s3_storage: S3StorageService, s3_client: S3Client):
     file_data = b"test content"
     await s3_storage.store_file("some_dir/test-file.txt", file_data)
@@ -165,7 +164,6 @@ async def test_store_file(s3_storage: S3StorageService, s3_client: S3Client):
 
 
 @pytest.mark.integration
-@pytest.mark.asyncio(loop_scope="module")
 async def test_generate_presigned_url(s3_storage: S3StorageService):
     await s3_storage.store_file("test-file.txt", b"test content")
     url = await s3_storage.generate_expiring_url("test-file.txt")
