@@ -42,6 +42,21 @@ class S3StorageService:
                 f"Failed to store file {path} in {self._bucket_name}"
             ) from exc
 
+    async def purge(self) -> None:
+        try:
+            response = await self._client.list_objects_v2(Bucket=self._bucket_name)
+            if "Contents" in response:
+                objects = [{"Key": obj["Key"]} for obj in response["Contents"]]
+                await self._client.delete_objects(
+                    Bucket=self._bucket_name,
+                    Delete={"Objects": objects},  # type: ignore [typeddict-item]
+                )
+        except (BotoCoreError, ClientError) as exc:
+            log.error("Failed to purge bucket", exc_info=True)
+            raise StorageException(
+                f"Failed to purge bucket {self._bucket_name}"
+            ) from exc
+
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         try:
             url = await self._client.generate_presigned_url(

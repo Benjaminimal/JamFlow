@@ -124,6 +124,37 @@ async def test_generate_expiring_url_failure(mock_s3_client):
     )
 
 
+@pytest.mark.unit
+async def test_purge_bucket_success(mock_s3_client):
+    # simulate files in the bucket
+    mock_s3_client.list_objects_v2.return_value = {
+        "Contents": [{"Key": "file1.txt"}, {"Key": "file2.txt"}]
+    }
+
+    async with S3StorageService("test-bucket") as service:
+        await service.purge()
+
+    # verify that list_objects_v2 and delete_objects were called
+    mock_s3_client.list_objects_v2.assert_called_once_with(Bucket="test-bucket")
+    mock_s3_client.delete_objects.assert_called_once_with(
+        Bucket="test-bucket",
+        Delete={"Objects": [{"Key": "file1.txt"}, {"Key": "file2.txt"}]},
+    )
+
+
+@pytest.mark.unit
+async def test_purge_bucket_empty(mock_s3_client):
+    # simulate an empty bucket
+    mock_s3_client.list_objects_v2.return_value = {}
+
+    async with S3StorageService("test-bucket") as service:
+        await service.purge()
+
+    # verify that list_objects_v2 was called but delete_objects was not
+    mock_s3_client.list_objects_v2.assert_called_once_with(Bucket="test-bucket")
+    mock_s3_client.delete_objects.assert_not_called()
+
+
 TEST_BUCKET_NAME = "test-storage-service-bucket"
 
 
@@ -145,8 +176,10 @@ async def s3_storage(s3_client: S3Client):
     # Delete all files and remove bucket
     objects = await s3_client.list_objects_v2(Bucket=TEST_BUCKET_NAME)
     if "Contents" in objects:
-        for obj in objects["Contents"]:
-            await s3_client.delete_object(Bucket=TEST_BUCKET_NAME, Key=obj["Key"])
+        await s3_client.delete_objects(
+            Bucket=TEST_BUCKET_NAME,
+            Delete={"Objects": [{"Key": obj["Key"]} for obj in objects["Contents"]]},
+        )
     await s3_client.delete_bucket(Bucket=TEST_BUCKET_NAME)
 
 
@@ -161,6 +194,25 @@ async def test_store_file(s3_storage: S3StorageService, s3_client: S3Client):
     content = await response["Body"].read()
 
     assert content == file_data
+
+
+@pytest.mark.integration
+async def test_purge_bucket(s3_storage: S3StorageService, s3_client: S3Client):
+    # Store multiple files in the bucket
+    await s3_storage.store_file("file1.txt", b"content1")
+    await s3_storage.store_file("file2.txt", b"content2")
+
+    # Verify files exist
+    response = await s3_client.list_objects_v2(Bucket=TEST_BUCKET_NAME)
+    assert "Contents" in response
+    assert len(response["Contents"]) == 2
+
+    # Purge the bucket
+    await s3_storage.purge()
+
+    # Verify the bucket is empty
+    response = await s3_client.list_objects_v2(Bucket=TEST_BUCKET_NAME)
+    assert "Contents" not in response
 
 
 @pytest.mark.integration

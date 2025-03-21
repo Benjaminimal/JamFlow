@@ -28,6 +28,14 @@ class StorageService(Protocol):
         """
         ...
 
+    async def purge(self) -> None:
+        """
+        Delete all files from storage.
+
+        :raises StorageException: if the storage could not be purged.
+        """
+        ...
+
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         """
         Generate an URL for accessing a file that will expire after some time.

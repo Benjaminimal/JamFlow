@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-pytestmark = pytest.mark.usefixtures("storage_name_override")
+pytestmark = pytest.mark.usefixtures("track_storage")
 
 
 @pytest.fixture
