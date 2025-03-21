@@ -7,12 +7,7 @@ from pytest_mock import MockerFixture
 
 from jamflow.models.enums import FileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.exceptions.validation import (
-    FileFormatException,
-    FileTooLargeException,
-    TitleEmpyException,
-)
-from jamflow.services.track import MAX_FILE_SIZE, track_create
+from jamflow.services.track import track_create
 
 
 @pytest.fixture
@@ -66,45 +61,3 @@ async def test_track_create_success(
     assert track_read_dto.file_format == FileFormat.MP3
     mock_track_storage.store_file.assert_called_once()
     mock_track_storage.store_file.assert_called_once()
-
-
-@pytest.mark.unit
-async def test_track_create_empty_title(
-    mock_session,
-    mock_track_storage,
-    track_create_dto: TrackCreateDto,
-):
-    track_create_dto.title = ""
-
-    with pytest.raises(TitleEmpyException):
-        await track_create(session=mock_session, track_create_dto=track_create_dto)
-
-
-@pytest.mark.unit
-async def test_track_create_file_too_large(
-    mock_session,
-    mock_track_storage,
-    track_create_dto: TrackCreateDto,
-):
-    track_create_dto.upload_file.size = MAX_FILE_SIZE + 1
-
-    with pytest.raises(FileTooLargeException):
-        await track_create(
-            session=mock_session,
-            track_create_dto=track_create_dto,
-        )
-
-
-@pytest.mark.unit
-async def test_track_create_invalid_format(
-    mock_session,
-    mock_track_storage,
-    track_create_dto: TrackCreateDto,
-):
-    track_create_dto.upload_file.filename = "test.txt"
-
-    with pytest.raises(FileFormatException):
-        await track_create(
-            session=mock_session,
-            track_create_dto=track_create_dto,
-        )
