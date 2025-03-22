@@ -9,8 +9,9 @@ from jamflow.services.exceptions.base import (
     ValidationException,
 )
 
+pytestmark = pytest.mark.integration
 
-@pytest.mark.integration
+
 async def test_application_exception_handler(simple_client: AsyncClient):
     @app.get("/application-error")
     async def application_error():
@@ -21,7 +22,6 @@ async def test_application_exception_handler(simple_client: AsyncClient):
     assert response.json() == {"detail": {"msg": "Application error occurred"}}
 
 
-@pytest.mark.integration
 async def test_validation_exception_handler(simple_client: AsyncClient):
     @app.get("/validation-error")
     async def validation_error():
@@ -34,7 +34,6 @@ async def test_validation_exception_handler(simple_client: AsyncClient):
     }
 
 
-@pytest.mark.integration
 async def test_resource_not_found_exception_handler(simple_client: AsyncClient):
     @app.get("/not-found-error")
     async def not_found_error():
@@ -45,7 +44,6 @@ async def test_resource_not_found_exception_handler(simple_client: AsyncClient):
     assert response.json() == {"detail": {"msg": "Something not found"}}
 
 
-@pytest.mark.integration
 async def test_conflict_exception_handler(simple_client: AsyncClient):
     @app.get("/conflict-error")
     async def conflict_error():

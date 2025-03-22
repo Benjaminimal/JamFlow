@@ -6,6 +6,8 @@ from pydantic import ValidationError
 
 from jamflow.schemas.track import TrackCreateDto
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def mp3_upload_file():
@@ -16,7 +18,6 @@ def mp3_upload_file():
     )
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize("recorded_date", ["", None, date.today()])
 def test_track_create_dto_success(recorded_date, mp3_upload_file: UploadFile):
     dto = TrackCreateDto(
@@ -30,7 +31,6 @@ def test_track_create_dto_success(recorded_date, mp3_upload_file: UploadFile):
     assert dto.upload_file == mp3_upload_file
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     "title,expected_message",
     [
@@ -55,7 +55,6 @@ def test_track_create_dto_title_error(
         )
 
 
-@pytest.mark.unit
 @pytest.mark.parametrize(
     "upload_file,expected_message",
     [

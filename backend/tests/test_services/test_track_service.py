@@ -9,6 +9,8 @@ from jamflow.models.enums import FileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
 from jamflow.services.track import track_create
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def mock_session(mocker: MockerFixture):
@@ -47,7 +49,6 @@ def track_create_dto(dummy_mp3_upload_file: UploadFile):
     return dto
 
 
-@pytest.mark.unit
 async def test_track_create_success(
     mock_session, mock_track_storage, track_create_dto: TrackCreateDto
 ):

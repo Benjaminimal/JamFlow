@@ -2,8 +2,9 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import text
 
+pytestmark = pytest.mark.integration
 
-@pytest.mark.integration
+
 async def test_rollbacks_between_functions_ping(db_session: AsyncSession):
     # Check if the table does not exist
     result = await db_session.execute(
@@ -32,7 +33,6 @@ async def test_rollbacks_between_functions_ping(db_session: AsyncSession):
     assert table_exists, "Table 'isolation_test' was not created"
 
 
-@pytest.mark.integration
 async def test_rollbacks_between_functions_pong(db_session: AsyncSession):
     # Check if the table does not exist
     result = await db_session.execute(

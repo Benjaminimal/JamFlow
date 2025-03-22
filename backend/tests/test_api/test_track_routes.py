@@ -2,7 +2,10 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-pytestmark = pytest.mark.usefixtures("track_storage")
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.usefixtures("track_storage"),
+]
 
 
 @pytest.fixture
@@ -18,7 +21,6 @@ def track_file():
     return {"upload_file": ("dummy.mp3", b"dummy content", "audio/mpeg")}
 
 
-@pytest.mark.integration
 async def test_create_track(client: AsyncClient, track_data, track_file):
     response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
@@ -33,7 +35,6 @@ async def test_create_track(client: AsyncClient, track_data, track_file):
     assert data["file_size"] == 13
 
 
-@pytest.mark.integration
 async def test_create_track_none_recorded_date(
     client: AsyncClient, track_data, track_file
 ):
@@ -44,7 +45,6 @@ async def test_create_track_none_recorded_date(
     assert data["recorded_date"] is None
 
 
-@pytest.mark.integration
 async def test_create_track_missing_recorded_date(
     client: AsyncClient, track_data, track_file
 ):
@@ -55,20 +55,17 @@ async def test_create_track_missing_recorded_date(
     assert data["recorded_date"] is None
 
 
-@pytest.mark.integration
 async def test_create_track_blank_title(client: AsyncClient, track_data, track_file):
     track_data["title"] = "\n \t"
     response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-@pytest.mark.integration
 async def test_create_track_missing_file(client: AsyncClient, track_data, track_file):
     response = await client.post("/api/v1/tracks/", data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-@pytest.mark.integration
 async def test_create_track_empty_file(client: AsyncClient, track_data, track_file):
     track_file["upload_file"] = ("empty.mp3", b"", "audio/mpeg")
     response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
