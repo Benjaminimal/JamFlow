@@ -88,7 +88,7 @@ def test_track_create_dto_title_error(
                 size=12,
                 file=b"dummy content",
             ),
-            "File format 'TXT' not supported. Supported formats: MP3, WAV, FLAC, OGG, AAC",
+            "File format 'TXT' not supported. Supported formats: MP3, WAV, OGG",
         ),
     ],
 )
