@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import UploadFile
 
-from jamflow.models.enums import FileFormat
+from jamflow.models.enums import AudioFileFormat
 
 
 def empty_string_to_none(value: str | None) -> str | None:
@@ -26,9 +26,9 @@ def validate_audo_file_format(upload_file: UploadFile) -> UploadFile:
     # TODO: look at the actual file to find the file format
     file_extension = Path(upload_file.filename).suffix.replace(".", "", count=1)
     file_format = file_extension.upper()
-    if file_format not in FileFormat:
+    if file_format not in AudioFileFormat:
         raise ValueError(
-            f"File format '{file_format}' not supported. Supported formats: {', '.join(FileFormat)}"
+            f"File format '{file_format}' not supported. Supported formats: {', '.join(AudioFileFormat)}"
         )
 
     return upload_file

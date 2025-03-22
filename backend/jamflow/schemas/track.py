@@ -10,7 +10,7 @@ from pydantic import (
     StringConstraints,
 )
 
-from jamflow.models.enums import FileFormat
+from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.validators import (
     empty_string_to_none,
     get_file_size_validator,
@@ -43,5 +43,5 @@ class TrackReadDto(BaseModel, from_attributes=True):
     title: str
     duration: int
     recorded_date: date | None
-    file_format: FileFormat
+    file_format: AudioFileFormat
     file_size: int
