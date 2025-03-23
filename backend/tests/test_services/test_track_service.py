@@ -40,11 +40,11 @@ def dummy_mp3_upload_file() -> UploadFile:
 
 
 @pytest.fixture
-def track_create_dto(dummy_mp3_upload_file: UploadFile):
+def track_create_dto(mp3_upload_file: UploadFile):
     dto = TrackCreateDto(
         title="Test Track",
         recorded_date=date.today(),
-        upload_file=dummy_mp3_upload_file,
+        upload_file=mp3_upload_file,
     )
     return dto
 

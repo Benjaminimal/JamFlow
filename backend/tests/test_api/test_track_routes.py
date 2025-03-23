@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from fastapi import status
 from httpx import AsyncClient
@@ -17,8 +19,8 @@ def track_data():
 
 
 @pytest.fixture
-def track_file():
-    return {"upload_file": ("dummy.mp3", b"dummy content", "audio/mpeg")}
+def track_file(mp3_file: Path):
+    return {"upload_file": ("dummy.mp3", mp3_file.read_bytes(), "audio/mpeg")}
 
 
 async def test_create_track(client: AsyncClient, track_data, track_file):
@@ -32,7 +34,7 @@ async def test_create_track(client: AsyncClient, track_data, track_file):
     assert data["duration"] == 123
     assert data["recorded_date"] == "2021-02-03"
     assert data["file_format"] == "MP3"
-    assert data["file_size"] == 13
+    assert data["file_size"] == 2552
 
 
 async def test_create_track_none_recorded_date(

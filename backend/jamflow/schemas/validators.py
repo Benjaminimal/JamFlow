@@ -1,9 +1,10 @@
 from collections.abc import Callable
-from pathlib import Path
 
 from fastapi import UploadFile
 
 from jamflow.models.enums import AudioFileFormat
+from jamflow.services.audio import get_audio_file_format
+from jamflow.services.exceptions.base import ServiceException
 
 
 def empty_string_to_none(value: str | None) -> str | None:
@@ -18,19 +19,14 @@ def empty_string_to_none(value: str | None) -> str | None:
 
 def validate_audo_file_format(upload_file: UploadFile) -> UploadFile:
     """
-    Validates that a file is an audio file.
+    Validates that a file is an audio file of an accepted format.
     """
-    if not upload_file.filename:
-        raise ValueError("File name is empty")
-
-    # TODO: look at the actual file to find the file format
-    file_extension = Path(upload_file.filename).suffix.replace(".", "", count=1)
-    file_format = file_extension.upper()
-    if file_format not in AudioFileFormat:
+    try:
+        get_audio_file_format(upload_file.file)
+    except ServiceException as exc:
         raise ValueError(
-            f"File format '{file_format}' not supported. Supported formats: {', '.join(AudioFileFormat)}"
-        )
-
+            f"Unsupported file format. Supported formats: {', '.join(AudioFileFormat)}"
+        ) from exc
     return upload_file
 
 

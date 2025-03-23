@@ -9,15 +9,6 @@ from jamflow.schemas.track import TrackCreateDto
 pytestmark = pytest.mark.unit
 
 
-@pytest.fixture
-def mp3_upload_file():
-    return UploadFile(
-        filename="test.mp3",
-        size=12,
-        file=b"dummy content",
-    )
-
-
 @pytest.mark.parametrize("recorded_date", ["", None, date.today()])
 def test_track_create_dto_success(recorded_date, mp3_upload_file: UploadFile):
     dto = TrackCreateDto(
@@ -55,46 +46,41 @@ def test_track_create_dto_title_error(
         )
 
 
+@pytest.fixture
+def empty_mp3_upload_file(mp3_upload_file: UploadFile) -> UploadFile:
+    return UploadFile(
+        filename=mp3_upload_file.filename, file=mp3_upload_file.file, size=0
+    )
+
+
+@pytest.fixture
+def huge_mp3_upload_file(mp3_upload_file: UploadFile) -> UploadFile:
+    return UploadFile(
+        filename=mp3_upload_file.filename, file=mp3_upload_file.file, size=209715201
+    )
+
+
 @pytest.mark.parametrize(
     "upload_file,expected_message",
     [
         (
-            UploadFile(
-                filename="test.mp3",
-                size=0,
-                file=b"",
-            ),
+            "empty_mp3_upload_file",
             "File is empty",
         ),
         (
-            UploadFile(
-                filename="test.mp3",
-                size=209715201,
-                file=b"dummy content",
-            ),
+            "huge_mp3_upload_file",
             "File is larger than 200 MB",
         ),
         (
-            UploadFile(
-                filename="",
-                size=12,
-                file=b"dummy content",
-            ),
-            "File name is empty",
-        ),
-        (
-            UploadFile(
-                filename="test.txt",
-                size=12,
-                file=b"dummy content",
-            ),
-            "File format 'TXT' not supported. Supported formats: MP3, WAV, OGG",
+            "txt_upload_file",
+            "Unsupported file format. Supported formats: MP3, WAV, OGG",
         ),
     ],
 )
 def test_track_create_dto_upload_file_error(
-    upload_file: UploadFile, expected_message: str
+    upload_file: str, expected_message: str, request: pytest.FixtureRequest
 ):
+    upload_file: UploadFile = request.getfixturevalue(upload_file)
     with pytest.raises(ValidationError, match=expected_message):
         TrackCreateDto(
             title="Test Track",
