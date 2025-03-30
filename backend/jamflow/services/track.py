@@ -10,7 +10,7 @@ from jamflow.services.audio import (
     get_audio_duration,
     get_audio_file_format,
 )
-from jamflow.services.exceptions import ValidationException
+from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
 
@@ -73,3 +73,11 @@ def _generate_path(extension: str) -> str:
     )
 
     return path
+
+
+async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
+    track = await session.get(Track, track_id)
+    if track is None:
+        raise ResourceNotFoundException("Track")
+    track_read_dto = TrackReadDto.model_validate(track)
+    return track_read_dto

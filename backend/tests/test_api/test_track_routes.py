@@ -1,8 +1,12 @@
+import uuid
 from pathlib import Path
 
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+
+from jamflow.schemas.track import TrackCreateDto
+from jamflow.services.track import track_create
 
 pytestmark = [
     pytest.mark.integration,
@@ -21,6 +25,44 @@ def track_data():
 @pytest.fixture
 def track_file(mp3_file: Path):
     return {"upload_file": ("dummy.mp3", mp3_file.read_bytes(), "audio/mpeg")}
+
+
+@pytest.fixture
+async def track_1(db_session, track_storage, mp3_upload_file):
+    track_create_dto = TrackCreateDto(
+        title="Test Track mp3",
+        recorded_date="2021-02-03",
+        upload_file=mp3_upload_file,
+    )
+    return await track_create(db_session, track_create_dto=track_create_dto)
+
+
+async def test_read_track_success(client: AsyncClient, track_1: TrackCreateDto):
+    response = await client.get(f"/api/v1/tracks/{track_1.id}")
+    assert response.status_code == status.HTTP_200_OK, response.content
+    data = response.json()
+    assert {
+        "id",
+        "created_at",
+        "updated_at",
+        "title",
+        "duration",
+        "recorded_date",
+        "format",
+        "size",
+    } == set(data.keys())
+    assert data["title"] == "Test Track mp3"
+    assert 2400 <= data["duration"] <= 2600
+    assert data["recorded_date"] == "2021-02-03"
+    assert data["format"] == "MP3"
+    assert data["size"] == 5269
+
+
+async def test_read_track_not_found_error(client: AsyncClient):
+    response = await client.get(f"/api/v1/tracks/{uuid.uuid4()}")
+    assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+    response_data = response.json()
+    assert response_data == {"detail": {"msg": "Track not found"}}
 
 
 async def test_create_track(client: AsyncClient, track_data, track_file):
