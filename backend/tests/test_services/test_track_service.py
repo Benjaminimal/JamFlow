@@ -3,10 +3,12 @@ from io import BytesIO
 
 import pytest
 from fastapi import UploadFile
-from pytest_mock import MockerFixture
+from pytest_mock import MockerFixture, MockFixture
 
 from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
+from jamflow.services.audio import AudioServiceException
+from jamflow.services.exceptions import ValidationException
 from jamflow.services.track import track_create
 
 pytestmark = pytest.mark.unit
@@ -66,3 +68,18 @@ async def test_track_create_success(
     assert track_read_dto.format == AudioFileFormat.MP3
     mock_track_storage.store_file.assert_called_once()
     mock_track_storage.store_file.assert_called_once()
+
+
+async def test_track_create_no_duration_error(
+    mocker: MockFixture,
+    mock_session,
+    mock_track_storage,
+    track_create_dto: TrackCreateDto,
+):
+    mocker.patch(
+        "jamflow.services.track.get_audio_duration",
+        side_effect=AudioServiceException("Test error"),
+    )
+
+    with pytest.raises(ValidationException, match="Failed to get audio duration"):
+        await track_create(session=mock_session, track_create_dto=track_create_dto)

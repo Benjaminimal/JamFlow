@@ -14,24 +14,26 @@ from jamflow.services.exceptions import ServiceException
 log = get_logger()
 
 
+class AudioServiceException(ServiceException):
+    pass
+
+
 def get_audio_file_format(
     file: str | bytes | bytearray | PurePath | BinaryIO,
 ) -> AudioFileFormat:
     """
     Guesses the file type of an audio file.
 
-    :raises ServiceException: If the file type cannot be guessed or is not supported.
+    :raises AudioServiceException: If the file type cannot be guessed or is not supported.
     """
     kind = filetype.guess(file)
     if kind is None:
         log.error("Failed to guess file type")
-        # TODO: use more specific exception
-        raise ServiceException("Cannot guess file type")
+        raise AudioServiceException("Cannot guess file type")
     extension = kind.extension.upper()
     if extension not in AudioFileFormat:
         log.error("Unsupported file type detected", file_type=extension)
-        # TODO: use more specific exception
-        raise ServiceException(f"Unsupported file type: {extension}")
+        raise AudioServiceException(f"Unsupported file type: {extension}")
     return AudioFileFormat(extension)
 
 
@@ -41,6 +43,8 @@ def get_audio_duration(
 ) -> int:
     """
     Gets the duration of an audio file in milliseconds.
+
+    :raises AudioServiceException: If the duration cannot be read.
     """
     metadata_class: type[MP3 | OggVorbis | WAVE]
     match file_format:
@@ -58,12 +62,10 @@ def get_audio_duration(
         metadata = metadata_class(file)
     except MutagenError as exc:
         log.error("Failed to read metadata", exc_info=True)
-        # TODO: use more specific exception
-        raise ServiceException("Failed to read metadata") from exc
+        raise AudioServiceException("Failed to read metadata") from exc
 
     if metadata is None or metadata.info is None:
         log.error("No metadata found")
-        # TODO: use more specific exception
-        raise ServiceException("No metadata found")
+        raise AudioServiceException("No metadata found")
 
     return int(metadata.info.length * 1000)

@@ -7,7 +7,8 @@ from structlog import get_logger
 from jamflow.models import Track
 from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.audio import get_audio_duration
+from jamflow.services.audio import AudioServiceException, get_audio_duration
+from jamflow.services.exceptions import ValidationException
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
 
@@ -30,10 +31,15 @@ async def track_create(
     await log.ainfo("File successfully stored", path=path)
 
     format = AudioFileFormat(file_extension.upper())
-    duration = get_audio_duration(
-        track_create_dto.upload_file.file,
-        AudioFileFormat(file_extension.upper()),
-    )
+    try:
+        duration = get_audio_duration(
+            track_create_dto.upload_file.file,
+            AudioFileFormat(file_extension.upper()),
+        )
+    except AudioServiceException as exc:
+        raise ValidationException(
+            "Failed to get audio duration", field="upload_file"
+        ) from exc
 
     track = Track.model_validate(
         track_create_dto,
