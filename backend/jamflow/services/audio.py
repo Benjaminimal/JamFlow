@@ -9,7 +9,7 @@ from mutagen.wave import WAVE
 
 from jamflow.core.log import get_logger
 from jamflow.models.enums import AudioFileFormat
-from jamflow.services.exceptions.base import ServiceException
+from jamflow.services.exceptions import ServiceException
 
 log = get_logger()
 

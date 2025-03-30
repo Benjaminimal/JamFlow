@@ -3,7 +3,7 @@ from httpx import AsyncClient
 
 from jamflow.core.exceptions import ApplicationException
 from jamflow.main import app
-from jamflow.services.exceptions.base import (
+from jamflow.services.exceptions import (
     ConflictException,
     ResourceNotFoundException,
     ValidationException,

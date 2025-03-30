@@ -4,7 +4,7 @@ from fastapi import UploadFile
 
 from jamflow.models.enums import AudioFileFormat
 from jamflow.services.audio import get_audio_file_format
-from jamflow.services.exceptions.base import ServiceException
+from jamflow.services.exceptions import ServiceException
 
 
 def empty_string_to_none(value: str | None) -> str | None:
