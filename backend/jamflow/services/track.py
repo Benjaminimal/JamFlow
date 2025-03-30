@@ -22,14 +22,14 @@ async def track_create(
     file_extension = Path(
         track_create_dto.upload_file.filename,  # type: ignore [arg-type]
     ).suffix.replace(".", "", count=1)
-    file_path = _generate_file_path(file_extension)
+    path = _generate_path(file_extension)
     async with get_track_storage_service() as track_storage:
         await track_storage.store_file(
-            path=file_path, file=track_create_dto.upload_file.file
+            path=path, file=track_create_dto.upload_file.file
         )
-    await log.ainfo("File successfully stored", path=file_path)
+    await log.ainfo("File successfully stored", path=path)
 
-    file_format = AudioFileFormat(file_extension.upper())
+    format = AudioFileFormat(file_extension.upper())
     duration = get_audio_duration(
         track_create_dto.upload_file.file,
         AudioFileFormat(file_extension.upper()),
@@ -39,9 +39,9 @@ async def track_create(
         track_create_dto,
         update={
             "duration": duration,
-            "file_format": file_format,
-            "file_size": track_create_dto.upload_file.size,
-            "file_path": file_path,
+            "format": format,
+            "size": track_create_dto.upload_file.size,
+            "path": path,
         },
     )
 
@@ -55,7 +55,7 @@ async def track_create(
     return track_read_dto
 
 
-def _generate_file_path(extension: str) -> str:
+def _generate_path(extension: str) -> str:
     now = timezone_now()
 
     timestamp = now.strftime("%Y%m%d%H%M%S")

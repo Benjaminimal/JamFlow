@@ -34,14 +34,14 @@ async def test_create_track(client: AsyncClient, track_data, track_file):
         "title",
         "duration",
         "recorded_date",
-        "file_format",
-        "file_size",
+        "format",
+        "size",
     } == set(data.keys())
     assert data["title"] == track_data["title"]
     assert 2400 <= data["duration"] <= 2600
     assert data["recorded_date"] == "2021-02-03"
-    assert data["file_format"] == "MP3"
-    assert data["file_size"] == 5269
+    assert data["format"] == "MP3"
+    assert data["size"] == 5269
 
 
 async def test_create_track_none_recorded_date(

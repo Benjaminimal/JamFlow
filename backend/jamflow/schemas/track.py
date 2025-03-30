@@ -41,7 +41,7 @@ class TrackReadDto(BaseModel, from_attributes=True):
     created_at: datetime
     updated_at: datetime
     title: str
-    duration: int
+    duration: int  # in milliseconds
+    format: AudioFileFormat
+    size: int  # in bytes
     recorded_date: date | None
-    file_format: AudioFileFormat
-    file_size: int
