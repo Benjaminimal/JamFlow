@@ -1,11 +1,12 @@
 import uuid
+from datetime import timedelta
 
-from sqlmodel import select
+from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
 from jamflow.models import Track
-from jamflow.schemas.track import TrackCreateDto, TrackReadDto
+from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import (
     AudioServiceException,
     get_audio_duration,
@@ -73,6 +74,27 @@ async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackRead
         raise ResourceNotFoundException("Track")
     track_read_dto = TrackReadDto.model_validate(track)
     return track_read_dto
+
+
+async def track_generate_signed_urls(
+    session: AsyncSession,
+    *,
+    track_ids: list[uuid.UUID],
+) -> list[TrackSignedUrlDto]:
+    statement = select(Track).where(col(Track.id).in_(track_ids))
+    result = await session.exec(statement)
+    tracks = result.all()
+    expires_at = timezone_now() + timedelta(hours=1)
+    async with get_track_storage_service() as track_storage:
+        track_url_data = [
+            {
+                "track_id": track.id,
+                "url": await track_storage.generate_expiring_url(track.path),
+                "expires_at": expires_at,
+            }
+            for track in tracks
+        ]
+    return [TrackSignedUrlDto.model_validate(t_url) for t_url in track_url_data]
 
 
 def _generate_path(extension: str) -> str:

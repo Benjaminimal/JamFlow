@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from io import BytesIO
 
 import pytest
@@ -8,10 +8,16 @@ from pytest_mock import MockerFixture, MockFixture
 
 from jamflow.models import Track
 from jamflow.models.enums import AudioFileFormat
-from jamflow.schemas.track import TrackCreateDto, TrackReadDto
+from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import AudioServiceException
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
-from jamflow.services.track import track_create, track_list, track_read
+from jamflow.services.track import (
+    track_create,
+    track_generate_signed_urls,
+    track_list,
+    track_read,
+)
+from jamflow.utils import timezone_now
 
 pytestmark = pytest.mark.unit
 
@@ -167,3 +173,31 @@ async def test_track_read_not_found(mocker: MockerFixture):
         await track_read(mock_session, track_id=uuid.uuid4())
 
     mock_session.get.assert_called_once()
+
+
+async def test_track_generate_signed_urls(
+    mocker: MockerFixture,
+    mock_session,
+    mock_track_storage,
+    track_1: Track,
+    track_2: Track,
+):
+    track_ids = [track_1.id, track_2.id]
+    mock_expiring_urls = ["http://example.com/track1", "http://example.com/track2"]
+    expires_at_min = timezone_now() + timedelta(hours=1)
+    expires_at_max = expires_at_min + timedelta(seconds=1)
+
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = [track_1, track_2]
+    mock_session.exec.return_value = mock_result
+    mock_track_storage.generate_expiring_url.side_effect = mock_expiring_urls
+
+    result = await track_generate_signed_urls(session=mock_session, track_ids=track_ids)
+
+    # Assertions
+    assert len(result) == 2
+    for i, dto in enumerate(result):
+        assert isinstance(dto, TrackSignedUrlDto)
+        assert dto.track_id == track_ids[i]
+        assert dto.url == mock_expiring_urls[i]
+        assert expires_at_min <= dto.expires_at <= expires_at_max + timedelta(seconds=1)

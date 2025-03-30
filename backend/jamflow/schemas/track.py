@@ -45,3 +45,12 @@ class TrackReadDto(BaseModel, from_attributes=True):
     format: AudioFileFormat
     size: int  # in bytes
     recorded_date: date | None
+
+
+class TrackSignedUrlDto(BaseModel):
+    track_id: UUID4
+    url: str
+    expires_at: datetime
+
+
+# class TrackSignedUrlQueryParams()
