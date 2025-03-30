@@ -1,6 +1,6 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import text
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 pytestmark = pytest.mark.integration
 
