@@ -64,8 +64,8 @@ exclude = ["^migrations/", "^tests/", "^.*/__pycache__/", "^.venv/"]
 [tool.ruff.lint.per-file-ignores]
 # Ignore unused arguments for pytest fixtures
 "tests/**.py" = ["ARG001"]
-# Ignore unused imports for migration generation
-"migrations/env.py" = ["F401"]
+# Ignore star import for migration generation
+"migrations/env.py" = ["F403"]
 
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
