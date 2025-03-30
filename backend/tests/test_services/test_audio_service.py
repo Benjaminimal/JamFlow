@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -60,3 +61,22 @@ def test_get_audio_duration_no_metadata(mocker: MockerFixture):
 
     with pytest.raises(AudioServiceException, match="No metadata found"):
         get_audio_duration("dummy.mp3", AudioFileFormat.MP3)
+
+
+# TODO: name
+@pytest.mark.parametrize(
+    "audio_file,file_format",
+    [
+        ("wav_file", AudioFileFormat.WAV),
+        ("ogg_file", AudioFileFormat.OGG),
+        ("mp3_file", AudioFileFormat.MP3),
+    ],
+)
+def test_get_audio_duration_success__(
+    audio_file: str,
+    file_format: AudioFileFormat,
+    request: pytest.FixtureRequest,
+):
+    audio_file: Path = request.getfixturevalue(audio_file)
+    duration = get_audio_duration(str(audio_file), file_format)
+    assert 2400 <= duration <= 2600

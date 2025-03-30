@@ -31,6 +31,7 @@ async def track_create(
         )
     await log.ainfo("File successfully stored", path=path)
 
+    track_create_dto.upload_file.file.seek(0)
     try:
         duration = get_audio_duration(track_create_dto.upload_file.file, format)
     except AudioServiceException as exc:
