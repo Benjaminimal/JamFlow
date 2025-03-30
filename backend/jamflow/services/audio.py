@@ -7,10 +7,11 @@ from mutagen.mp3 import MP3
 from mutagen.oggvorbis import OggVorbis
 from mutagen.wave import WAVE
 
+from jamflow.core.log import get_logger
 from jamflow.models.enums import AudioFileFormat
 from jamflow.services.exceptions.base import ServiceException
 
-# TODO: add logging for failures
+log = get_logger()
 
 
 def get_audio_file_format(
@@ -23,10 +24,12 @@ def get_audio_file_format(
     """
     kind = filetype.guess(file)
     if kind is None:
+        log.error("Failed to guess file type")
         # TODO: use more specific exception
         raise ServiceException("Cannot guess file type")
     extension = kind.extension.upper()
     if extension not in AudioFileFormat:
+        log.error("Unsupported file type detected", file_type=extension)
         # TODO: use more specific exception
         raise ServiceException(f"Unsupported file type: {extension}")
     return AudioFileFormat(extension)
@@ -48,15 +51,18 @@ def get_audio_duration(
         case AudioFileFormat.WAV:
             metadata_class = WAVE
         case other:
+            log.error("Unhandled file format", file_format=other)
             raise ServiceException(f"Unhandled file format: {other}")
 
     try:
         metadata = metadata_class(file)
     except MutagenError as exc:
+        log.error("Failed to read metadata", exc_info=True)
         # TODO: use more specific exception
         raise ServiceException("Failed to read metadata") from exc
 
     if metadata is None or metadata.info is None:
+        log.error("No metadata found")
         # TODO: use more specific exception
         raise ServiceException("No metadata found")
 
