@@ -7,7 +7,7 @@ from jamflow.services.track import track_create
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=TrackReadDto)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=TrackReadDto)
 async def track_create_view(
     session: SessionDep, data: TrackCreateDto = Form(...)
 ) -> TrackReadDto:
