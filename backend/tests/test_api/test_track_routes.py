@@ -68,14 +68,25 @@ async def test_create_track_blank_title(client: AsyncClient, track_data, track_f
     track_data["title"] = "\n \t"
     response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    response_data = response.json()
+    assert response_data["detail"][0]["loc"] == ["body", "title"]
+    assert (
+        response_data["detail"][0]["msg"] == "String should have at least 1 character"
+    )
 
 
 async def test_create_track_missing_file(client: AsyncClient, track_data, track_file):
     response = await client.post("/api/v1/tracks/", data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    response_data = response.json()
+    assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
+    assert response_data["detail"][0]["msg"] == "Field required"
 
 
 async def test_create_track_empty_file(client: AsyncClient, track_data, track_file):
     track_file["upload_file"] = ("empty.mp3", b"", "audio/mpeg")
     response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    response_data = response.json()
+    assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
+    assert response_data["detail"][0]["msg"] == "Value error, File is empty"
