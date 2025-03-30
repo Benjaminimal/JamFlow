@@ -51,6 +51,3 @@ class TrackSignedUrlDto(BaseModel):
     track_id: UUID4
     url: str
     expires_at: datetime
-
-
-# class TrackSignedUrlQueryParams()

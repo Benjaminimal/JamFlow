@@ -194,7 +194,6 @@ async def test_track_generate_signed_urls(
 
     result = await track_generate_signed_urls(session=mock_session, track_ids=track_ids)
 
-    # Assertions
     assert len(result) == 2
     for i, dto in enumerate(result):
         assert isinstance(dto, TrackSignedUrlDto)
