@@ -1,13 +1,15 @@
 import uuid
-from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from structlog import get_logger
 
 from jamflow.models import Track
-from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.audio import AudioServiceException, get_audio_duration
+from jamflow.services.audio import (
+    AudioServiceException,
+    get_audio_duration,
+    get_audio_file_format,
+)
 from jamflow.services.exceptions import ValidationException
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
@@ -20,22 +22,17 @@ async def track_create(
     *,
     track_create_dto: TrackCreateDto,
 ) -> TrackReadDto:
-    file_extension = Path(
-        track_create_dto.upload_file.filename,  # type: ignore [arg-type]
-    ).suffix.replace(".", "", count=1)
-    path = _generate_path(file_extension)
+    format = get_audio_file_format(track_create_dto.upload_file.file)
+
+    path = _generate_path(format.lower())
     async with get_track_storage_service() as track_storage:
         await track_storage.store_file(
             path=path, file=track_create_dto.upload_file.file
         )
     await log.ainfo("File successfully stored", path=path)
 
-    format = AudioFileFormat(file_extension.upper())
     try:
-        duration = get_audio_duration(
-            track_create_dto.upload_file.file,
-            AudioFileFormat(file_extension.upper()),
-        )
+        duration = get_audio_duration(track_create_dto.upload_file.file, format)
     except AudioServiceException as exc:
         raise ValidationException(
             "Failed to get audio duration", field="upload_file"

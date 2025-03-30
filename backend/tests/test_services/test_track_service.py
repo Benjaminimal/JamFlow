@@ -70,6 +70,23 @@ async def test_track_create_success(
     mock_track_storage.store_file.assert_called_once()
 
 
+async def test_track_create_wrong_extension_success(
+    mock_session, mock_track_storage, track_create_dto: TrackCreateDto
+):
+    # even with a wrong extension
+    track_create_dto.upload_file.filename = "test.foo"
+    track_read_dto = await track_create(
+        session=mock_session, track_create_dto=track_create_dto
+    )
+
+    # the service should still be able to determine correct file format
+    assert track_read_dto.format == AudioFileFormat.MP3
+    # and save it with the correct extension
+    mock_track_storage.store_file.assert_called_once()
+    path_kwarg = mock_track_storage.store_file.call_args[1]["path"]
+    assert path_kwarg.endswith(".mp3")
+
+
 async def test_track_create_no_duration_error(
     mocker: MockFixture,
     mock_session,
