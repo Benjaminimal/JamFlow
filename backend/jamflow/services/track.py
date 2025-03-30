@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jamflow.models import Track
 from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
+from jamflow.services.audio import get_audio_duration
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
 
@@ -25,11 +26,17 @@ async def track_create(
             path=file_path, file=track_create_dto.upload_file.file
         )
 
+    file_format = AudioFileFormat(file_extension.upper())
+    duration = get_audio_duration(
+        track_create_dto.upload_file.file,
+        AudioFileFormat(file_extension.upper()),
+    )
+
     track = Track.model_validate(
         track_create_dto,
         update={
-            "duration": 123,  # TODO: find out duration (use pydub, mutagen,...)
-            "file_format": AudioFileFormat(file_extension.upper()),
+            "duration": duration,
+            "file_format": file_format,
             "file_size": track_create_dto.upload_file.size,
             "file_path": file_path,
         },

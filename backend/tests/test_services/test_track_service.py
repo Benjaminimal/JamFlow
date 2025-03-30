@@ -57,7 +57,11 @@ async def test_track_create_success(
     )
 
     assert isinstance(track_read_dto, TrackReadDto)
+    assert track_read_dto.id is not None
+    assert track_read_dto.created_at is not None
+    assert track_read_dto.updated_at is not None
     assert track_read_dto.title == track_create_dto.title
+    assert 2400 <= track_read_dto.duration <= 2600
     assert track_read_dto.file_size == track_create_dto.upload_file.size
     assert track_read_dto.file_format == AudioFileFormat.MP3
     mock_track_storage.store_file.assert_called_once()

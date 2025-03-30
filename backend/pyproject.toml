@@ -16,7 +16,9 @@ dependencies = [
   "structlog>=25.1.0",
   # File storage
   "aiobotocore>=2.19.0",
+  # Audio processing
   "filetype>=1.2.0",
+  "mutagen>=1.47.0",
 ]
 
 [dependency-groups]

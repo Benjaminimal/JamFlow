@@ -2,9 +2,15 @@ from pathlib import PurePath
 from typing import BinaryIO
 
 import filetype  # type: ignore [import-untyped]
+from mutagen import MutagenError  # type: ignore [attr-defined]
+from mutagen.mp3 import MP3
+from mutagen.oggvorbis import OggVorbis
+from mutagen.wave import WAVE
 
 from jamflow.models.enums import AudioFileFormat
 from jamflow.services.exceptions.base import ServiceException
+
+# TODO: add logging for failures
 
 
 def get_audio_file_format(
@@ -24,3 +30,34 @@ def get_audio_file_format(
         # TODO: use more specific exception
         raise ServiceException(f"Unsupported file type: {extension}")
     return AudioFileFormat(extension)
+
+
+def get_audio_duration(
+    file: str | BinaryIO,
+    file_format: AudioFileFormat,
+) -> int:
+    """
+    Gets the duration of an audio file in milliseconds.
+    """
+    metadata_class: type[MP3 | OggVorbis | WAVE]
+    match file_format:
+        case AudioFileFormat.MP3:
+            metadata_class = MP3
+        case AudioFileFormat.OGG:
+            metadata_class = OggVorbis
+        case AudioFileFormat.WAV:
+            metadata_class = WAVE
+        case other:
+            raise ServiceException(f"Unhandled file format: {other}")
+
+    try:
+        metadata = metadata_class(file)
+    except MutagenError as exc:
+        # TODO: use more specific exception
+        raise ServiceException("Failed to read metadata") from exc
+
+    if metadata is None or metadata.info is None:
+        # TODO: use more specific exception
+        raise ServiceException("No metadata found")
+
+    return int(metadata.info.length * 1000)

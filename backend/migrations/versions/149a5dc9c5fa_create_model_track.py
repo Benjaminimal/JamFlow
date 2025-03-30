@@ -1,8 +1,8 @@
 """create model track
 
-Revision ID: 537fa7739c38
+Revision ID: 149a5dc9c5fa
 Revises:
-Create Date: 2025-03-17 20:32:57.726078
+Create Date: 2025-03-30 15:27:17.954153
 
 """
 
@@ -13,7 +13,7 @@ import sqlmodel
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "537fa7739c38"
+revision: str = "149a5dc9c5fa"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -33,7 +33,7 @@ def upgrade() -> None:
         sa.Column("recorded_date", sa.Date(), nullable=True),
         sa.Column(
             "file_format",
-            sa.Enum("MP3", "WAV", "FLAC", "OGG", "AAC", name="fileformat"),
+            sa.Enum("MP3", "WAV", "OGG", name="audiofileformat"),
             nullable=False,
         ),
         sa.Column("file_size", sa.Integer(), nullable=False),

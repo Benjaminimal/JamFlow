@@ -23,9 +23,9 @@ def temp_test_dir(tmp_path_factory: TempPathFactory) -> Path:
 
 @pytest.fixture(scope="module")
 def wav_file(temp_test_dir: Path) -> Path:
-    """Fixture to generate a 1-second WAV file."""
+    """Fixture to generate a 2.4-second WAV file."""
     file_path = temp_test_dir / "test.wav"
-    silent_audio = AudioSegment.silent(duration=1000)
+    silent_audio = AudioSegment.silent(duration=2400)
     silent_audio.export(file_path, format="wav")
     yield file_path
     if file_path.exists():
@@ -34,9 +34,9 @@ def wav_file(temp_test_dir: Path) -> Path:
 
 @pytest.fixture(scope="module")
 def mp3_file(temp_test_dir: Path) -> Path:
-    """Fixture to generate a 1-second MP3 file."""
+    """Fixture to generate a 2.4-second MP3 file."""
     file_path = temp_test_dir / "test.mp3"
-    silent_audio = AudioSegment.silent(duration=1000)
+    silent_audio = AudioSegment.silent(duration=2400)
     silent_audio.export(file_path, format="mp3")
     yield file_path
     if file_path.exists():
@@ -45,9 +45,9 @@ def mp3_file(temp_test_dir: Path) -> Path:
 
 @pytest.fixture(scope="module")
 def ogg_file(temp_test_dir: Path) -> Path:
-    """Fixture to generate a 1-second OGG file."""
+    """Fixture to generate a 2.4-second OGG file."""
     file_path = temp_test_dir / "test.ogg"
-    silent_audio = AudioSegment.silent(duration=1000)
+    silent_audio = AudioSegment.silent(duration=2400)
     silent_audio.export(file_path, format="ogg")
     yield file_path
     if file_path.exists():

@@ -27,14 +27,21 @@ async def test_create_track(client: AsyncClient, track_data, track_file):
     response = await client.post("/api/v1/tracks/", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     data = response.json()
-    assert "id" in data
-    assert "created_at" in data
-    assert "updated_at" in data
+    assert {
+        "id",
+        "created_at",
+        "updated_at",
+        "title",
+        "duration",
+        "recorded_date",
+        "file_format",
+        "file_size",
+    } == set(data.keys())
     assert data["title"] == track_data["title"]
-    assert data["duration"] == 123
+    assert 2400 <= data["duration"] <= 2600
     assert data["recorded_date"] == "2021-02-03"
     assert data["file_format"] == "MP3"
-    assert data["file_size"] == 2552
+    assert data["file_size"] == 5269
 
 
 async def test_create_track_none_recorded_date(
