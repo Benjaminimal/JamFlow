@@ -37,10 +37,10 @@ async def track_1(db_session, track_storage, mp3_upload_file):
     return await track_create(db_session, track_create_dto=track_create_dto)
 
 
-async def test_read_track_success(client: AsyncClient, track_1: TrackCreateDto):
+async def test_track_read_success(client: AsyncClient, track_1: TrackCreateDto):
     response = await client.get(f"/api/v1/tracks/{track_1.id}")
     assert response.status_code == status.HTTP_200_OK, response.content
-    data = response.json()
+    response_data = response.json()
     assert {
         "id",
         "created_at",
@@ -50,25 +50,25 @@ async def test_read_track_success(client: AsyncClient, track_1: TrackCreateDto):
         "recorded_date",
         "format",
         "size",
-    } == set(data.keys())
-    assert data["title"] == "Test Track mp3"
-    assert 2400 <= data["duration"] <= 2600
-    assert data["recorded_date"] == "2021-02-03"
-    assert data["format"] == "MP3"
-    assert data["size"] == 5269
+    } == set(response_data.keys())
+    assert response_data["title"] == "Test Track mp3"
+    assert 2400 <= response_data["duration"] <= 2600
+    assert response_data["recorded_date"] == "2021-02-03"
+    assert response_data["format"] == "MP3"
+    assert response_data["size"] == 5269
 
 
-async def test_read_track_not_found_error(client: AsyncClient):
+async def test_track_read_not_found_error(client: AsyncClient):
     response = await client.get(f"/api/v1/tracks/{uuid.uuid4()}")
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
     response_data = response.json()
     assert response_data == {"detail": {"msg": "Track not found"}}
 
 
-async def test_create_track(client: AsyncClient, track_data, track_file):
+async def test_track_create_success(client: AsyncClient, track_data, track_file):
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
-    data = response.json()
+    response_data = response.json()
     assert {
         "id",
         "created_at",
@@ -78,35 +78,37 @@ async def test_create_track(client: AsyncClient, track_data, track_file):
         "recorded_date",
         "format",
         "size",
-    } == set(data.keys())
-    assert data["title"] == track_data["title"]
-    assert 2400 <= data["duration"] <= 2600
-    assert data["recorded_date"] == "2021-02-03"
-    assert data["format"] == "MP3"
-    assert data["size"] == 5269
+    } == set(response_data.keys())
+    assert response_data["title"] == track_data["title"]
+    assert 2400 <= response_data["duration"] <= 2600
+    assert response_data["recorded_date"] == "2021-02-03"
+    assert response_data["format"] == "MP3"
+    assert response_data["size"] == 5269
 
 
-async def test_create_track_none_recorded_date(
+async def test_track_create_none_recorded_date_success(
     client: AsyncClient, track_data, track_file
 ):
     track_data["recorded_date"] = None
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
-    data = response.json()
-    assert data["recorded_date"] is None
+    response_data = response.json()
+    assert response_data["recorded_date"] is None
 
 
-async def test_create_track_missing_recorded_date(
+async def test_track_create_missing_recorded_date_success(
     client: AsyncClient, track_data, track_file
 ):
     del track_data["recorded_date"]
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
-    data = response.json()
-    assert data["recorded_date"] is None
+    response_data = response.json()
+    assert response_data["recorded_date"] is None
 
 
-async def test_create_track_blank_title(client: AsyncClient, track_data, track_file):
+async def test_track_create_blank_title_error(
+    client: AsyncClient, track_data, track_file
+):
     track_data["title"] = "\n \t"
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -117,7 +119,9 @@ async def test_create_track_blank_title(client: AsyncClient, track_data, track_f
     )
 
 
-async def test_create_track_missing_file(client: AsyncClient, track_data, track_file):
+async def test_track_create_missing_file_error(
+    client: AsyncClient, track_data, track_file
+):
     response = await client.post("/api/v1/tracks", data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     response_data = response.json()
@@ -125,7 +129,9 @@ async def test_create_track_missing_file(client: AsyncClient, track_data, track_
     assert response_data["detail"][0]["msg"] == "Field required"
 
 
-async def test_create_track_empty_file(client: AsyncClient, track_data, track_file):
+async def test_track_create_empty_file_error(
+    client: AsyncClient, track_data, track_file
+):
     track_file["upload_file"] = ("empty.mp3", b"", "audio/mpeg")
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
