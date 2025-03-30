@@ -1,4 +1,3 @@
-from pathlib import PurePath
 from typing import BinaryIO
 
 import filetype  # type: ignore [import-untyped]
@@ -19,7 +18,7 @@ class AudioServiceException(ServiceException):
 
 
 def get_audio_file_format(
-    file: str | bytes | bytearray | PurePath | BinaryIO,
+    file: str | BinaryIO,
 ) -> AudioFileFormat:
     """
     Guesses the file type of an audio file.
