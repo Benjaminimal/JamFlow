@@ -1,3 +1,4 @@
+import uuid
 from datetime import date
 from io import BytesIO
 
@@ -5,11 +6,12 @@ import pytest
 from fastapi import UploadFile
 from pytest_mock import MockerFixture, MockFixture
 
+from jamflow.models import Track
 from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
 from jamflow.services.audio import AudioServiceException
-from jamflow.services.exceptions import ValidationException
-from jamflow.services.track import track_create
+from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
+from jamflow.services.track import track_create, track_list, track_read
 
 pytestmark = pytest.mark.unit
 
@@ -49,6 +51,32 @@ def track_create_dto(mp3_upload_file: UploadFile):
         upload_file=mp3_upload_file,
     )
     return dto
+
+
+@pytest.fixture
+def track_1() -> Track:
+    return Track(
+        id=uuid.uuid4(),
+        title="Track 1",
+        duration=2400,
+        format=AudioFileFormat.MP3,
+        size=1234,
+        path="path/to/track.mp3",
+        recorded_date=date.today(),
+    )
+
+
+@pytest.fixture
+def track_2() -> Track:
+    return Track(
+        id=uuid.uuid4(),
+        title="Track 2",
+        duration=3700,
+        format=AudioFileFormat.OGG,
+        size=5678,
+        path="path/to/track.ogg",
+        recorded_date=date.today(),
+    )
 
 
 async def test_track_create_success(
@@ -100,3 +128,42 @@ async def test_track_create_no_duration_error(
 
     with pytest.raises(ValidationException, match="Failed to get audio duration"):
         await track_create(session=mock_session, track_create_dto=track_create_dto)
+
+
+async def test_track_list_success(
+    mocker: MockerFixture,
+    track_1: Track,
+    track_2: Track,
+):
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = [track_1, track_2]
+    mock_session = mocker.AsyncMock()
+    mock_session.exec.return_value = mock_result
+
+    result = await track_list(mock_session)
+
+    assert len(result) == 2
+    assert isinstance(result[0], TrackReadDto)
+    assert result[0].title == "Track 1"
+    mock_session.exec.assert_called_once()
+
+
+async def test_track_read_success(mocker: MockerFixture, track_1: Track):
+    mock_session = mocker.AsyncMock()
+    mock_session.get.return_value = track_1
+
+    result = await track_read(mock_session, track_id=track_1.id)
+
+    assert isinstance(result, TrackReadDto)
+    assert result.title == "Track 1"
+    mock_session.get.assert_called_once_with(Track, track_1.id)
+
+
+async def test_track_read_not_found(mocker: MockerFixture):
+    mock_session = mocker.AsyncMock()
+    mock_session.get.return_value = None
+
+    with pytest.raises(ResourceNotFoundException, match="Track not found"):
+        await track_read(mock_session, track_id=uuid.uuid4())
+
+    mock_session.get.assert_called_once()

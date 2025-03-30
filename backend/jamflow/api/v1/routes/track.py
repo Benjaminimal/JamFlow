@@ -3,7 +3,7 @@ from pydantic import UUID4
 
 from jamflow.api.deps import SessionDep
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.track import track_create, track_read
+from jamflow.services.track import track_create, track_list, track_read
 
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
@@ -14,6 +14,16 @@ async def track_create_view(
 ) -> TrackReadDto:
     track = await track_create(session, track_create_dto=data)
     return track
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=list[TrackReadDto],
+)
+async def track_list_view(session: SessionDep) -> list[TrackReadDto]:
+    tracks = await track_list(session)
+    return tracks
 
 
 @router.get(

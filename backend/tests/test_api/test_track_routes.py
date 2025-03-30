@@ -37,11 +37,38 @@ async def track_1(db_session, track_storage, mp3_upload_file):
     return await track_create(db_session, track_create_dto=track_create_dto)
 
 
-async def test_track_read_success(client: AsyncClient, track_1: TrackCreateDto):
-    response = await client.get(f"/api/v1/tracks/{track_1.id}")
+@pytest.fixture
+async def track_2(db_session, track_storage, ogg_upload_file):
+    track_create_dto = TrackCreateDto(
+        title="Test Track ogg",
+        recorded_date="2022-04-05",
+        upload_file=ogg_upload_file,
+    )
+    return await track_create(db_session, track_create_dto=track_create_dto)
+
+
+@pytest.fixture
+async def track_3(db_session, track_storage, wav_upload_file):
+    track_create_dto = TrackCreateDto(
+        title="Test Track wav",
+        recorded_date="2023-06-07",
+        upload_file=wav_upload_file,
+    )
+    return await track_create(db_session, track_create_dto=track_create_dto)
+
+
+async def test_track_list_success(
+    client: AsyncClient,
+    track_1: TrackCreateDto,
+    track_2: TrackCreateDto,
+    track_3: TrackCreateDto,
+):
+    response = await client.get("/api/v1/tracks")
     assert response.status_code == status.HTTP_200_OK, response.content
     response_data = response.json()
-    assert {
+    assert len(response_data) == 3
+    track_1_data, track_2_data, track_3_data = response_data
+    assert track_1_data.keys() | track_2_data.keys() | track_3_data.keys() == {
         "id",
         "created_at",
         "updated_at",
@@ -50,7 +77,36 @@ async def test_track_read_success(client: AsyncClient, track_1: TrackCreateDto):
         "recorded_date",
         "format",
         "size",
-    } == set(response_data.keys())
+    }
+    assert track_1_data["id"] == str(track_1.id)
+    assert track_1_data["title"] == "Test Track mp3"
+    assert track_2_data["id"] == str(track_2.id)
+    assert track_2_data["title"] == "Test Track ogg"
+    assert track_3_data["id"] == str(track_3.id)
+    assert track_3_data["title"] == "Test Track wav"
+
+
+async def test_track_list_empty_success(client: AsyncClient):
+    response = await client.get("/api/v1/tracks")
+    assert response.status_code == status.HTTP_200_OK, response.content
+    response_data = response.json()
+    assert len(response_data) == 0
+
+
+async def test_track_read_success(client: AsyncClient, track_1: TrackCreateDto):
+    response = await client.get(f"/api/v1/tracks/{track_1.id}")
+    assert response.status_code == status.HTTP_200_OK, response.content
+    response_data = response.json()
+    assert set(response_data.keys()) == {
+        "id",
+        "created_at",
+        "updated_at",
+        "title",
+        "duration",
+        "recorded_date",
+        "format",
+        "size",
+    }
     assert response_data["title"] == "Test Track mp3"
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
@@ -69,7 +125,7 @@ async def test_track_create_success(client: AsyncClient, track_data, track_file)
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     response_data = response.json()
-    assert {
+    assert set(response_data.keys()) == {
         "id",
         "created_at",
         "updated_at",
@@ -78,7 +134,7 @@ async def test_track_create_success(client: AsyncClient, track_data, track_file)
         "recorded_date",
         "format",
         "size",
-    } == set(response_data.keys())
+    }
     assert response_data["title"] == track_data["title"]
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"

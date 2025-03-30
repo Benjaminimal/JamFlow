@@ -60,6 +60,21 @@ async def track_create(
     return track_read_dto
 
 
+async def track_list(session: AsyncSession) -> list[TrackReadDto]:
+    result = await session.exec(select(Track))
+    tracks = result.all()
+    track_read_dtos = [TrackReadDto.model_validate(track) for track in tracks]
+    return track_read_dtos
+
+
+async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
+    track = await session.get(Track, track_id)
+    if track is None:
+        raise ResourceNotFoundException("Track")
+    track_read_dto = TrackReadDto.model_validate(track)
+    return track_read_dto
+
+
 def _generate_path(extension: str) -> str:
     now = timezone_now()
 
@@ -75,11 +90,3 @@ def _generate_path(extension: str) -> str:
     )
 
     return path
-
-
-async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
-    track = await session.get(Track, track_id)
-    if track is None:
-        raise ResourceNotFoundException("Track")
-    track_read_dto = TrackReadDto.model_validate(track)
-    return track_read_dto
