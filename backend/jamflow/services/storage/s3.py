@@ -15,16 +15,15 @@ log = get_logger()
 async def get_storage_client() -> S3Client:
     session = get_session()
     try:
-        async with session.create_client(  # pyright: ignore [reportUnknownMemberType]
+        async with session.create_client(
             "s3",
             endpoint_url=str(settings.STORAGE_URL),
             aws_access_key_id=settings.STORAGE_ACCESS_KEY,
             aws_secret_access_key=settings.STORAGE_SECRET_KEY,
         ) as client:
-            client: S3Client
             return client
     except BotoCoreError as exc:
-        log.error("Failed to create s3 client", exc_info=True)
+        await log.aerror("Failed to create s3 client", exc_info=True)
         raise StorageException("Failed to create storage client") from exc
 
 
@@ -38,8 +37,25 @@ class S3StorageService:
         try:
             await self._client.put_object(Bucket=self._bucket_name, Key=path, Body=file)
         except (BotoCoreError, ClientError) as exc:
-            log.error("Failed to store file", exc_info=True, path=path)
-            raise StorageException(f"Failed to store file {path}") from exc
+            await log.aerror("Failed to store file", exc_info=True, path=path)
+            raise StorageException(
+                f"Failed to store file {path} in {self._bucket_name}"
+            ) from exc
+
+    async def purge(self) -> None:
+        try:
+            response = await self._client.list_objects_v2(Bucket=self._bucket_name)
+            if "Contents" in response:
+                objects = [{"Key": obj["Key"]} for obj in response["Contents"]]
+                await self._client.delete_objects(
+                    Bucket=self._bucket_name,
+                    Delete={"Objects": objects},  # type: ignore [typeddict-item]
+                )
+        except (BotoCoreError, ClientError) as exc:
+            await log.aerror("Failed to purge bucket", exc_info=True)
+            raise StorageException(
+                f"Failed to purge bucket {self._bucket_name}"
+            ) from exc
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         try:
@@ -50,9 +66,11 @@ class S3StorageService:
             )
             return url
         except (BotoCoreError, ClientError) as exc:
-            log.error("Failed to generate presigned URL", exc_info=True, path=path)
+            await log.aerror(
+                "Failed to generate presigned URL", exc_info=True, path=path
+            )
             raise StorageException(
-                f"Failed to generate presigned URL for {path}"
+                f"Failed to generate presigned URL for {path} in {self._bucket_name}"
             ) from exc
         pass
 
@@ -61,7 +79,7 @@ class S3StorageService:
         self._client = await get_storage_client()
         found = await self._bucket_exists()
         if not found:
-            log.info("Bucket does not exist, creating it")
+            await log.ainfo("Bucket does not exist, creating it")
             await self._bucket_create()
         return self
 
@@ -81,7 +99,7 @@ class S3StorageService:
         except ClientError as exc:
             if exc.response.get("Error", {}).get("Code", None) == "404":
                 return False
-            log.error("Failed to head bucket", exc_info=True)
+            await log.aerror("Failed to head bucket", exc_info=True)
             raise StorageException(
                 f"Unexpected error when trying to access storage {self._bucket_name}"
             ) from exc
@@ -91,7 +109,7 @@ class S3StorageService:
         try:
             await self._client.create_bucket(Bucket=self._bucket_name)
         except ClientError as exc:
-            log.error("Failed to create bucket", exc_info=True)
+            await log.aerror("Failed to create bucket", exc_info=True)
             raise StorageException(
                 f"Unable to access {self._bucket_name} storage"
             ) from exc

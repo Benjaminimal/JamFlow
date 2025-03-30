@@ -17,6 +17,7 @@ class Settings(
     STORAGE_URL: HttpUrl
     STORAGE_ACCESS_KEY: str
     STORAGE_SECRET_KEY: str
+    STORAGE_NAME_TRACK: str
 
     DB_HOST: str
     DB_PORT: int
@@ -25,7 +26,7 @@ class Settings(
     DB_PASSWORD: str
     DB_ROOT_NAME: str
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         return PostgresDsn.build(
@@ -37,7 +38,7 @@ class Settings(
             password=self.DB_PASSWORD,
         )
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_ROOT_URI(self) -> PostgresDsn:
         return PostgresDsn.build(
@@ -50,4 +51,4 @@ class Settings(
         )
 
 
-settings = Settings()  # pyright: ignore [reportCallIssue]
+settings = Settings()  # type: ignore[call-arg]

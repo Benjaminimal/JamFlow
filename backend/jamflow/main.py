@@ -1,43 +1,27 @@
-import uuid
-from collections.abc import Awaitable, Callable
+from fastapi import FastAPI
 
-from fastapi import FastAPI, Request, Response
-
-from jamflow.core.config import settings
-from jamflow.core.log import bind_log_context, clear_log_context, get_logger
+from jamflow.api import router as api_router
+from jamflow.api.exception_handlers import (
+    application_exception_handler,
+    conflict_exception_handler,
+    resource_not_found_exception_handler,
+    validation_exception_handler,
+)
+from jamflow.core.exceptions import ApplicationException
+from jamflow.core.middlewares import request_bind_log_context_middleware
+from jamflow.services.exceptions import (
+    ConflictException,
+    ResourceNotFoundException,
+    ValidationException,
+)
 
 app = FastAPI()
 
-log = get_logger()
+app.middleware("http")(request_bind_log_context_middleware)
 
+app.exception_handler(ApplicationException)(application_exception_handler)
+app.exception_handler(ValidationException)(validation_exception_handler)
+app.exception_handler(ResourceNotFoundException)(resource_not_found_exception_handler)
+app.exception_handler(ConflictException)(conflict_exception_handler)
 
-@app.middleware("http")
-async def request_bind_log_context_middleware(
-    request: Request,
-    call_next: Callable[[Request], Awaitable[Response]],
-) -> Response:
-    """
-    Log the request and bind related information to the log context.
-    """
-    clear_log_context()
-    bind_log_context(
-        request_id=str(uuid.uuid4()),
-        method=request.method,
-        path=request.url.path,
-    )
-    await log.ainfo("Request received")
-
-    response = await call_next(request)
-
-    await log.ainfo("Request processed", status_code=response.status_code)
-    return response
-
-
-@app.get("/")
-async def read_root():
-    return {"message": f"Hello World. Welcome to {settings.PROJECT_NAME}!"}
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+app.include_router(api_router)
