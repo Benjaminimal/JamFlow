@@ -20,6 +20,7 @@ def test_track_create_dto_success(recorded_date, mp3_upload_file: UploadFile):
     assert dto.title == "Test Track"
     assert dto.recorded_date == expected_recorded_date
     assert dto.upload_file == mp3_upload_file
+    assert dto.upload_file.file.tell() == 0
 
 
 @pytest.mark.parametrize(

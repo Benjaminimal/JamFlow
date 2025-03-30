@@ -1,16 +1,18 @@
 import uuid
+from datetime import timedelta
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import col, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
 from jamflow.models import Track
-from jamflow.schemas.track import TrackCreateDto, TrackReadDto
+from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import (
     AudioServiceException,
     get_audio_duration,
     get_audio_file_format,
 )
-from jamflow.services.exceptions import ValidationException
+from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_track_storage_service
 from jamflow.utils import timezone_now
 
@@ -31,6 +33,7 @@ async def track_create(
         )
     await log.ainfo("File successfully stored", path=path)
 
+    track_create_dto.upload_file.file.seek(0)
     try:
         duration = get_audio_duration(track_create_dto.upload_file.file, format)
     except AudioServiceException as exc:
@@ -56,6 +59,42 @@ async def track_create(
     track_read_dto = TrackReadDto.model_validate(track)
 
     return track_read_dto
+
+
+async def track_list(session: AsyncSession) -> list[TrackReadDto]:
+    result = await session.exec(select(Track))
+    tracks = result.all()
+    track_read_dtos = [TrackReadDto.model_validate(track) for track in tracks]
+    return track_read_dtos
+
+
+async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
+    track = await session.get(Track, track_id)
+    if track is None:
+        raise ResourceNotFoundException("Track")
+    track_read_dto = TrackReadDto.model_validate(track)
+    return track_read_dto
+
+
+async def track_generate_signed_urls(
+    session: AsyncSession,
+    *,
+    track_ids: list[uuid.UUID],
+) -> list[TrackSignedUrlDto]:
+    statement = select(Track).where(col(Track.id).in_(track_ids))
+    result = await session.exec(statement)
+    tracks = result.all()
+    expires_at = timezone_now() + timedelta(hours=1)
+    async with get_track_storage_service() as track_storage:
+        track_url_data = [
+            {
+                "track_id": track.id,
+                "url": await track_storage.generate_expiring_url(track.path),
+                "expires_at": expires_at,
+            }
+            for track in tracks
+        ]
+    return [TrackSignedUrlDto.model_validate(t_url) for t_url in track_url_data]
 
 
 def _generate_path(extension: str) -> str:

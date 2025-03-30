@@ -1,8 +1,9 @@
 import pytest
 import pytest_asyncio
 from sqlalchemy import NullPool, text
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlmodel import SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.config import settings
 
@@ -58,11 +59,10 @@ async def db_session(db_engine: AsyncEngine):
     This ensures that the session has its own dedicated connection.
     """
     async with db_engine.connect() as conn:
-        session_maker = async_sessionmaker(bind=conn, expire_on_commit=False)
         # Begin a non-ORM transaction on this connection
         transaction = await conn.begin()
         # Bind a session to this connection
-        async with session_maker(bind=conn) as session:
+        async with AsyncSession(bind=conn, expire_on_commit=False) as session:
             try:
                 yield session
             finally:

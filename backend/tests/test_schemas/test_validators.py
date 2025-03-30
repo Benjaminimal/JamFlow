@@ -28,6 +28,7 @@ def test_validate_audo_file_format_valid(
 ):
     upload_file = request.getfixturevalue(upload_file)
     assert validate_audo_file_format(upload_file) == upload_file
+    assert upload_file.file.tell() == 0
 
 
 def test_validate_audo_file_format_invalid(txt_upload_file):
@@ -43,7 +44,9 @@ def file_size_2mb_max_validator():
 
 def test_get_file_size_validator_valid(mp3_upload_file, file_size_2mb_max_validator):
     mp3_upload_file.size = 2 * 1024 * 1024  # 2 MB
-    assert file_size_2mb_max_validator(mp3_upload_file) == mp3_upload_file
+    validated_upload_file = file_size_2mb_max_validator(mp3_upload_file)
+    assert validated_upload_file == mp3_upload_file
+    assert validated_upload_file.file.tell() == 0
 
 
 def test_get_file_size_validator_too_large(
