@@ -5,8 +5,6 @@ from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
 from jamflow.services.clip import clip_create
 from jamflow.services.exceptions import ResourceNotFoundException
 
-pytestmark = pytest.mark.unit
-
 
 @pytest.fixture
 def mock_session(mocker: MockerFixture):

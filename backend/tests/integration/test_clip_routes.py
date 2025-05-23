@@ -9,8 +9,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from jamflow.models.clip import Clip
 from jamflow.schemas.track import TrackReadDto
 
-pytestmark = pytest.mark.integration
-
 
 @pytest.fixture
 def count_rows(db_session: AsyncSession):

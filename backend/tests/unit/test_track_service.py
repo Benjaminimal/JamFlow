@@ -19,8 +19,6 @@ from jamflow.services.track import (
 )
 from jamflow.utils import timezone_now
 
-pytestmark = pytest.mark.unit
-
 
 @pytest.fixture
 def mock_session(mocker: MockerFixture):

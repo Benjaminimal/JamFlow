@@ -9,10 +9,7 @@ from httpx import AsyncClient
 from jamflow.schemas.track import TrackCreateDto
 from jamflow.utils import timezone_now
 
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.usefixtures("track_storage"),
-]
+pytestmark = pytest.mark.usefixtures("track_storage")
 
 
 @pytest.fixture

@@ -6,8 +6,6 @@ from jamflow.services.storage.s3 import S3StorageService, get_storage_client
 
 TEST_BUCKET_NAME = "test-storage-service-bucket"
 
-pytestmark = pytest.mark.integration
-
 
 @pytest.fixture
 async def s3_client():

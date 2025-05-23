@@ -1,4 +1,3 @@
-import pytest
 from httpx import AsyncClient
 
 from jamflow.core.exceptions import ApplicationException
@@ -8,8 +7,6 @@ from jamflow.services.exceptions import (
     ResourceNotFoundException,
     ValidationException,
 )
-
-pytestmark = pytest.mark.integration
 
 
 async def test_application_exception_handler(simple_client: AsyncClient):

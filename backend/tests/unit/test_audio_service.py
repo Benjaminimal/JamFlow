@@ -12,8 +12,6 @@ from jamflow.services.audio import (
     get_audio_file_format,
 )
 
-pytest_mark = pytest.mark.unit
-
 
 def test_get_audio_file_format_success(mocker: MockerFixture):
     mocker.patch("filetype.guess", return_value=MagicMock(extension="mp3"))

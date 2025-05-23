@@ -6,8 +6,6 @@ from jamflow.schemas.validators import (
     validate_audo_file_format,
 )
 
-pytestmark = pytest.mark.unit
-
 
 def test_empty_string_to_none():
     assert empty_string_to_none("") is None

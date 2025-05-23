@@ -6,8 +6,6 @@ from pytest_mock import MockerFixture
 from jamflow.services.exceptions import StorageException
 from jamflow.services.storage.s3 import S3StorageService
 
-pytestmark = pytest.mark.unit
-
 
 @pytest.fixture
 def mock_s3_client(mocker: MockerFixture):
