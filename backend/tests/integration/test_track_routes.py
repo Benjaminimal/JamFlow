@@ -6,7 +6,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from jamflow.schemas.track import TrackCreateDto
+from jamflow.schemas.track import TrackReadDto
 from jamflow.utils import timezone_now
 
 pytestmark = pytest.mark.usefixtures("track_storage")
@@ -27,9 +27,9 @@ def track_file(mp3_file: Path):
 
 async def test_track_list_success(
     client: AsyncClient,
-    track_1: TrackCreateDto,
-    track_2: TrackCreateDto,
-    track_3: TrackCreateDto,
+    track_1: TrackReadDto,
+    track_2: TrackReadDto,
+    track_3: TrackReadDto,
 ):
     response = await client.get("/api/v1/tracks")
     assert response.status_code == status.HTTP_200_OK, response.content
@@ -61,7 +61,7 @@ async def test_track_list_empty_success(client: AsyncClient):
     assert len(response_data) == 0
 
 
-async def test_track_read_success(client: AsyncClient, track_1: TrackCreateDto):
+async def test_track_read_success(client: AsyncClient, track_1: TrackReadDto):
     response = await client.get(f"/api/v1/tracks/{track_1.id}")
     assert response.status_code == status.HTTP_200_OK, response.content
     response_data = response.json()
@@ -166,9 +166,9 @@ async def test_track_create_empty_file_error(
 
 async def test_track_get_urls_success(
     client: AsyncClient,
-    track_1: TrackCreateDto,
-    track_2: TrackCreateDto,
-    track_3: TrackCreateDto,
+    track_1: TrackReadDto,
+    track_2: TrackReadDto,
+    track_3: TrackReadDto,
 ):
     expires_at_min = timezone_now() + timedelta(hours=1)
     expires_at_max = expires_at_min + timedelta(seconds=1)
@@ -204,7 +204,7 @@ async def test_track_get_urls_success(
 
 
 async def test_track_get_urls_no_tack_id_error(
-    client: AsyncClient, track_1: TrackCreateDto
+    client: AsyncClient, track_1: TrackReadDto
 ):
     response = await client.get("/api/v1/tracks/urls")
 
