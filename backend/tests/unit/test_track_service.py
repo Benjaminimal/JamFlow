@@ -30,6 +30,7 @@ def mock_session(mocker: MockerFixture):
 @pytest.fixture
 def mock_track_storage(mocker: MockerFixture):
     mock_storage_service = mocker.AsyncMock()
+    mock_storage_service.generate_expiring_url.return_value = "http://example.com/track"
     mock_get_track_storage_service = mocker.patch(
         "jamflow.services.track.get_track_storage_service"
     )
@@ -84,7 +85,9 @@ def track_2() -> Track:
 
 
 async def test_track_create_success(
-    mock_session, mock_track_storage, track_create_dto: TrackCreateDto
+    mock_session,
+    mock_track_storage,
+    track_create_dto: TrackCreateDto,
 ):
     track_read_dto = await track_create(
         session=mock_session, track_create_dto=track_create_dto
@@ -99,11 +102,13 @@ async def test_track_create_success(
     assert track_read_dto.size == track_create_dto.upload_file.size
     assert track_read_dto.format == AudioFileFormat.MP3
     mock_track_storage.store_file.assert_called_once()
-    mock_track_storage.store_file.assert_called_once()
+    mock_track_storage.generate_expiring_url.assert_called_once()
 
 
 async def test_track_create_wrong_extension_success(
-    mock_session, mock_track_storage, track_create_dto: TrackCreateDto
+    mock_session,
+    mock_track_storage,
+    track_create_dto: TrackCreateDto,
 ):
     # even with a wrong extension
     track_create_dto.upload_file.filename = "test.foo"
@@ -136,6 +141,7 @@ async def test_track_create_no_duration_error(
 
 async def test_track_list_success(
     mocker: MockerFixture,
+    mock_track_storage,
     track_1: Track,
     track_2: Track,
 ):
@@ -150,9 +156,14 @@ async def test_track_list_success(
     assert isinstance(result[0], TrackReadDto)
     assert result[0].title == "Track 1"
     mock_session.exec.assert_called_once()
+    mock_track_storage.generate_expiring_url.assert_called()
 
 
-async def test_track_read_success(mocker: MockerFixture, track_1: Track):
+async def test_track_read_success(
+    mocker: MockerFixture,
+    mock_track_storage,
+    track_1: Track,
+):
     mock_session = mocker.AsyncMock()
     mock_session.get.return_value = track_1
 
@@ -161,6 +172,7 @@ async def test_track_read_success(mocker: MockerFixture, track_1: Track):
     assert isinstance(result, TrackReadDto)
     assert result.title == "Track 1"
     mock_session.get.assert_called_once_with(Track, track_1.id)
+    mock_track_storage.generate_expiring_url.assert_called()
 
 
 async def test_track_read_not_found(mocker: MockerFixture):

@@ -31,7 +31,8 @@ async def track_create(
         await track_storage.store_file(
             path=path, file=track_create_dto.upload_file.file
         )
-    await log.ainfo("File successfully stored", path=path)
+        await log.ainfo("File successfully stored", path=path)
+        track_url = await track_storage.generate_expiring_url(path)
 
     track_create_dto.upload_file.file.seek(0)
     try:
@@ -56,7 +57,7 @@ async def track_create(
     await log.ainfo("Track successfully created", track_id=track.id)
 
     await session.refresh(track)
-    track_read_dto = TrackReadDto.model_validate(track)
+    track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})
 
     return track_read_dto
 
@@ -64,7 +65,14 @@ async def track_create(
 async def track_list(session: AsyncSession) -> list[TrackReadDto]:
     result = await session.exec(select(Track))
     tracks = result.all()
-    track_read_dtos = [TrackReadDto.model_validate(track) for track in tracks]
+    async with get_track_storage_service() as track_storage:
+        track_read_dtos = [
+            TrackReadDto.model_validate(
+                dict(track)
+                | {"url": await track_storage.generate_expiring_url(track.path)}
+            )
+            for track in tracks
+        ]
     return track_read_dtos
 
 
@@ -72,7 +80,9 @@ async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackRead
     track = await session.get(Track, track_id)
     if track is None:
         raise ResourceNotFoundException("Track")
-    track_read_dto = TrackReadDto.model_validate(track)
+    async with get_track_storage_service() as track_storage:
+        track_url = await track_storage.generate_expiring_url(track.path)
+    track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})
     return track_read_dto
 
 

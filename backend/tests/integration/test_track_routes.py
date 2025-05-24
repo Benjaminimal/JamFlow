@@ -45,6 +45,7 @@ async def test_track_list_success(
         "recorded_date",
         "format",
         "size",
+        "url",
     }
     assert track_1_data["id"] == str(track_1.id)
     assert track_1_data["title"] == "Test Track mp3"
@@ -52,6 +53,7 @@ async def test_track_list_success(
     assert track_2_data["title"] == "Test Track ogg"
     assert track_3_data["id"] == str(track_3.id)
     assert track_3_data["title"] == "Test Track wav"
+    assert track_3_data["url"].startswith("http://")
 
 
 async def test_track_list_empty_success(client: AsyncClient):
@@ -74,12 +76,14 @@ async def test_track_read_success(client: AsyncClient, track_1: TrackReadDto):
         "recorded_date",
         "format",
         "size",
+        "url",
     }
     assert response_data["title"] == "Test Track mp3"
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "MP3"
     assert response_data["size"] == 5269
+    assert response_data["url"].startswith("http://")
 
 
 async def test_track_read_not_found_error(client: AsyncClient):
@@ -102,12 +106,14 @@ async def test_track_create_success(client: AsyncClient, track_data, track_file)
         "recorded_date",
         "format",
         "size",
+        "url",
     }
     assert response_data["title"] == track_data["title"]
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "MP3"
     assert response_data["size"] == 5269
+    assert response_data["url"].startswith("http://")
 
 
 async def test_track_create_none_recorded_date_success(

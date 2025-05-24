@@ -7,6 +7,7 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     BeforeValidator,
+    HttpUrl,
     StringConstraints,
 )
 
@@ -45,6 +46,7 @@ class TrackReadDto(BaseModel, from_attributes=True):
     format: AudioFileFormat
     size: int  # in bytes
     recorded_date: date | None
+    url: HttpUrl
 
 
 class TrackSignedUrlDto(BaseModel):
