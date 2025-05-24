@@ -36,8 +36,8 @@ async def test_audio_workflow_success(
     # Create a clip from the uploaded track and verify the operation succeeds
     clip_data = {
         "title": "Test Clip",
-        "start": 10,
-        "end": 20,
+        "start": 1,
+        "end": 2,
         "track_id": track_id,
     }
     response = await client.post("/api/v1/clips", json=clip_data)

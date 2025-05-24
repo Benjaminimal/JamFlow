@@ -61,7 +61,6 @@ def test_get_audio_duration_no_metadata(mocker: MockerFixture):
         get_audio_duration("dummy.mp3", AudioFileFormat.MP3)
 
 
-# TODO: name
 @pytest.mark.parametrize(
     "audio_file,file_format",
     [
@@ -70,7 +69,7 @@ def test_get_audio_duration_no_metadata(mocker: MockerFixture):
         ("mp3_file", AudioFileFormat.MP3),
     ],
 )
-def test_get_audio_duration_success__(
+def test_get_audio_duration_success_format(
     audio_file: str,
     file_format: AudioFileFormat,
     request: pytest.FixtureRequest,
