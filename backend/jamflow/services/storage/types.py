@@ -28,6 +28,15 @@ class StorageService(Protocol):
         """
         ...
 
+    async def get_file(self, path: str) -> IO[bytes]:
+        """
+        Get a file from storage.
+
+        :param path: The path to the file in storage.
+        :raises StorageException: if the file could not be retrieved.
+        """
+        ...
+
     async def purge(self) -> None:
         """
         Delete all files from storage.

@@ -1,3 +1,4 @@
+from tempfile import TemporaryFile
 from types import TracebackType
 from typing import IO, Self
 
@@ -40,6 +41,21 @@ class S3StorageService:
             await log.aerror("Failed to store file", exc_info=True, path=path)
             raise StorageException(
                 f"Failed to store file {path} in {self._bucket_name}"
+            ) from exc
+
+    async def get_file(self, path: str) -> IO[bytes]:
+        try:
+            response = await self._client.get_object(Bucket=self._bucket_name, Key=path)
+            stream = response["Body"]
+            temp_file = TemporaryFile(mode="wb+")
+            while chunk := await stream.read(1024 * 1024):  # 1MB
+                temp_file.write(chunk)
+            temp_file.seek(0)
+            return temp_file
+        except (BotoCoreError, ClientError) as exc:
+            await log.aerror("Failed to get file", exc_info=True, path=path)
+            raise StorageException(
+                f"Failed to get file {path} from {self._bucket_name}"
             ) from exc
 
     async def purge(self) -> None:

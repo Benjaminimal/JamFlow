@@ -80,6 +80,40 @@ async def test_store_file_failure(mock_s3_client):
     )
 
 
+async def test_get_file_success(mocker: MockerFixture, mock_s3_client):
+    # mock the return value of get_object
+    mock_s3_client.get_object.return_value = {
+        "Body": mocker.AsyncMock(
+            read=mocker.AsyncMock(side_effect=[b"chunk1", b"chunk2", b""])
+        )
+    }
+
+    async with S3StorageService("test-bucket") as service:
+        file = await service.get_file("test/path")
+
+    # verify that get_object was called with the correct parameters
+    mock_s3_client.get_object.assert_called_once_with(
+        Bucket="test-bucket", Key="test/path"
+    )
+    # verify that the file content is correct
+    with file:
+        assert file.read() == b"chunk1chunk2"
+
+
+async def test_get_file_failure(mocker: MockerFixture, mock_s3_client):
+    # Mock S3 client to raise an exception
+    mock_s3_client.get_object.side_effect = BotoCoreError()
+
+    # Initialize S3Storage with mock client
+    async with S3StorageService("test-bucket") as service:
+        with pytest.raises(StorageException):
+            await service.get_file("test/path")
+
+    mock_s3_client.get_object.assert_called_once_with(
+        Bucket="test-bucket", Key="test/path"
+    )
+
+
 async def test_generate_expiring_url_success(mock_s3_client):
     # mock the return value of generate_presigned_url
     mock_s3_client.generate_presigned_url.return_value = (
