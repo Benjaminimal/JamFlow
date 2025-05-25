@@ -16,3 +16,9 @@ __all__ = [
 async def get_track_storage_service() -> AsyncIterator[StorageService]:
     async with S3StorageService(settings.STORAGE_NAME_TRACK) as service:
         yield service
+
+
+@asynccontextmanager
+async def get_clip_storage_service() -> AsyncIterator[StorageService]:
+    async with S3StorageService(settings.STORAGE_NAME_CLIP) as service:
+        yield service
