@@ -14,6 +14,7 @@ from jamflow.services.audio import (
 )
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_track_storage_service
+from jamflow.services.utils import generate_file_path
 from jamflow.utils import timezone_now
 
 log = get_logger()
@@ -26,7 +27,7 @@ async def track_create(
 ) -> TrackReadDto:
     format = get_audio_file_format(track_create_dto.upload_file.file)
 
-    path = _generate_path(format.lower())
+    path = generate_file_path(format.lower())
     async with get_track_storage_service() as track_storage:
         await track_storage.store_file(
             path=path, file=track_create_dto.upload_file.file
@@ -105,20 +106,3 @@ async def track_generate_signed_urls(
             for track in tracks
         ]
     return [TrackSignedUrlDto.model_validate(t_url) for t_url in track_url_data]
-
-
-def _generate_path(extension: str) -> str:
-    now = timezone_now()
-
-    timestamp = now.strftime("%Y%m%d%H%M%S")
-    file_name = f"{timestamp}_{uuid.uuid4().hex}.{extension}"
-
-    path = "/".join(
-        (
-            now.strftime("%Y"),
-            now.strftime("%m"),
-            file_name,
-        )
-    )
-
-    return path
