@@ -1,8 +1,11 @@
 from datetime import datetime
 
-from pydantic import UUID4, BaseModel
+from pydantic import UUID4, BaseModel, HttpUrl
+
+from jamflow.models.enums import AudioFileFormat
 
 
+# TODO: validate start and end times
 class ClipCreateDto(BaseModel):
     title: str
     track_id: UUID4
@@ -18,3 +21,6 @@ class ClipReadDto(BaseModel, from_attributes=True):
     end: int  # in milliseconds
     created_at: datetime
     updated_at: datetime
+    format: AudioFileFormat
+    size: int  # in bytes
+    url: HttpUrl

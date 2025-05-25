@@ -53,6 +53,9 @@ async def test_clip_create_success(
         "end",
         "created_at",
         "updated_at",
+        "format",
+        "size",
+        "url",
     }
     assert response_data["id"] is not None
     assert response_data["title"] == "Test Clip"
