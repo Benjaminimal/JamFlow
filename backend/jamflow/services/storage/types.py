@@ -1,5 +1,5 @@
 from types import TracebackType
-from typing import IO, Protocol, Self
+from typing import BinaryIO, Protocol, Self
 
 
 class StorageService(Protocol):
@@ -18,7 +18,7 @@ class StorageService(Protocol):
         traceback: TracebackType | None,
     ) -> None: ...
 
-    async def store_file(self, path: str, file: bytes | IO[bytes]) -> None:
+    async def store_file(self, path: str, file: bytes | BinaryIO) -> None:
         """
         Put a file into storage under a given path.
 
@@ -28,7 +28,7 @@ class StorageService(Protocol):
         """
         ...
 
-    async def get_file(self, path: str) -> IO[bytes]:
+    async def get_file(self, path: str) -> BinaryIO:
         """
         Get a file from storage.
 

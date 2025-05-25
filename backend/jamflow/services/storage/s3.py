@@ -1,6 +1,6 @@
 from tempfile import TemporaryFile
 from types import TracebackType
-from typing import IO, Self
+from typing import BinaryIO, Self
 
 from aiobotocore.session import get_session
 from botocore.exceptions import BotoCoreError, ClientError
@@ -34,7 +34,7 @@ class S3StorageService:
     def __init__(self, storage_name: str):
         self._bucket_name = storage_name
 
-    async def store_file(self, path: str, file: bytes | IO[bytes]) -> None:
+    async def store_file(self, path: str, file: bytes | BinaryIO) -> None:
         try:
             await self._client.put_object(Bucket=self._bucket_name, Key=path, Body=file)
         except (BotoCoreError, ClientError) as exc:
@@ -43,7 +43,7 @@ class S3StorageService:
                 f"Failed to store file {path} in {self._bucket_name}"
             ) from exc
 
-    async def get_file(self, path: str) -> IO[bytes]:
+    async def get_file(self, path: str) -> BinaryIO:
         try:
             response = await self._client.get_object(Bucket=self._bucket_name, Key=path)
             stream = response["Body"]
