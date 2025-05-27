@@ -18,6 +18,7 @@ class StorageService(Protocol):
         traceback: TracebackType | None,
     ) -> None: ...
 
+    # TODO: fix files being stored with wrong content type
     async def store_file(self, path: str, file: bytes | BinaryIO) -> None:
         """
         Put a file into storage under a given path.

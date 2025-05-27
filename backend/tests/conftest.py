@@ -13,6 +13,6 @@ from .fixtures.files import (  # noqa: F401
     wav_upload_file,
 )
 from .fixtures.storage import (  # noqa: F401
+    audio_storage,
     storage_name_override,
-    track_storage,
 )

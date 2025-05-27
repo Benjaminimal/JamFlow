@@ -1,3 +1,4 @@
+import pytest
 from httpx import AsyncClient
 
 from jamflow.core.exceptions import ApplicationException
@@ -49,3 +50,15 @@ async def test_conflict_exception_handler(simple_client: AsyncClient):
     response = await simple_client.get("/conflict-error")
     assert response.status_code == 409
     assert response.json() == {"detail": {"msg": "Conflict occurred"}}
+
+
+# TODO:implement catch-all exception handler
+@pytest.mark.skip("Catch-all exception handler is not impelemnted")
+async def test_catch_all_exception_handler(simple_client: AsyncClient):
+    @app.get("/exception")
+    async def exception():
+        raise Exception("Client should not see this")
+
+    response = await simple_client.get("/exception")
+    assert response.status_code == 500
+    assert response.json() == {"detail": {"msg": "An unexpected error occurred."}}

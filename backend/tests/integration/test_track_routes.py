@@ -9,7 +9,7 @@ from httpx import AsyncClient
 from jamflow.schemas.track import TrackReadDto
 from jamflow.utils import timezone_now
 
-pytestmark = pytest.mark.usefixtures("track_storage")
+pytestmark = pytest.mark.usefixtures("audio_storage")
 
 
 @pytest.fixture

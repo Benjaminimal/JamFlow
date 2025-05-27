@@ -21,20 +21,13 @@ from jamflow.utils import timezone_now
 
 
 @pytest.fixture
-def mock_session(mocker: MockerFixture):
-    session = mocker.AsyncMock()
-    session.add = mocker.Mock()  # Explicitly mock `add` as a synchronous method
-    return session
-
-
-@pytest.fixture
-def mock_track_storage(mocker: MockerFixture):
+def mock_audio_storage(mocker: MockerFixture):
     mock_storage_service = mocker.AsyncMock()
     mock_storage_service.generate_expiring_url.return_value = "http://example.com/track"
-    mock_get_track_storage_service = mocker.patch(
-        "jamflow.services.track.get_track_storage_service"
+    mock_get_audio_storage_service = mocker.patch(
+        "jamflow.services.track.get_audio_storage_service"
     )
-    mock_get_track_storage_service.return_value.__aenter__.return_value = (
+    mock_get_audio_storage_service.return_value.__aenter__.return_value = (
         mock_storage_service
     )
     return mock_storage_service
@@ -86,7 +79,7 @@ def track_2() -> Track:
 
 async def test_track_create_success(
     mock_session,
-    mock_track_storage,
+    mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
     track_read_dto = await track_create(
@@ -101,13 +94,14 @@ async def test_track_create_success(
     assert 2400 <= track_read_dto.duration <= 2600
     assert track_read_dto.size == track_create_dto.upload_file.size
     assert track_read_dto.format == AudioFileFormat.MP3
-    mock_track_storage.store_file.assert_called_once()
-    mock_track_storage.generate_expiring_url.assert_called_once()
+    # TODO: assert all properties
+    mock_audio_storage.store_file.assert_called_once()
+    mock_audio_storage.generate_expiring_url.assert_called_once()
 
 
 async def test_track_create_wrong_extension_success(
     mock_session,
-    mock_track_storage,
+    mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
     # even with a wrong extension
@@ -119,15 +113,15 @@ async def test_track_create_wrong_extension_success(
     # the service should still be able to determine correct file format
     assert track_read_dto.format == AudioFileFormat.MP3
     # and save it with the correct extension
-    mock_track_storage.store_file.assert_called_once()
-    path_kwarg = mock_track_storage.store_file.call_args[1]["path"]
+    mock_audio_storage.store_file.assert_called_once()
+    path_kwarg = mock_audio_storage.store_file.call_args[1]["path"]
     assert path_kwarg.endswith(".mp3")
 
 
 async def test_track_create_no_duration_error(
     mocker: MockFixture,
     mock_session,
-    mock_track_storage,
+    mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
     mocker.patch(
@@ -141,7 +135,7 @@ async def test_track_create_no_duration_error(
 
 async def test_track_list_success(
     mocker: MockerFixture,
-    mock_track_storage,
+    mock_audio_storage,
     track_1: Track,
     track_2: Track,
 ):
@@ -156,12 +150,12 @@ async def test_track_list_success(
     assert isinstance(result[0], TrackReadDto)
     assert result[0].title == "Track 1"
     mock_session.exec.assert_called_once()
-    mock_track_storage.generate_expiring_url.assert_called()
+    mock_audio_storage.generate_expiring_url.assert_called()
 
 
 async def test_track_read_success(
     mocker: MockerFixture,
-    mock_track_storage,
+    mock_audio_storage,
     track_1: Track,
 ):
     mock_session = mocker.AsyncMock()
@@ -172,7 +166,7 @@ async def test_track_read_success(
     assert isinstance(result, TrackReadDto)
     assert result.title == "Track 1"
     mock_session.get.assert_called_once_with(Track, track_1.id)
-    mock_track_storage.generate_expiring_url.assert_called()
+    mock_audio_storage.generate_expiring_url.assert_called()
 
 
 async def test_track_read_not_found(mocker: MockerFixture):
@@ -188,7 +182,7 @@ async def test_track_read_not_found(mocker: MockerFixture):
 async def test_track_generate_signed_urls(
     mocker: MockerFixture,
     mock_session,
-    mock_track_storage,
+    mock_audio_storage,
     track_1: Track,
     track_2: Track,
 ):
@@ -200,7 +194,7 @@ async def test_track_generate_signed_urls(
     mock_result = mocker.MagicMock()
     mock_result.all.return_value = [track_1, track_2]
     mock_session.exec.return_value = mock_result
-    mock_track_storage.generate_expiring_url.side_effect = mock_expiring_urls
+    mock_audio_storage.generate_expiring_url.side_effect = mock_expiring_urls
 
     result = await track_generate_signed_urls(session=mock_session, track_ids=track_ids)
 

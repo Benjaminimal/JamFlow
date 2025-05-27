@@ -13,8 +13,8 @@ from jamflow.services.audio import (
     get_audio_file_format,
 )
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
-from jamflow.services.storage import get_track_storage_service
-from jamflow.services.utils import generate_file_path
+from jamflow.services.storage import get_audio_storage_service
+from jamflow.services.utils import generate_track_path
 from jamflow.utils import timezone_now
 
 log = get_logger()
@@ -27,13 +27,14 @@ async def track_create(
 ) -> TrackReadDto:
     format = get_audio_file_format(track_create_dto.upload_file.file)
 
-    path = generate_file_path(format.lower())
-    async with get_track_storage_service() as track_storage:
-        await track_storage.store_file(
+    track_id = uuid.uuid4()
+    path = generate_track_path(track_id, format.lower())
+    async with get_audio_storage_service() as audio_storage:
+        await audio_storage.store_file(
             path=path, file=track_create_dto.upload_file.file
         )
         await log.ainfo("File successfully stored", path=path)
-        track_url = await track_storage.generate_expiring_url(path)
+        track_url = await audio_storage.generate_expiring_url(path)
 
     track_create_dto.upload_file.file.seek(0)
     try:
@@ -46,6 +47,7 @@ async def track_create(
     track = Track.model_validate(
         track_create_dto,
         update={
+            "id": track_id,
             "duration": duration,
             "format": format,
             "size": track_create_dto.upload_file.size,
@@ -66,11 +68,11 @@ async def track_create(
 async def track_list(session: AsyncSession) -> list[TrackReadDto]:
     result = await session.exec(select(Track))
     tracks = result.all()
-    async with get_track_storage_service() as track_storage:
+    async with get_audio_storage_service() as audio_storage:
         track_read_dtos = [
             TrackReadDto.model_validate(
                 dict(track)
-                | {"url": await track_storage.generate_expiring_url(track.path)}
+                | {"url": await audio_storage.generate_expiring_url(track.path)}
             )
             for track in tracks
         ]
@@ -81,8 +83,8 @@ async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackRead
     track = await session.get(Track, track_id)
     if track is None:
         raise ResourceNotFoundException("Track")
-    async with get_track_storage_service() as track_storage:
-        track_url = await track_storage.generate_expiring_url(track.path)
+    async with get_audio_storage_service() as audio_storage:
+        track_url = await audio_storage.generate_expiring_url(track.path)
     track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})
     return track_read_dto
 
@@ -96,11 +98,11 @@ async def track_generate_signed_urls(
     result = await session.exec(statement)
     tracks = result.all()
     expires_at = timezone_now() + timedelta(hours=1)
-    async with get_track_storage_service() as track_storage:
+    async with get_audio_storage_service() as audio_storage:
         track_url_data = [
             {
                 "track_id": track.id,
-                "url": await track_storage.generate_expiring_url(track.path),
+                "url": await audio_storage.generate_expiring_url(track.path),
                 "expires_at": expires_at,
             }
             for track in tracks

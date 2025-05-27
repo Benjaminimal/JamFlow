@@ -7,14 +7,30 @@ from jamflow.services.exceptions import ResourceNotFoundException
 
 
 @pytest.fixture
-def mock_session(mocker: MockerFixture):
-    session = mocker.AsyncMock()
-    return session
+def mock_audio_storage(mocker: MockerFixture):
+    mock_storage_service = mocker.AsyncMock()
+    mock_storage_service.generate_expiring_url.return_value = "http://example.com/clip"
+    mock_get_audio_storage_service = mocker.patch(
+        "jamflow.services.clip.get_audio_storage_service"
+    )
+    mock_get_audio_storage_service.return_value.__aenter__.return_value = (
+        mock_storage_service
+    )
+    return mock_storage_service
 
 
-async def test_clip_create_success(mocker: MockerFixture, mock_session):
+async def test_clip_create_success(
+    mocker: MockerFixture,
+    mock_session,
+    mock_audio_storage,
+    mp3_file,
+):
+    # TODO: who closes the file?
+    mock_audio_storage.get_file.return_value = open(mp3_file, "rb")
     mock_session.get.return_value = mocker.MagicMock(
-        id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696"
+        id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
+        path="path/to/track.mp3",
+        format="MP3",
     )
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
@@ -33,6 +49,9 @@ async def test_clip_create_success(mocker: MockerFixture, mock_session):
     assert str(result.track_id) == "5ec9fcfb-078a-4867-9ff1-4cb0c7105696"
     assert result.start == 1200
     assert result.end == 2100
+    assert result.format == "MP3"
+    assert result.size == 0  # TODO: size should be calculated
+    assert str(result.url) == "http://example.com/clip"
 
 
 async def test_clip_create_track_not_found_error(mock_session):

@@ -65,7 +65,7 @@ async def test_store_file_success(mock_s3_client):
     )
 
 
-async def test_store_file_failure(mock_s3_client):
+async def test_store_file_error(mock_s3_client):
     # raise an error on put_object to simulate a failure when storing a file
     mock_s3_client.put_object.side_effect = BotoCoreError()
 
@@ -100,7 +100,7 @@ async def test_get_file_success(mocker: MockerFixture, mock_s3_client):
         assert file.read() == b"chunk1chunk2"
 
 
-async def test_get_file_failure(mocker: MockerFixture, mock_s3_client):
+async def test_get_file_error(mocker: MockerFixture, mock_s3_client):
     # Mock S3 client to raise an exception
     mock_s3_client.get_object.side_effect = BotoCoreError()
 
@@ -132,7 +132,7 @@ async def test_generate_expiring_url_success(mock_s3_client):
     assert url == "http://example.com/presigned-url"
 
 
-async def test_generate_expiring_url_failure(mock_s3_client):
+async def test_generate_expiring_url_error(mock_s3_client):
     # raise an error on generate_presigned_url to simulate a failure
     mock_s3_client.generate_presigned_url.side_effect = BotoCoreError()
 

@@ -5,7 +5,7 @@ from fastapi import Path
 from httpx import AsyncClient
 from pydub import AudioSegment
 
-# TODO: use the test storage bucket
+pytestmark = pytest.mark.usefixtures("audio_storage")
 
 
 @pytest.fixture

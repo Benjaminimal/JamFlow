@@ -6,7 +6,7 @@ from tests.fixtures.http import client, simple_client  # noqa: F401
 
 
 @pytest.fixture
-async def track_1(db_session, track_storage, mp3_upload_file) -> TrackReadDto:
+async def track_1(db_session, audio_storage, mp3_upload_file) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track mp3",
         recorded_date="2021-02-03",
@@ -16,7 +16,7 @@ async def track_1(db_session, track_storage, mp3_upload_file) -> TrackReadDto:
 
 
 @pytest.fixture
-async def track_2(db_session, track_storage, ogg_upload_file) -> TrackReadDto:
+async def track_2(db_session, audio_storage, ogg_upload_file) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track ogg",
         recorded_date="2022-04-05",
@@ -26,7 +26,7 @@ async def track_2(db_session, track_storage, ogg_upload_file) -> TrackReadDto:
 
 
 @pytest.fixture
-async def track_3(db_session, track_storage, wav_upload_file) -> TrackReadDto:
+async def track_3(db_session, audio_storage, wav_upload_file) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track wav",
         recorded_date="2023-06-07",

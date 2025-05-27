@@ -8,17 +8,11 @@ from .types import StorageService
 
 __all__ = [
     "StorageService",
-    "get_track_storage_service",
+    "get_audio_storage_service",
 ]
 
 
 @asynccontextmanager
-async def get_track_storage_service() -> AsyncIterator[StorageService]:
-    async with S3StorageService(settings.STORAGE_NAME_TRACK) as service:
-        yield service
-
-
-@asynccontextmanager
-async def get_clip_storage_service() -> AsyncIterator[StorageService]:
-    async with S3StorageService(settings.STORAGE_NAME_CLIP) as service:
+async def get_audio_storage_service() -> AsyncIterator[StorageService]:
+    async with S3StorageService(settings.STORAGE_NAME_AUDIO) as service:
         yield service
