@@ -12,12 +12,10 @@ def mock_session(mocker: MockerFixture):
     return session
 
 
-@pytest.fixture
-def mock_track_read(mocker: MockerFixture):
-    return mocker.patch("jamflow.services.clip.track_read", autospec=True)
-
-
-async def test_clip_create_success(mock_session, mock_track_read):
+async def test_clip_create_success(mocker: MockerFixture, mock_session):
+    mock_session.get.return_value = mocker.MagicMock(
+        id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696"
+    )
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
         track_id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",

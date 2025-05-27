@@ -1,6 +1,11 @@
+from io import BytesIO
+
 import pytest
 from fastapi import Path
 from httpx import AsyncClient
+from pydub import AudioSegment
+
+# TODO: use the test storage bucket
 
 
 @pytest.fixture
@@ -36,15 +41,18 @@ async def test_audio_workflow_success(
     # Create a clip from the uploaded track and verify the operation succeeds
     clip_data = {
         "title": "Test Clip",
-        "start": 1,
-        "end": 2,
+        "start": 1000,
+        "end": 2000,
         "track_id": track_id,
     }
     response = await client.post("/api/v1/clips", json=clip_data)
     assert response.status_code == 201, response.content
     clip_url = response.json()["url"]
 
-    # Download the clip and verify it is accessible
-    response = await client.get(clip_url)
+    # Download the clip and verify the correct content
+    response = await public_client.get(clip_url)
     assert response.status_code == 200, response.content
-    # TODO: assert correct clip content
+    # TODO: assert content type
+    clip_segment = AudioSegment.from_file(BytesIO(response.content), format="mp3")
+    assert len(clip_segment) == 1000
+    # TODO: assert content is correct

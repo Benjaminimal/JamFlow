@@ -20,7 +20,7 @@ def test_generate_file_path_success(mocker: MockerFixture):
 
 
 # TODO: implement empty extension handling
-@pytest.skip("Empty extension handling is not implemented yet")
+@pytest.mark.skip(reason="Empty extension handling is not implemented yet")
 def test_generate_file_empty_extension_error(mocker: MockerFixture):
     with pytest.raises(ValueError):
         generate_file_path("")

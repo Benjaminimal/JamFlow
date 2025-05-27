@@ -1,3 +1,4 @@
+from tempfile import TemporaryFile
 from typing import BinaryIO
 
 import filetype  # type: ignore [import-untyped]
@@ -5,6 +6,7 @@ from mutagen import MutagenError  # type: ignore [attr-defined]
 from mutagen.mp3 import MP3
 from mutagen.oggvorbis import OggVorbis
 from mutagen.wave import WAVE
+from pydub import AudioSegment
 
 from jamflow.core.log import get_logger
 from jamflow.models.enums import AudioFileFormat
@@ -68,3 +70,22 @@ def get_audio_duration(
         raise AudioServiceException("No metadata found")
 
     return int(metadata.info.length * 1000)
+
+
+# TODO: needs testing
+def clip_audio_file(
+    file: str | BinaryIO,
+    file_format: AudioFileFormat,
+    *,
+    start: int,
+    end: int,
+) -> BinaryIO:
+    """
+    Clips an audio file from `start` to `end` in milliseconds.
+    """
+    audio_segment = AudioSegment.from_file(file, format=file_format.lower())
+    clipped_segment = audio_segment[start:end]
+    temp_file = TemporaryFile(mode="wb+")
+    clipped_segment.export(temp_file, format=file_format.lower())
+    temp_file.seek(0)
+    return temp_file

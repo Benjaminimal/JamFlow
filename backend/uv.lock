@@ -477,10 +477,12 @@ dependencies = [
     { name = "aiobotocore" },
     { name = "alembic" },
     { name = "asyncpg" },
+    { name = "audioop-lts" },
     { name = "fastapi", extra = ["standard"] },
     { name = "filetype" },
     { name = "mutagen" },
     { name = "pydantic-settings" },
+    { name = "pydub" },
     { name = "sqlmodel" },
     { name = "structlog" },
 ]
@@ -493,9 +495,7 @@ dev = [
     { name = "types-aiobotocore", extra = ["s3"] },
 ]
 test = [
-    { name = "audioop-lts" },
     { name = "httpx" },
-    { name = "pydub" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-mock" },
@@ -506,10 +506,12 @@ requires-dist = [
     { name = "aiobotocore", specifier = ">=2.19.0" },
     { name = "alembic", specifier = ">=1.14.1" },
     { name = "asyncpg", specifier = ">=0.30.0" },
+    { name = "audioop-lts", specifier = ">=0.2.1" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.7" },
     { name = "filetype", specifier = ">=1.2.0" },
     { name = "mutagen", specifier = ">=1.47.0" },
     { name = "pydantic-settings", specifier = ">=2.7.1" },
+    { name = "pydub", specifier = ">=0.25.1" },
     { name = "sqlmodel", specifier = ">=0.0.22" },
     { name = "structlog", specifier = ">=25.1.0" },
 ]
@@ -522,9 +524,7 @@ dev = [
     { name = "types-aiobotocore", extras = ["s3"], specifier = ">=2.19.0" },
 ]
 test = [
-    { name = "audioop-lts", specifier = ">=0.2.1" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "pydub", specifier = ">=0.25.1" },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "pytest-asyncio", specifier = ">=0.25.3" },
     { name = "pytest-mock", specifier = ">=3.14.0" },
