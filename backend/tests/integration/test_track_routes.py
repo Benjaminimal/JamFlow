@@ -12,8 +12,6 @@ from jamflow.utils import timezone_now
 
 pytestmark = pytest.mark.usefixtures("audio_storage")
 
-# TODO: test upload of a not accepted file format (e.g. txt, pdf, etc.)
-
 
 @pytest.fixture
 def track_data():
@@ -101,6 +99,23 @@ async def test_track_read_with_non_existant_track_returns_404(client: AsyncClien
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
     response_data = response.json()
     assert response_data == {"detail": {"msg": "Track not found"}}
+
+
+async def test_track_create_with_invalid_file_format_returns_422(
+    client: AsyncClient,
+    track_data,
+):
+    track_file = {"upload_file": ("dummy.txt", b"Invalid content", "text/plain")}
+    response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
+        response.content
+    )
+    response_data = response.json()
+    assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
+    assert (
+        response_data["detail"][0]["msg"]
+        == "Value error, Unsupported file format. Supported formats: MP3, WAV, OGG"
+    )
 
 
 async def test_track_create_returns_complete_track_with_extracted_metadata(
