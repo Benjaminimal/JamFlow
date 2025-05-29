@@ -6,6 +6,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
+from jamflow.models.track import Track
 from jamflow.schemas.track import TrackReadDto
 from jamflow.utils import timezone_now
 
@@ -106,6 +107,8 @@ async def test_track_create_returns_complete_track_with_extracted_metadata(
     client: AsyncClient,
     track_data,
     track_file,
+    count_rows,
+    get_row,
 ):
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
@@ -129,6 +132,11 @@ async def test_track_create_returns_complete_track_with_extracted_metadata(
     assert response_data["url"].startswith("http://") or (
         response_data["url"].startswith("https://")
     )
+
+    assert await count_rows(Track) == 1
+    persisted_track = await get_row(Track, "Test Track", column=Track.title)
+    assert persisted_track is not None
+    assert str(persisted_track.id) == response_data["id"]
 
 
 async def test_track_create_accepts_none_recorded_date(

@@ -3,21 +3,10 @@ from uuid import uuid4
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from sqlmodel import col, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.models.clip import Clip
 from jamflow.schemas.track import TrackReadDto
-
-
-@pytest.fixture
-def count_rows(db_session: AsyncSession):
-    async def _count_rows(model):
-        statement = select(func.count(col(model.id)))
-        result = await db_session.exec(statement)
-        return result.one()
-
-    return _count_rows
 
 
 @pytest.fixture
@@ -35,15 +24,11 @@ async def test_clip_create_returns_complete_clip_with_extracted_metadata(
     db_session: AsyncSession,
     clip_data,
     count_rows,
+    get_row,
 ):
     response = await client.post("/api/v1/clips", json=clip_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     response_data = response.json()
-
-    assert await count_rows(Clip) == 1
-    assert (
-        await db_session.exec(select(Clip).where(Clip.title == "Test Clip"))
-    ).first() is not None
 
     assert set(response_data.keys()) == {
         "id",
@@ -65,6 +50,11 @@ async def test_clip_create_returns_complete_clip_with_extracted_metadata(
     assert response_data["start"] == 1200
     assert response_data["end"] == 2100
     assert response_data["format"] == "MP3"
+
+    assert await count_rows(Clip) == 1
+    persisted_clip = await get_row(Clip, "Test Clip", column=Clip.title)
+    assert persisted_clip is not None
+    assert str(persisted_clip.id) == response_data["id"]
 
 
 async def test_clip_create_with_non_existent_track_returns_404(
