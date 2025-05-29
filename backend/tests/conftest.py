@@ -12,6 +12,11 @@ from .fixtures.files import (  # noqa: F401
     wav_file,
     wav_upload_file,
 )
+from .fixtures.http import (  # noqa: F401
+    client,
+    public_client,
+    simple_client,
+)
 from .fixtures.storage import (  # noqa: F401
     audio_storage,
     storage_name_override,

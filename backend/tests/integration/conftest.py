@@ -2,7 +2,6 @@ import pytest
 
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
 from jamflow.services.track import track_create
-from tests.fixtures.http import client, simple_client  # noqa: F401
 
 
 @pytest.fixture
