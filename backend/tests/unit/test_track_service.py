@@ -77,7 +77,7 @@ def track_2() -> Track:
     )
 
 
-async def test_track_create_success(
+async def test_track_create_returns_valid_track_dto_and_stores_file(
     mock_session,
     mock_audio_storage,
     track_create_dto: TrackCreateDto,
@@ -99,7 +99,7 @@ async def test_track_create_success(
     mock_audio_storage.generate_expiring_url.assert_called_once()
 
 
-async def test_track_create_wrong_extension_success(
+async def test_track_create_with_wrong_extension_saves_with_correct_extension(
     mock_session,
     mock_audio_storage,
     track_create_dto: TrackCreateDto,
@@ -118,7 +118,7 @@ async def test_track_create_wrong_extension_success(
     assert path_kwarg.endswith(".mp3")
 
 
-async def test_track_create_no_duration_error(
+async def test_track_create_raises_validation_exception_when_audio_duration_fails(
     mocker: MockFixture,
     mock_session,
     mock_audio_storage,
@@ -133,7 +133,7 @@ async def test_track_create_no_duration_error(
         await track_create(session=mock_session, track_create_dto=track_create_dto)
 
 
-async def test_track_list_success(
+async def test_track_list_returns_track_dtos_and_generates_url(
     mocker: MockerFixture,
     mock_audio_storage,
     track_1: Track,
@@ -153,7 +153,7 @@ async def test_track_list_success(
     mock_audio_storage.generate_expiring_url.assert_called()
 
 
-async def test_track_read_success(
+async def test_track_read_returns_track_dto_and_generates_urls(
     mocker: MockerFixture,
     mock_audio_storage,
     track_1: Track,
@@ -169,7 +169,7 @@ async def test_track_read_success(
     mock_audio_storage.generate_expiring_url.assert_called()
 
 
-async def test_track_read_not_found(mocker: MockerFixture):
+async def test_track_read_with_missing_track_rasies_error(mocker: MockerFixture):
     mock_session = mocker.AsyncMock()
     mock_session.get.return_value = None
 
@@ -179,7 +179,7 @@ async def test_track_read_not_found(mocker: MockerFixture):
     mock_session.get.assert_called_once()
 
 
-async def test_track_generate_signed_urls(
+async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
     mocker: MockerFixture,
     mock_session,
     mock_audio_storage,

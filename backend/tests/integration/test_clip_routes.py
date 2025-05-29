@@ -30,7 +30,7 @@ def clip_data(track_1: TrackReadDto):
     }
 
 
-async def test_clip_create_success(
+async def test_clip_create_returns_complete_clip_with_extracted_metadata(
     client: AsyncClient,
     db_session: AsyncSession,
     clip_data,
@@ -64,9 +64,10 @@ async def test_clip_create_success(
     assert response_data["duration"] == 900
     assert response_data["start"] == 1200
     assert response_data["end"] == 2100
+    assert response_data["format"] == "MP3"
 
 
-async def test_clip_create_track_not_found(
+async def test_clip_create_with_non_existent_track_returns_404(
     client: AsyncClient,
     clip_data,
     count_rows,

@@ -13,7 +13,7 @@ from jamflow.services.audio import (
 )
 
 
-def test_get_audio_file_format_success(mocker: MockerFixture):
+def test_get_audio_file_format_returns_correct_format(mocker: MockerFixture):
     mocker.patch("filetype.guess", return_value=MagicMock(extension="mp3"))
 
     result = get_audio_file_format("test.mp3")
@@ -21,20 +21,26 @@ def test_get_audio_file_format_success(mocker: MockerFixture):
     assert result == AudioFileFormat.MP3
 
 
-def test_get_audio_file_format_guess_fails(mocker: MockerFixture):
+def test_get_audio_file_format_with_failing_detection_raises_exception(
+    mocker: MockerFixture,
+):
     mocker.patch("filetype.guess", return_value=None)
     with pytest.raises(AudioServiceException, match="Cannot guess file type"):
         get_audio_file_format("test.mp3")
 
 
-def test_get_audio_file_format_unsupported_type(mocker: MockerFixture):
+def test_get_audio_file_format_with_unsupported_type_raises_exception(
+    mocker: MockerFixture,
+):
     mocker.patch("filetype.guess", return_value=MagicMock(extension="exe"))
 
     with pytest.raises(AudioServiceException, match="Unsupported file type: EXE"):
         get_audio_file_format("test.exe")
 
 
-def test_get_audio_duration_success(mocker: MockerFixture):
+def test_get_audio_duration_for_valid_mp3_file_returns_duration_in_milliseconds(
+    mocker: MockerFixture,
+):
     mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
     mock_metadata = MagicMock()
     mock_metadata.info.length = 5.0  # 5 seconds
@@ -44,7 +50,9 @@ def test_get_audio_duration_success(mocker: MockerFixture):
     assert result == 5000  # 5000 milliseconds
 
 
-def test_get_audio_duration_metadata_error(mocker: MockerFixture):
+def test_get_audio_duration_with_metadata_error_raises_audio_service_exception(
+    mocker: MockerFixture,
+):
     mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
     mock_mp3.side_effect = MutagenError("Metadata error")
 
@@ -52,7 +60,9 @@ def test_get_audio_duration_metadata_error(mocker: MockerFixture):
         get_audio_duration("dummy.mp3", AudioFileFormat.MP3)
 
 
-def test_get_audio_duration_no_metadata(mocker: MockerFixture):
+def test_get_audio_duration_without_metadata_raises_audio_service_exception(
+    mocker: MockerFixture,
+):
     mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
     mock_metadata = MagicMock(info=None)
     mock_mp3.return_value = mock_metadata
@@ -69,7 +79,7 @@ def test_get_audio_duration_no_metadata(mocker: MockerFixture):
         ("mp3_file", AudioFileFormat.MP3),
     ],
 )
-def test_get_audio_duration_success_format(
+def test_get_audio_duration_returns_valid_duration_for_supported_formats(
     audio_file: str,
     file_format: AudioFileFormat,
     request: pytest.FixtureRequest,

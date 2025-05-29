@@ -8,7 +8,10 @@ from jamflow.schemas.track import TrackCreateDto
 
 
 @pytest.mark.parametrize("recorded_date", ["", None, date.today()])
-def test_track_create_dto_success(recorded_date, mp3_upload_file: UploadFile):
+def test_track_create_dto_constructs_sucessfully(
+    recorded_date,
+    mp3_upload_file: UploadFile,
+):
     dto = TrackCreateDto(
         title="Test Track",
         recorded_date=recorded_date,
@@ -34,7 +37,7 @@ def test_track_create_dto_success(recorded_date, mp3_upload_file: UploadFile):
         ("A" * 256, "String should have at most 255 characters"),
     ],
 )
-def test_track_create_dto_title_error(
+def test_track_create_dto_with_invalid_title_raises_validation_error(
     title, expected_message, mp3_upload_file: UploadFile
 ):
     with pytest.raises(ValidationError, match=expected_message):
@@ -76,8 +79,10 @@ def huge_mp3_upload_file(mp3_upload_file: UploadFile) -> UploadFile:
         ),
     ],
 )
-def test_track_create_dto_upload_file_error(
-    upload_file: str, expected_message: str, request: pytest.FixtureRequest
+def test_track_create_dto_with_invalid_upload_file_raises_validaiton_error(
+    upload_file: str,
+    expected_message: str,
+    request: pytest.FixtureRequest,
 ):
     upload_file: UploadFile = request.getfixturevalue(upload_file)
     with pytest.raises(ValidationError, match=expected_message):

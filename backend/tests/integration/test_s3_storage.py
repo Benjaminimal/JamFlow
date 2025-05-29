@@ -35,7 +35,10 @@ async def s3_storage(s3_client: S3Client):
     await s3_client.delete_bucket(Bucket=TEST_BUCKET_NAME)
 
 
-async def test_store_file(s3_storage: S3StorageService, s3_client: S3Client):
+async def test_store_file_content_matches_original_content(
+    s3_storage: S3StorageService,
+    s3_client: S3Client,
+):
     file_data = b"test content"
     await s3_storage.store_file("some_dir/test-file.txt", file_data)
 
@@ -47,7 +50,10 @@ async def test_store_file(s3_storage: S3StorageService, s3_client: S3Client):
     assert content == file_data
 
 
-async def test_get_file(s3_storage: S3StorageService, s3_client: S3Client):
+async def test_get_file_returns_correct_content(
+    s3_storage: S3StorageService,
+    s3_client: S3Client,
+):
     path = "test/test-file.txt"
     content = b"test content"
     await s3_client.put_object(Bucket=TEST_BUCKET_NAME, Key=path, Body=content)
@@ -58,12 +64,17 @@ async def test_get_file(s3_storage: S3StorageService, s3_client: S3Client):
     assert file_content == content
 
 
-async def test_get_file_missing(s3_storage: S3StorageService):
+async def test_get_file_for_missing_key_raises_storage_exception(
+    s3_storage: S3StorageService,
+):
     with pytest.raises(StorageException, match="Failed to get file"):
         await s3_storage.get_file(path="nonexistent.txt")
 
 
-async def test_purge_bucket(s3_storage: S3StorageService, s3_client: S3Client):
+async def test_purge_bucket_removes_all_content(
+    s3_storage: S3StorageService,
+    s3_client: S3Client,
+):
     # Store multiple files in the bucket
     await s3_storage.store_file("file1.txt", b"content1")
     await s3_storage.store_file("file2.txt", b"content2")
@@ -81,8 +92,9 @@ async def test_purge_bucket(s3_storage: S3StorageService, s3_client: S3Client):
     assert "Contents" not in response
 
 
-async def test_generate_presigned_url(s3_storage: S3StorageService):
+async def test_generate_presigned_url_returns_valid_url(s3_storage: S3StorageService):
     await s3_storage.store_file("test-file.txt", b"test content")
     url = await s3_storage.generate_expiring_url("test-file.txt")
     assert "test-file.txt" in url
     assert str(settings.STORAGE_URL) in url
+    assert url.startswith("http://") or url.startswith("https://")

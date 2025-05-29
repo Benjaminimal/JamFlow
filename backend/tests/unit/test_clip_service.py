@@ -19,7 +19,7 @@ def mock_audio_storage(mocker: MockerFixture):
     return mock_storage_service
 
 
-async def test_clip_create_success(
+async def test_clip_create_returns_clip_with_calculated_metadata(
     mocker: MockerFixture,
     mock_session,
     mock_audio_storage,
@@ -56,7 +56,7 @@ async def test_clip_create_success(
     assert str(result.url) == "http://example.com/clip"
 
 
-async def test_clip_create_track_not_found_error(mock_session):
+async def test_clip_create_with_non_existent_track_raises_exception(mock_session):
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
         track_id="5ec9fcfb078a48679ff14cb0c7105696",

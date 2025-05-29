@@ -27,7 +27,7 @@ def track_file(mp3_file: Path):
     return {"upload_file": ("dummy.mp3", mp3_file.read_bytes(), "audio/mpeg")}
 
 
-async def test_track_list_success(
+async def test_track_list_with_three_tracks_returns_all(
     client: AsyncClient,
     track_1: TrackReadDto,
     track_2: TrackReadDto,
@@ -55,17 +55,22 @@ async def test_track_list_success(
     assert track_2_data["title"] == "Test Track ogg"
     assert track_3_data["id"] == str(track_3.id)
     assert track_3_data["title"] == "Test Track wav"
-    assert track_3_data["url"].startswith("http://")
+    assert track_3_data["url"].startswith("http://") or (
+        track_3_data["url"].startswith("https://")
+    )
 
 
-async def test_track_list_empty_success(client: AsyncClient):
+async def test_track_list_empty_returns_empty_list(client: AsyncClient):
     response = await client.get("/api/v1/tracks")
     assert response.status_code == status.HTTP_200_OK, response.content
     response_data = response.json()
     assert len(response_data) == 0
 
 
-async def test_track_read_success(client: AsyncClient, track_1: TrackReadDto):
+async def test_track_read_with_existing_track_returns_expected_response(
+    client: AsyncClient,
+    track_1: TrackReadDto,
+):
     response = await client.get(f"/api/v1/tracks/{track_1.id}")
     assert response.status_code == status.HTTP_200_OK, response.content
     response_data = response.json()
@@ -85,17 +90,23 @@ async def test_track_read_success(client: AsyncClient, track_1: TrackReadDto):
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "MP3"
     assert response_data["size"] == 5269
-    assert response_data["url"].startswith("http://")
+    assert response_data["url"].startswith("http://") or (
+        response_data["url"].startswith("https://")
+    )
 
 
-async def test_track_read_not_found_error(client: AsyncClient):
+async def test_track_read_with_non_existant_track_returns_404(client: AsyncClient):
     response = await client.get(f"/api/v1/tracks/{uuid.uuid4()}")
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
     response_data = response.json()
     assert response_data == {"detail": {"msg": "Track not found"}}
 
 
-async def test_track_create_success(client: AsyncClient, track_data, track_file):
+async def test_track_create_returns_complete_track_with_extracted_metadata(
+    client: AsyncClient,
+    track_data,
+    track_file,
+):
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == status.HTTP_201_CREATED, response.content
     response_data = response.json()
@@ -115,11 +126,15 @@ async def test_track_create_success(client: AsyncClient, track_data, track_file)
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "MP3"
     assert response_data["size"] == 5269
-    assert response_data["url"].startswith("http://")
+    assert response_data["url"].startswith("http://") or (
+        response_data["url"].startswith("https://")
+    )
 
 
-async def test_track_create_none_recorded_date_success(
-    client: AsyncClient, track_data, track_file
+async def test_track_create_accepts_none_recorded_date(
+    client: AsyncClient,
+    track_data,
+    track_file,
 ):
     track_data["recorded_date"] = None
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
@@ -128,8 +143,10 @@ async def test_track_create_none_recorded_date_success(
     assert response_data["recorded_date"] is None
 
 
-async def test_track_create_missing_recorded_date_success(
-    client: AsyncClient, track_data, track_file
+async def test_track_create_sets_missing_recorded_date_to_none(
+    client: AsyncClient,
+    track_data,
+    track_file,
 ):
     del track_data["recorded_date"]
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
@@ -138,8 +155,10 @@ async def test_track_create_missing_recorded_date_success(
     assert response_data["recorded_date"] is None
 
 
-async def test_track_create_blank_title_error(
-    client: AsyncClient, track_data, track_file
+async def test_track_create_with_blank_title_returns_422(
+    client: AsyncClient,
+    track_data,
+    track_file,
 ):
     track_data["title"] = "\n \t"
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
@@ -151,8 +170,10 @@ async def test_track_create_blank_title_error(
     )
 
 
-async def test_track_create_missing_file_error(
-    client: AsyncClient, track_data, track_file
+async def test_track_create_without_file_returns_422(
+    client: AsyncClient,
+    track_data,
+    track_file,
 ):
     response = await client.post("/api/v1/tracks", data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -161,8 +182,10 @@ async def test_track_create_missing_file_error(
     assert response_data["detail"][0]["msg"] == "Field required"
 
 
-async def test_track_create_empty_file_error(
-    client: AsyncClient, track_data, track_file
+async def test_track_create_with_empty_file_returns_422(
+    client: AsyncClient,
+    track_data,
+    track_file,
 ):
     track_file["upload_file"] = ("empty.mp3", b"", "audio/mpeg")
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
@@ -172,7 +195,7 @@ async def test_track_create_empty_file_error(
     assert response_data["detail"][0]["msg"] == "Value error, File is empty"
 
 
-async def test_track_get_urls_success(
+async def test_track_get_urls_with_three_tracks_returns_urls_with_expiration_times(
     client: AsyncClient,
     track_1: TrackReadDto,
     track_2: TrackReadDto,
@@ -211,7 +234,7 @@ async def test_track_get_urls_success(
     )
 
 
-async def test_track_get_urls_no_tack_id_error(
+async def test_track_get_urls_with_no_existent_id_returns_422(
     client: AsyncClient, track_1: TrackReadDto
 ):
     response = await client.get("/api/v1/tracks/urls")

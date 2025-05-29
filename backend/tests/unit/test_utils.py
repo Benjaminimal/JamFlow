@@ -7,7 +7,9 @@ from pytest_mock import MockerFixture
 from jamflow.services.utils import generate_clip_path, generate_track_path
 
 
-def test_generate_track_path_success(mocker: MockerFixture):
+def test_generate_track_path_returns_path_nested_by_year_and_month(
+    mocker: MockerFixture,
+):
     mock_timezone_now = mocker.patch("jamflow.services.utils.timezone_now")
     mock_timezone_now.return_value = datetime(2023, 1, 1, 1, 1, 1)
 
@@ -23,12 +25,14 @@ def test_generate_track_path_success(mocker: MockerFixture):
     )
 
 
-def test_generate_file_empty_extension_error(mocker: MockerFixture):
+def test_generate_track_path_raises_value_error_on_empty_extension(
+    mocker: MockerFixture,
+):
     with pytest.raises(ValueError):
         generate_track_path(uuid.uuid4(), "")
 
 
-def test_generate_clip_path_success():
+def test_generate_clip_path_returns_path_nested_under_track_directory():
     track_path = "tracks/2023/01/1234567890abcdef1234567890abcdef/1234567890abcdef1234567890abcdef.txt"
     clip_id = uuid.UUID(hex="fedcba0987654321fedcba0987654321")
 
@@ -42,7 +46,9 @@ def test_generate_clip_path_success():
     )
 
 
-def test_generate_clip_path_no_directory_error(mocker: MockerFixture):
+def test_generate_clip_path_raises_value_error_when_track_path_has_no_directory(
+    mocker: MockerFixture,
+):
     invalid_path = "file_without_directory.txt"
     clip_hex_digest = "fedcba0987654321fedcba0987654321"
     clip_id = uuid.UUID(hex=clip_hex_digest)
@@ -53,7 +59,9 @@ def test_generate_clip_path_no_directory_error(mocker: MockerFixture):
         generate_clip_path(invalid_path, clip_id, extension)
 
 
-def test_generate_clip_path_empty_extension_error(mocker: MockerFixture):
+def test_generate_clip_path_raises_value_error_on_empty_extension(
+    mocker: MockerFixture,
+):
     track_path = "tracks/2023/01/1234567890abcdef1234567890abcdef/1234567890abcdef1234567890abcdef.txt"
     clip_hex_digest = "fedcba0987654321fedcba0987654321"
     clip_id = uuid.UUID(hex=clip_hex_digest)

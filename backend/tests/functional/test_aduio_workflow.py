@@ -21,7 +21,7 @@ def track_file(mp3_file: Path):
     return {"upload_file": ("dummy.mp3", mp3_file.read_bytes(), "audio/mpeg")}
 
 
-async def test_audio_workflow_success(
+async def test_track_upload_and_clip_create(
     client: AsyncClient,
     public_client: AsyncClient,
     track_file,
