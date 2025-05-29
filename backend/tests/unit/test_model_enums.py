@@ -17,12 +17,7 @@ def test_enum():
 
 
 def test_str_enum_column_values_are_actual_values(test_enum):
-    class TestEnum(StrEnum):
-        VALUE_ONE = "VALUEONE"
-        VALUE_TWO = "ValueTwo"
-        VALUE_THREE = "valuethree"
-
-    column = str_enum_to_sa_column(TestEnum)
+    column = str_enum_to_sa_column(test_enum)
     assert column.type.enums == ["VALUEONE", "ValueTwo", "valuethree"]
     assert column.type.name == "testenum"
     assert column.type.__class__.__name__ == "Enum"

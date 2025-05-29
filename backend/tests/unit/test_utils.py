@@ -25,9 +25,7 @@ def test_generate_track_path_returns_path_nested_by_year_and_month(
     )
 
 
-def test_generate_track_path_raises_value_error_on_empty_extension(
-    mocker: MockerFixture,
-):
+def test_generate_track_path_raises_value_error_on_empty_extension():
     with pytest.raises(ValueError):
         generate_track_path(uuid.uuid4(), "")
 
@@ -46,9 +44,7 @@ def test_generate_clip_path_returns_path_nested_under_track_directory():
     )
 
 
-def test_generate_clip_path_raises_value_error_when_track_path_has_no_directory(
-    mocker: MockerFixture,
-):
+def test_generate_clip_path_raises_value_error_when_track_path_has_no_directory():
     invalid_path = "file_without_directory.txt"
     clip_hex_digest = "fedcba0987654321fedcba0987654321"
     clip_id = uuid.UUID(hex=clip_hex_digest)
@@ -59,9 +55,7 @@ def test_generate_clip_path_raises_value_error_when_track_path_has_no_directory(
         generate_clip_path(invalid_path, clip_id, extension)
 
 
-def test_generate_clip_path_raises_value_error_on_empty_extension(
-    mocker: MockerFixture,
-):
+def test_generate_clip_path_raises_value_error_on_empty_extension():
     track_path = "tracks/2023/01/1234567890abcdef1234567890abcdef/1234567890abcdef1234567890abcdef.txt"
     clip_hex_digest = "fedcba0987654321fedcba0987654321"
     clip_id = uuid.UUID(hex=clip_hex_digest)

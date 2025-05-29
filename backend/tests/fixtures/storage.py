@@ -15,7 +15,9 @@ def storage_name_override():
 
 
 @pytest.fixture
-async def audio_storage(storage_name_override):
+async def audio_storage(
+    storage_name_override,  # noqa: ARG001
+):
     yield
     async with get_audio_storage_service() as storage_service:
         # delete all files in the bucket

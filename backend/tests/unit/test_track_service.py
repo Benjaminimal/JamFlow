@@ -121,7 +121,6 @@ async def test_track_create_with_wrong_extension_saves_with_correct_extension(
 async def test_track_create_raises_validation_exception_when_audio_duration_fails(
     mocker: MockFixture,
     mock_db_session,
-    mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
     mocker.patch(

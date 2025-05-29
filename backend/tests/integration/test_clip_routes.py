@@ -3,7 +3,6 @@ from uuid import uuid4
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.models.clip import Clip
 from jamflow.schemas.track import TrackReadDto
@@ -21,7 +20,6 @@ def clip_data(track_1: TrackReadDto):
 
 async def test_clip_create_returns_complete_clip_with_extracted_metadata(
     client: AsyncClient,
-    db_session: AsyncSession,
     clip_data,
     count_rows,
     get_row,
@@ -76,7 +74,6 @@ async def test_clip_create_with_non_existent_track_returns_404(
 async def test_clip_create_with_overlapping_times_returns_422(
     client: AsyncClient,
     clip_data,
-    count_rows,
 ):
     clip_data["start"] = 2000
     clip_data["end"] = 1000
@@ -94,7 +91,6 @@ async def test_clip_create_with_overlapping_times_returns_422(
 async def test_clip_create_with_empty_title_returns_422(
     client: AsyncClient,
     clip_data,
-    count_rows,
 ):
     clip_data["title"] = "\t \n"
 
@@ -111,7 +107,6 @@ async def test_clip_create_with_empty_title_returns_422(
 async def test_clip_create_with_end_gt_track_length_returns_422(
     client: AsyncClient,
     clip_data,
-    count_rows,
 ):
     clip_data["end"] = 3000
 

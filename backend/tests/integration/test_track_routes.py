@@ -196,7 +196,6 @@ async def test_track_create_with_blank_title_returns_422(
 async def test_track_create_without_file_returns_422(
     client: AsyncClient,
     track_data,
-    track_file,
 ):
     response = await client.post("/api/v1/tracks", data=track_data)
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -218,11 +217,11 @@ async def test_track_create_with_empty_file_returns_422(
     assert response_data["detail"][0]["msg"] == "Value error, File is empty"
 
 
+@pytest.mark.usefixtures("track_3")
 async def test_track_get_urls_with_three_tracks_returns_urls_with_expiration_times(
     client: AsyncClient,
     track_1: TrackReadDto,
     track_2: TrackReadDto,
-    track_3: TrackReadDto,
 ):
     expires_at_min = timezone_now() + timedelta(hours=1)
     expires_at_max = expires_at_min + timedelta(seconds=1)
@@ -257,9 +256,7 @@ async def test_track_get_urls_with_three_tracks_returns_urls_with_expiration_tim
     )
 
 
-async def test_track_get_urls_with_no_existent_id_returns_422(
-    client: AsyncClient, track_1: TrackReadDto
-):
+async def test_track_get_urls_with_no_existent_id_returns_422(client: AsyncClient):
     response = await client.get("/api/v1/tracks/urls")
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (

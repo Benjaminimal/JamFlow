@@ -102,9 +102,7 @@ async def test_get_file_reads_all_chunks_and_returns_file(
         assert file.read() == b"chunk1chunk2"
 
 
-async def test_get_file_raises_storage_exception_on_error(
-    mocker: MockerFixture, mock_s3_client
-):
+async def test_get_file_raises_storage_exception_on_error(mock_s3_client):
     # Mock S3 client to raise an exception
     mock_s3_client.get_object.side_effect = BotoCoreError()
 
