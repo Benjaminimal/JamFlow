@@ -51,7 +51,7 @@ async def test_clip_create_success(
     assert result.start == 1200
     assert result.end == 2100
     assert result.format == "MP3"
-    assert result.size == 0  # TODO: size should be calculated
+    assert 2000 <= result.size <= 3000
     assert str(result.url) == "http://example.com/clip"
 
 

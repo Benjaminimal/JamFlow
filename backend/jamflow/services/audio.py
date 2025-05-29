@@ -15,6 +15,9 @@ from jamflow.services.exceptions import ServiceException
 log = get_logger()
 
 
+# TODO: might narrow file type to BinaryIO as we rarely write to disk
+
+
 class AudioServiceException(ServiceException):
     pass
 
@@ -89,3 +92,14 @@ def clip_audio_file(
     clipped_segment.export(temp_file, format=file_format.lower())
     temp_file.seek(0)
     return temp_file
+
+
+# TODO: needs testing
+def get_file_size(file: BinaryIO) -> int:
+    """
+    Gets the size of an audio file in bytes.
+    """
+    file.seek(0, 2)
+    size = file.tell()
+    file.seek(0)
+    return size
