@@ -7,6 +7,8 @@ from structlog import contextvars, processors, stdlib
 
 from jamflow.core.config import settings
 
+# TODO: implement consistent logging across the application
+
 
 def get_logger() -> stdlib.BoundLogger:
     """Get a fresh logger."""

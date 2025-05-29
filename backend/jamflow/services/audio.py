@@ -15,16 +15,11 @@ from jamflow.services.exceptions import ServiceException
 log = get_logger()
 
 
-# TODO: might narrow file type to BinaryIO as we rarely write to disk
-
-
 class AudioServiceException(ServiceException):
     pass
 
 
-def get_audio_file_format(
-    file: str | BinaryIO,
-) -> AudioFileFormat:
+def get_audio_file_format(file: BinaryIO) -> AudioFileFormat:
     """
     Guesses the file type of an audio file.
 
@@ -42,7 +37,7 @@ def get_audio_file_format(
 
 
 def get_audio_duration(
-    file: str | BinaryIO,
+    file: BinaryIO,
     file_format: AudioFileFormat,
 ) -> int:
     """
@@ -77,7 +72,7 @@ def get_audio_duration(
 
 # TODO: needs testing
 def clip_audio_file(
-    file: str | BinaryIO,
+    file: BinaryIO,
     file_format: AudioFileFormat,
     *,
     start: int,
