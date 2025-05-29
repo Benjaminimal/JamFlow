@@ -49,7 +49,7 @@ async def test_clip_create_returns_complete_clip_with_extracted_metadata(
     assert response_data["duration"] == 900
     assert response_data["start"] == 1200
     assert response_data["end"] == 2100
-    assert response_data["format"] == "MP3"
+    assert response_data["format"] == "mp3"
 
     assert await count_rows(Clip) == 1
     persisted_clip = await get_row(Clip, "Test Clip", column=Clip.title)

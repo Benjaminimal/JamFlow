@@ -75,7 +75,7 @@ def huge_mp3_upload_file(mp3_upload_file: UploadFile) -> UploadFile:
         ),
         (
             "txt_upload_file",
-            "Unsupported file format. Supported formats: MP3, WAV, OGG",
+            "Unsupported file format. Supported formats: mp3, wav, ogg",
         ),
     ],
 )

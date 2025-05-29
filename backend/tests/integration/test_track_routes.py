@@ -87,7 +87,7 @@ async def test_track_read_with_existing_track_returns_expected_response(
     assert response_data["title"] == "Test Track mp3"
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
-    assert response_data["format"] == "MP3"
+    assert response_data["format"] == "mp3"
     assert response_data["size"] == 5269
     assert response_data["url"].startswith("http://") or (
         response_data["url"].startswith("https://")
@@ -114,7 +114,7 @@ async def test_track_create_with_invalid_file_format_returns_422(
     assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
     assert (
         response_data["detail"][0]["msg"]
-        == "Value error, Unsupported file format. Supported formats: MP3, WAV, OGG"
+        == "Value error, Unsupported file format. Supported formats: mp3, wav, ogg"
     )
 
 
@@ -142,7 +142,7 @@ async def test_track_create_returns_complete_track_with_extracted_metadata(
     assert response_data["title"] == track_data["title"]
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
-    assert response_data["format"] == "MP3"
+    assert response_data["format"] == "mp3"
     assert response_data["size"] == 5269
     assert response_data["url"].startswith("http://") or (
         response_data["url"].startswith("https://")

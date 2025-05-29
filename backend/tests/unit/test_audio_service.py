@@ -34,7 +34,7 @@ def test_get_audio_file_format_with_unsupported_type_raises_exception(
 ):
     mocker.patch("filetype.guess", return_value=MagicMock(extension="exe"))
 
-    with pytest.raises(AudioServiceException, match="Unsupported file type: EXE"):
+    with pytest.raises(AudioServiceException, match="Unsupported file type: exe"):
         get_audio_file_format("test.exe")
 
 

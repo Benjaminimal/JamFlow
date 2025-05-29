@@ -35,7 +35,7 @@ async def clip_create(
             end=clip_create_dto.end,
         )
         clip_format = track.format
-        path = generate_clip_path(track.path, clip_id, clip_format.lower())
+        path = generate_clip_path(track.path, clip_id, clip_format)
 
         await audio_storage.store_file(path=path, file=clip_file)
         await log.ainfo("File successfully stored", path=path)

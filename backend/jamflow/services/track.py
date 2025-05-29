@@ -28,7 +28,7 @@ async def track_create(
     format = get_audio_file_format(track_create_dto.upload_file.file)
 
     track_id = uuid.uuid4()
-    path = generate_track_path(track_id, format.lower())
+    path = generate_track_path(track_id, format)
     async with get_audio_storage_service() as audio_storage:
         await audio_storage.store_file(
             path=path, file=track_create_dto.upload_file.file

@@ -1,8 +1,8 @@
 """create model clip
 
-Revision ID: bfa19db58041
-Revises: faf55838d5e5
-Create Date: 2025-05-29 13:40:10.472477
+Revision ID: e667b2dccbfd
+Revises: 3b7b8e131166
+Create Date: 2025-05-29 23:12:45.030234
 
 """
 
@@ -11,10 +11,11 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 import sqlmodel
 from alembic import op
+from sqlalchemy.dialects import postgresql as pg
 
 # revision identifiers, used by Alembic.
-revision: str = "bfa19db58041"
-down_revision: str | None = "faf55838d5e5"
+revision: str = "e667b2dccbfd"
+down_revision: str | None = "3b7b8e131166"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -34,9 +35,7 @@ def upgrade() -> None:
         sa.Column("start", sa.Integer(), nullable=False),
         sa.Column("end", sa.Integer(), nullable=False),
         sa.Column(
-            "format",
-            sa.Enum("MP3", "WAV", "OGG", name="audiofileformat"),
-            nullable=False,
+            "format", pg.ENUM(name="audiofileformat", create_type=False), nullable=False
         ),
         sa.Column("size", sa.Integer(), nullable=False),
         sa.Column("path", sqlmodel.sql.sqltypes.AutoString(), nullable=False),

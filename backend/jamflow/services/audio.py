@@ -34,7 +34,7 @@ def get_audio_file_format(
     if kind is None:
         log.error("Failed to guess file type")
         raise AudioServiceException("Cannot guess file type")
-    extension = kind.extension.upper()
+    extension = kind.extension
     if extension not in AudioFileFormat:
         log.error("Unsupported file type detected", file_type=extension)
         raise AudioServiceException(f"Unsupported file type: {extension}")
@@ -86,10 +86,10 @@ def clip_audio_file(
     """
     Clips an audio file from `start` to `end` in milliseconds.
     """
-    audio_segment = AudioSegment.from_file(file, format=file_format.lower())
+    audio_segment = AudioSegment.from_file(file, format=file_format)
     clipped_segment = audio_segment[start:end]
     temp_file = TemporaryFile(mode="wb+")
-    clipped_segment.export(temp_file, format=file_format.lower())
+    clipped_segment.export(temp_file, format=file_format)
     temp_file.seek(0)
     return temp_file
 

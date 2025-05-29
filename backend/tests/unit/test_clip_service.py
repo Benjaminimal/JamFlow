@@ -30,7 +30,7 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
     mock_db_session.get.return_value = mocker.MagicMock(
         id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
         path="path/to/track.mp3",
-        format="MP3",
+        format="mp3",
         duration=2500,
     )
     clip_create_dto = ClipCreateDto(
@@ -51,7 +51,7 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
     assert result.duration == 900
     assert result.start == 1200
     assert result.end == 2100
-    assert result.format == "MP3"
+    assert result.format == "mp3"
     assert 2000 <= result.size <= 3000
     assert str(result.url) == "http://example.com/clip"
 
