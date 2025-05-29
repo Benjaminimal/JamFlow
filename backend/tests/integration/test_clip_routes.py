@@ -78,3 +78,38 @@ async def test_clip_create_track_not_found(
 
     response_data = response.json()
     assert response_data["detail"] == {"msg": "Track not found"}
+
+
+async def test_clip_create_with_overlapping_times_returns_422(
+    client: AsyncClient,
+    clip_data,
+    count_rows,
+):
+    clip_data["start"] = 2000
+    clip_data["end"] = 1000
+
+    response = await client.post("/api/v1/clips", json=clip_data)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    response_data = response.json()
+    assert response_data["detail"][0]["loc"] == ["body"]
+    assert (
+        response_data["detail"][0]["msg"] == "Value error, Start must be less than end"
+    )
+
+
+async def test_clip_create_with_empty_title_returns_422(
+    client: AsyncClient,
+    clip_data,
+    count_rows,
+):
+    clip_data["title"] = "\t \n"
+
+    response = await client.post("/api/v1/clips", json=clip_data)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    response_data = response.json()
+    assert response_data["detail"][0]["loc"] == ["body", "title"]
+    assert (
+        response_data["detail"][0]["msg"] == "String should have at least 1 character"
+    )
