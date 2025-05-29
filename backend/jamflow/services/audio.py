@@ -70,7 +70,6 @@ def get_audio_duration(
     return int(metadata.info.length * 1000)
 
 
-# TODO: needs testing
 def clip_audio_file(
     file: BinaryIO,
     file_format: AudioFileFormat,
@@ -81,6 +80,20 @@ def clip_audio_file(
     """
     Clips an audio file from `start` to `end` in milliseconds.
     """
+    if start < 0:
+        raise AudioServiceException("Start cannot be negative")
+
+    if end <= start:
+        raise AudioServiceException("Start must be less than end")
+
+    if file_format not in AudioFileFormat:
+        raise AudioServiceException(f"Unsupported file format: {file_format}")
+
+    file.seek(0, 2)
+    if file.tell() == 0:
+        raise AudioServiceException("Cannot clip an empty file")
+    file.seek(0)
+
     audio_segment = AudioSegment.from_file(file, format=file_format)
     clipped_segment = audio_segment[start:end]
     temp_file = TemporaryFile(mode="wb+")

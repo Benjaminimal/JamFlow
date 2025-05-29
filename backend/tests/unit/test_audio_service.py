@@ -4,15 +4,19 @@ from unittest.mock import MagicMock
 
 import pytest
 from mutagen import MutagenError
+from pydub import AudioSegment
 from pytest_mock import MockerFixture
 
 from jamflow.services.audio import (
     AudioFileFormat,
     AudioServiceException,
+    clip_audio_file,
     get_audio_duration,
     get_audio_file_format,
     get_file_size,
 )
+
+# TODO: add tests that don't mock everything
 
 
 def test_get_audio_file_format_returns_correct_format(mocker: MockerFixture):
@@ -118,3 +122,32 @@ def test_get_file_size_on_closed_file_raises_value_error():
 
     with pytest.raises(ValueError, match="I/O operation on closed file"):
         get_file_size(file_like)
+
+
+def test_clip_audio_file_returns_clipped_segment(mp3_file):
+    start, end = 1000, 2000
+    with open(mp3_file, "rb") as file_like:
+        clipped_file = clip_audio_file(file_like, "mp3", start=start, end=end)
+
+    clipped_segment = AudioSegment.from_file(clipped_file, format="mp3")
+    assert 1000 <= len(clipped_segment) <= 1100
+
+
+def test_clip_audio_file_with_invalid_format_raises_exception():
+    with pytest.raises(AudioServiceException, match="Unsupported file format: invalid"):
+        clip_audio_file(BytesIO(b"test data"), "invalid", start=0, end=1000)
+
+
+def test_clip_audio_file_with_negative_start_raises_exception():
+    with pytest.raises(AudioServiceException, match="Start cannot be negative"):
+        clip_audio_file(BytesIO(b"test data"), "mp3", start=-1000, end=1000)
+
+
+def test_clip_audio_file_with_invalid_range_raises_exception():
+    with pytest.raises(AudioServiceException, match="Start must be less than end"):
+        clip_audio_file(BytesIO(b"test data"), "mp3", start=2000, end=1000)
+
+
+def test_clip_audio_file_with_empty_file_raises_exception():
+    with pytest.raises(AudioServiceException, match="Cannot clip an empty file"):
+        clip_audio_file(BytesIO(b""), "mp3", start=0, end=1000)
