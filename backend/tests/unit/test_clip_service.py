@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
 from jamflow.services.clip import clip_create
-from jamflow.services.exceptions import ResourceNotFoundException
+from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 
 
 @pytest.fixture
@@ -31,6 +31,7 @@ async def test_clip_create_success(
         id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
         path="path/to/track.mp3",
         format="MP3",
+        duration=2500,
     )
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
@@ -66,4 +67,23 @@ async def test_clip_create_track_not_found_error(mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(ResourceNotFoundException, match="Track not found"):
+        await clip_create(mock_session, clip_create_dto=clip_create_dto)
+
+
+async def test_clip_create_with_end_gt_track_length_raises_exception(
+    mocker: MockerFixture,
+    mock_session,
+):
+    mock_session.get.return_value = mocker.MagicMock(duration=2000)
+
+    clip_create_dto = ClipCreateDto(
+        title="Test Clip",
+        track_id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
+        start=1000,
+        end=3000,
+    )
+
+    with pytest.raises(
+        ValidationException, match="Clip end time exceeds track duration"
+    ):
         await clip_create(mock_session, clip_create_dto=clip_create_dto)

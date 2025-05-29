@@ -7,7 +7,7 @@ from jamflow.models.clip import Clip
 from jamflow.models.track import Track
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
 from jamflow.services.audio import clip_audio_file
-from jamflow.services.exceptions import ResourceNotFoundException
+from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_audio_storage_service
 from jamflow.services.utils import generate_clip_path
 
@@ -20,6 +20,9 @@ async def clip_create(
     track = await session.get(Track, clip_create_dto.track_id)
     if track is None:
         raise ResourceNotFoundException("Track")
+
+    if track.duration < clip_create_dto.end:
+        raise ValidationException("Clip end time exceeds track duration", field="end")
 
     clip_id = uuid.uuid4()
     async with get_audio_storage_service() as audio_storage:
@@ -42,7 +45,7 @@ async def clip_create(
         clip_create_dto,
         update={
             "format": clip_format,
-            "size": 0,  # TODO:  calculate size
+            "size": 0,  # TODO: calculate size
             "path": path,
         },
     )

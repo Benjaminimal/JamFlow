@@ -11,6 +11,8 @@ from jamflow.utils import timezone_now
 
 pytestmark = pytest.mark.usefixtures("audio_storage")
 
+# TODO: test upload of a not accepted file format (e.g. txt, pdf, etc.)
+
 
 @pytest.fixture
 def track_data():

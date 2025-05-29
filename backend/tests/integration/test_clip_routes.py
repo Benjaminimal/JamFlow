@@ -113,3 +113,19 @@ async def test_clip_create_with_empty_title_returns_422(
     assert (
         response_data["detail"][0]["msg"] == "String should have at least 1 character"
     )
+
+
+async def test_clip_create_with_end_gt_track_length_returns_422(
+    client: AsyncClient,
+    clip_data,
+    count_rows,
+):
+    clip_data["end"] = 3000
+
+    response = await client.post("/api/v1/clips", json=clip_data)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    response_data = response.json()
+    # assert False, response_data
+    assert response_data["detail"]["field"] == "end"
+    assert response_data["detail"]["msg"] == "Clip end time exceeds track duration"
