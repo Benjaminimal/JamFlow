@@ -1,7 +1,39 @@
 import pytest
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlmodel import col, func, select
 
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto
 from jamflow.services.track import track_create
+
+
+@pytest.fixture
+def count_rows(db_session: AsyncSession):
+    """
+    Returns a coroutine that counts rows in the given model.
+    """
+
+    async def _count_rows(model, column=None):
+        col_to_count = col(column) if column else col(model.id)
+        statement = select(func.count(col_to_count))
+        result = await db_session.exec(statement)
+        return result.one()
+
+    return _count_rows
+
+
+@pytest.fixture
+def get_row(db_session: AsyncSession):
+    """
+    Returns a coroutine that fetches a row by identifier from the given model.
+    """
+
+    async def _get_row(model, identifier, column=None):
+        col_to_check = column if column else model.id
+        statement = select(model).where(col_to_check == identifier)
+        result = await db_session.exec(statement)
+        return result.first()
+
+    return _get_row
 
 
 @pytest.fixture
