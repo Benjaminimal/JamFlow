@@ -21,13 +21,13 @@ def mock_audio_storage(mocker: MockerFixture):
 
 async def test_clip_create_returns_clip_with_calculated_metadata(
     mocker: MockerFixture,
-    mock_session,
+    mock_db_session,
     mock_audio_storage,
     mp3_file,
 ):
     # TODO: who closes the file?
     mock_audio_storage.get_file.return_value = open(mp3_file, "rb")
-    mock_session.get.return_value = mocker.MagicMock(
+    mock_db_session.get.return_value = mocker.MagicMock(
         id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
         path="path/to/track.mp3",
         format="MP3",
@@ -40,9 +40,9 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
         end=2100,
     )
 
-    result = await clip_create(mock_session, clip_create_dto=clip_create_dto)
+    result = await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
 
-    mock_session.add.assert_called_once()
+    mock_db_session.add.assert_called_once()
 
     assert isinstance(result, ClipReadDto)
     assert result.id is not None
@@ -56,7 +56,7 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
     assert str(result.url) == "http://example.com/clip"
 
 
-async def test_clip_create_with_non_existent_track_raises_exception(mock_session):
+async def test_clip_create_with_non_existent_track_raises_exception(mock_db_session):
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
         track_id="5ec9fcfb078a48679ff14cb0c7105696",
@@ -65,17 +65,17 @@ async def test_clip_create_with_non_existent_track_raises_exception(mock_session
     )
 
     # Simulate track not found
-    mock_session.get.return_value = None
+    mock_db_session.get.return_value = None
 
     with pytest.raises(ResourceNotFoundException, match="Track not found"):
-        await clip_create(mock_session, clip_create_dto=clip_create_dto)
+        await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
 
 
 async def test_clip_create_with_end_gt_track_length_raises_exception(
     mocker: MockerFixture,
-    mock_session,
+    mock_db_session,
 ):
-    mock_session.get.return_value = mocker.MagicMock(duration=2000)
+    mock_db_session.get.return_value = mocker.MagicMock(duration=2000)
 
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
@@ -87,4 +87,4 @@ async def test_clip_create_with_end_gt_track_length_raises_exception(
     with pytest.raises(
         ValidationException, match="Clip end time exceeds track duration"
     ):
-        await clip_create(mock_session, clip_create_dto=clip_create_dto)
+        await clip_create(mock_db_session, clip_create_dto=clip_create_dto)

@@ -78,12 +78,12 @@ def track_2() -> Track:
 
 
 async def test_track_create_returns_valid_track_dto_and_stores_file(
-    mock_session,
+    mock_db_session,
     mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
     track_read_dto = await track_create(
-        session=mock_session, track_create_dto=track_create_dto
+        session=mock_db_session, track_create_dto=track_create_dto
     )
 
     assert isinstance(track_read_dto, TrackReadDto)
@@ -100,14 +100,14 @@ async def test_track_create_returns_valid_track_dto_and_stores_file(
 
 
 async def test_track_create_with_wrong_extension_saves_with_correct_extension(
-    mock_session,
+    mock_db_session,
     mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
     # even with a wrong extension
     track_create_dto.upload_file.filename = "test.foo"
     track_read_dto = await track_create(
-        session=mock_session, track_create_dto=track_create_dto
+        session=mock_db_session, track_create_dto=track_create_dto
     )
 
     # the service should still be able to determine correct file format
@@ -120,7 +120,7 @@ async def test_track_create_with_wrong_extension_saves_with_correct_extension(
 
 async def test_track_create_raises_validation_exception_when_audio_duration_fails(
     mocker: MockFixture,
-    mock_session,
+    mock_db_session,
     mock_audio_storage,
     track_create_dto: TrackCreateDto,
 ):
@@ -130,7 +130,7 @@ async def test_track_create_raises_validation_exception_when_audio_duration_fail
     )
 
     with pytest.raises(ValidationException, match="Failed to get audio duration"):
-        await track_create(session=mock_session, track_create_dto=track_create_dto)
+        await track_create(session=mock_db_session, track_create_dto=track_create_dto)
 
 
 async def test_track_list_returns_track_dtos_and_generates_url(
@@ -141,15 +141,15 @@ async def test_track_list_returns_track_dtos_and_generates_url(
 ):
     mock_result = mocker.MagicMock()
     mock_result.all.return_value = [track_1, track_2]
-    mock_session = mocker.AsyncMock()
-    mock_session.exec.return_value = mock_result
+    mock_db_session = mocker.AsyncMock()
+    mock_db_session.exec.return_value = mock_result
 
-    result = await track_list(mock_session)
+    result = await track_list(mock_db_session)
 
     assert len(result) == 2
     assert isinstance(result[0], TrackReadDto)
     assert result[0].title == "Track 1"
-    mock_session.exec.assert_called_once()
+    mock_db_session.exec.assert_called_once()
     mock_audio_storage.generate_expiring_url.assert_called()
 
 
@@ -158,30 +158,30 @@ async def test_track_read_returns_track_dto_and_generates_urls(
     mock_audio_storage,
     track_1: Track,
 ):
-    mock_session = mocker.AsyncMock()
-    mock_session.get.return_value = track_1
+    mock_db_session = mocker.AsyncMock()
+    mock_db_session.get.return_value = track_1
 
-    result = await track_read(mock_session, track_id=track_1.id)
+    result = await track_read(mock_db_session, track_id=track_1.id)
 
     assert isinstance(result, TrackReadDto)
     assert result.title == "Track 1"
-    mock_session.get.assert_called_once_with(Track, track_1.id)
+    mock_db_session.get.assert_called_once_with(Track, track_1.id)
     mock_audio_storage.generate_expiring_url.assert_called()
 
 
 async def test_track_read_with_missing_track_rasies_error(mocker: MockerFixture):
-    mock_session = mocker.AsyncMock()
-    mock_session.get.return_value = None
+    mock_db_session = mocker.AsyncMock()
+    mock_db_session.get.return_value = None
 
     with pytest.raises(ResourceNotFoundException, match="Track not found"):
-        await track_read(mock_session, track_id=uuid.uuid4())
+        await track_read(mock_db_session, track_id=uuid.uuid4())
 
-    mock_session.get.assert_called_once()
+    mock_db_session.get.assert_called_once()
 
 
 async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
     mocker: MockerFixture,
-    mock_session,
+    mock_db_session,
     mock_audio_storage,
     track_1: Track,
     track_2: Track,
@@ -193,10 +193,12 @@ async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
 
     mock_result = mocker.MagicMock()
     mock_result.all.return_value = [track_1, track_2]
-    mock_session.exec.return_value = mock_result
+    mock_db_session.exec.return_value = mock_result
     mock_audio_storage.generate_expiring_url.side_effect = mock_expiring_urls
 
-    result = await track_generate_signed_urls(session=mock_session, track_ids=track_ids)
+    result = await track_generate_signed_urls(
+        session=mock_db_session, track_ids=track_ids
+    )
 
     assert len(result) == 2
     for i, dto in enumerate(result):
