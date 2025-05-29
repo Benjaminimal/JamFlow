@@ -1,3 +1,4 @@
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -10,6 +11,7 @@ from jamflow.services.audio import (
     AudioServiceException,
     get_audio_duration,
     get_audio_file_format,
+    get_file_size,
 )
 
 
@@ -87,3 +89,31 @@ def test_get_audio_duration_returns_valid_duration_for_supported_formats(
     audio_file: Path = request.getfixturevalue(audio_file)
     duration = get_audio_duration(str(audio_file), file_format)
     assert 2400 <= duration <= 2600
+
+
+def test_get_file_size_returns_correct_size():
+    result = get_file_size(BytesIO(b"test data"))
+    assert result == 9
+
+
+def test_get_file_size_seeks_to_start():
+    file_like = BytesIO(b"test data")
+    file_like.seek(0, 2)
+
+    result = get_file_size(file_like)
+
+    assert result == 9
+    assert file_like.tell() == 0
+
+
+def test_get_file_size_with_empty_file_returns_zero():
+    result = get_file_size(BytesIO(b""))
+    assert result == 0
+
+
+def test_get_file_size_on_closed_file_raises_value_error():
+    file_like = BytesIO(b"test data")
+    file_like.close()
+
+    with pytest.raises(ValueError, match="I/O operation on closed file"):
+        get_file_size(file_like)

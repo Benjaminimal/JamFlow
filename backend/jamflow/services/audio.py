@@ -94,7 +94,6 @@ def clip_audio_file(
     return temp_file
 
 
-# TODO: needs testing
 def get_file_size(file: BinaryIO) -> int:
     """
     Gets the size of an audio file in bytes.
