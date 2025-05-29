@@ -48,6 +48,7 @@ async def test_clip_create_success(
     assert result.id is not None
     assert result.title == "Test Clip"
     assert str(result.track_id) == "5ec9fcfb-078a-4867-9ff1-4cb0c7105696"
+    assert result.duration == 900
     assert result.start == 1200
     assert result.end == 2100
     assert result.format == "MP3"

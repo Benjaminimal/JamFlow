@@ -49,6 +49,7 @@ async def test_clip_create_success(
         "id",
         "title",
         "track_id",
+        "duration",
         "start",
         "end",
         "created_at",
@@ -60,6 +61,7 @@ async def test_clip_create_success(
     assert response_data["id"] is not None
     assert response_data["title"] == "Test Clip"
     assert response_data["track_id"] == clip_data["track_id"]
+    assert response_data["duration"] == 900
     assert response_data["start"] == 1200
     assert response_data["end"] == 2100
 

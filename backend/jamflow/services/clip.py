@@ -49,6 +49,7 @@ async def clip_create(
             "format": clip_format,
             "size": clip_size,
             "path": path,
+            "duration": clip_create_dto.end - clip_create_dto.start,
         },
     )
 

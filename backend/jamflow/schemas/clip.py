@@ -24,6 +24,7 @@ class ClipReadDto(BaseModel, from_attributes=True):
     id: UUID4
     title: str
     track_id: UUID4
+    duration: int  # in milliseconds
     start: int  # in milliseconds
     end: int  # in milliseconds
     created_at: datetime
