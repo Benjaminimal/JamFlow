@@ -31,7 +31,7 @@ async def track_create(
     path = generate_track_path(track_id, format)
     async with get_audio_storage_service() as audio_storage:
         await audio_storage.store_file(
-            path=path, file=track_create_dto.upload_file.file
+            file=track_create_dto.upload_file.file, path=path
         )
         await log.ainfo("File successfully stored", path=path)
         track_url = await audio_storage.generate_expiring_url(path)

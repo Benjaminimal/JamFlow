@@ -36,6 +36,7 @@ async def test_track_upload_and_clip_create(
     # Download the file and verify it is the same as the uploaded file
     response = await public_client.get(track_url)
     assert response.status_code == 200, response.content
+    assert response.headers["Content-Type"] == "audio/mpeg"
     assert response.content == track_file["upload_file"][1]
 
     # Create a clip from the uploaded track and verify the operation succeeds
@@ -52,7 +53,7 @@ async def test_track_upload_and_clip_create(
     # Download the clip and verify the correct content
     response = await public_client.get(clip_url)
     assert response.status_code == 200, response.content
-    # TODO: assert content type
+    assert response.headers["Content-Type"] == "audio/mpeg"
     clip_segment = AudioSegment.from_file(BytesIO(response.content), format="mp3")
     assert len(clip_segment) == 1000
     # TODO: assert content is correct

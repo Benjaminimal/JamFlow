@@ -37,7 +37,7 @@ async def clip_create(
         clip_format = track.format
         path = generate_clip_path(track.path, clip_id, clip_format)
 
-        await audio_storage.store_file(path=path, file=clip_file)
+        await audio_storage.store_file(file=clip_file, path=path)
         await log.ainfo("File successfully stored", path=path)
         clip_url = await audio_storage.generate_expiring_url(path)
 

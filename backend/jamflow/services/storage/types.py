@@ -19,7 +19,7 @@ class StorageService(Protocol):
     ) -> None: ...
 
     # TODO: fix files being stored with wrong content type
-    async def store_file(self, path: str, file: bytes | BinaryIO) -> None:
+    async def store_file(self, file: bytes | BinaryIO, path: str) -> None:
         """
         Put a file into storage under a given path.
 

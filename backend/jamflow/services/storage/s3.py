@@ -34,7 +34,7 @@ class S3StorageService:
     def __init__(self, storage_name: str):
         self._bucket_name = storage_name
 
-    async def store_file(self, path: str, file: bytes | BinaryIO) -> None:
+    async def store_file(self, file: bytes | BinaryIO, path: str) -> None:
         try:
             await self._client.put_object(Bucket=self._bucket_name, Key=path, Body=file)
         except (BotoCoreError, ClientError) as exc:
