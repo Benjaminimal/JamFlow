@@ -42,7 +42,7 @@ async def test_track_upload_and_clip_create(
 
     # Create a clip from the uploaded track and verify the operation succeeds
     clip_data = {
-        "title": "Test Clip",
+        "title": "Test Clip 1",
         "start": 1000,
         "end": 2000,
         "track_id": track_id,
@@ -59,3 +59,21 @@ async def test_track_upload_and_clip_create(
     assert len(clip_segment) == 1000
     expected_clip = track_segment[1000:2000]
     assert clip_segment.raw_data == expected_clip.raw_data
+
+    # Create one more clip with a different start and end time
+    clip_data = {
+        "title": "Test Clip 2",
+        "start": 0,
+        "end": 1500,
+        "track_id": track_id,
+    }
+    response = await client.post("/api/v1/clips", json=clip_data)
+    assert response.status_code == 201, response.content
+
+    # List all clips for the track
+    response = await client.get("/api/v1/clips", params={"track_id": track_id})
+    assert response.status_code == 200, response.content
+    clips = response.json()
+    assert len(clips) == 2
+    assert clips[0]["title"] == "Test Clip"
+    assert clips[1]["title"] == "Test Clip 2"
