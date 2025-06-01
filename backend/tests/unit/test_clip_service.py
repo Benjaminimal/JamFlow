@@ -25,7 +25,6 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
     mock_audio_storage,
     mp3_file,
 ):
-    # TODO: who closes the file?
     mock_audio_storage.get_file.return_value = open(mp3_file, "rb")
     mock_db_session.get.return_value = mocker.MagicMock(
         id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",

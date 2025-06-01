@@ -18,8 +18,6 @@ from jamflow.services.audio import (
     get_file_size,
 )
 
-# TODO: add tests that don't mock everything
-
 
 def test_get_audio_file_format_returns_correct_format(mocker: MockerFixture):
     mocker.patch("filetype.guess", return_value=MagicMock(extension="mp3"))
