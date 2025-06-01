@@ -94,7 +94,10 @@ async def test_track_create_returns_valid_track_dto_and_stores_file(
     assert 2400 <= track_read_dto.duration <= 2600
     assert track_read_dto.size == track_create_dto.upload_file.size
     assert track_read_dto.format == AudioFileFormat.MP3
-    # TODO: assert all properties
+    assert track_read_dto.recorded_date == track_create_dto.recorded_date
+    assert track_read_dto.url is not None
+    assert str(track_read_dto.url).startswith("http://example.com/track")
+
     mock_audio_storage.store_file.assert_called_once()
     mock_audio_storage.generate_expiring_url.assert_called_once()
 
