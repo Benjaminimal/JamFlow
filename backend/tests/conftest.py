@@ -3,6 +3,7 @@ from .fixtures.database import (  # noqa: F401
     db_session,
 )
 from .fixtures.files import (  # noqa: F401
+    audio_file_factory,
     mp3_file,
     mp3_upload_file,
     ogg_file,
