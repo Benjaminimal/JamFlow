@@ -124,16 +124,16 @@ def test_get_file_size_on_closed_file_raises_value_error():
         get_file_size(file_like)
 
 
-def test_clip_audio_file_returns_clipped_segment(mp3_file):
+def test_clip_audio_file_returns_clipped_segment(wav_file):
     start, end = 1000, 2000
-    with open(mp3_file, "rb") as file_like:
-        clipped_file = clip_audio_file(file_like, "mp3", start=start, end=end)
+    with open(wav_file, "rb") as file_like:
+        clipped_file = clip_audio_file(file_like, "wav", start=start, end=end)
 
-    clipped_segment = AudioSegment.from_file(clipped_file, format="mp3")
+    clipped_segment = AudioSegment.from_file(clipped_file, format="wav")
     assert 1000 <= len(clipped_segment) <= 1100
 
-    original_segment = AudioSegment.from_file(mp3_file, format="mp3")
-    assert original_segment[start:end] == clipped_segment
+    original_segment = AudioSegment.from_file(wav_file, format="wav")
+    assert original_segment[start:end].raw_data == clipped_segment.raw_data
 
 
 def test_clip_audio_file_with_invalid_format_raises_exception():

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 from fastapi import UploadFile
-from pydub import AudioSegment
+from pydub.generators import WhiteNoise
 from pytest import TempPathFactory
 
 
@@ -25,8 +25,8 @@ def temp_test_dir(tmp_path_factory: TempPathFactory) -> Path:
 def audio_file_factory(temp_test_dir: Path):
     def _audio_file_factory(file_format: str):
         file_path = temp_test_dir / f"test.{file_format}"
-        silent_audio = AudioSegment.silent(duration=2400)
-        silent_audio.export(file_path, format=file_format)
+        white_noise = WhiteNoise().to_audio_segment(duration=2400)
+        white_noise.export(file_path, format=file_format)
 
         yield file_path
 

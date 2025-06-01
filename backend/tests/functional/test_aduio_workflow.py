@@ -17,8 +17,8 @@ def track_data():
 
 
 @pytest.fixture
-def track_file(mp3_file: Path):
-    return {"upload_file": ("dummy.mp3", mp3_file.read_bytes(), "audio/mpeg")}
+def track_file(wav_file: Path):
+    return {"upload_file": ("dummy.wav", wav_file.read_bytes(), "audio/wav")}
 
 
 async def test_track_upload_and_clip_create(
@@ -27,7 +27,7 @@ async def test_track_upload_and_clip_create(
     track_file,
     track_data,
 ):
-    # Upload an MP3 file and verify it is successfully stored
+    # Upload a wav file and verify it is successfully stored
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
     assert response.status_code == 201, response.content
     track_id = response.json()["id"]
@@ -36,9 +36,9 @@ async def test_track_upload_and_clip_create(
     # Download the file and verify it is the same as the uploaded file
     response = await public_client.get(track_url)
     assert response.status_code == 200, response.content
-    assert response.headers["Content-Type"] == "audio/mpeg"
+    assert response.headers["Content-Type"] == "audio/wav"
     assert response.content == track_file["upload_file"][1]
-    track_segment = AudioSegment.from_file(BytesIO(response.content), format="mp3")
+    track_segment = AudioSegment.from_file(BytesIO(response.content), format="wav")
 
     # Create a clip from the uploaded track and verify the operation succeeds
     clip_data = {
@@ -54,8 +54,8 @@ async def test_track_upload_and_clip_create(
     # Download the clip and verify the correct content
     response = await public_client.get(clip_url)
     assert response.status_code == 200, response.content
-    assert response.headers["Content-Type"] == "audio/mpeg"
-    clip_segment = AudioSegment.from_file(BytesIO(response.content), format="mp3")
+    assert response.headers["Content-Type"] == "audio/wav"
+    clip_segment = AudioSegment.from_file(BytesIO(response.content), format="wav")
     assert len(clip_segment) == 1000
     expected_clip = track_segment[1000:2000]
     assert clip_segment.raw_data == expected_clip.raw_data

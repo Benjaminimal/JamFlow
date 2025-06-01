@@ -51,7 +51,7 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
     assert result.start == 1200
     assert result.end == 2100
     assert result.format == "mp3"
-    assert 2000 <= result.size <= 3000
+    assert 7700 <= result.size <= 7800
     assert str(result.url) == "http://example.com/clip"
 
 

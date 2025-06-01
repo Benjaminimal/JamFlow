@@ -88,7 +88,7 @@ async def test_track_read_with_existing_track_returns_expected_response(
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "mp3"
-    assert response_data["size"] == 5269
+    assert response_data["size"] == 19662
     assert response_data["url"].startswith("http://") or (
         response_data["url"].startswith("https://")
     )
@@ -143,7 +143,7 @@ async def test_track_create_returns_complete_track_with_extracted_metadata(
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "mp3"
-    assert response_data["size"] == 5269
+    assert response_data["size"] == 19662
     assert response_data["url"].startswith("http://") or (
         response_data["url"].startswith("https://")
     )
