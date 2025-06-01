@@ -7,7 +7,7 @@ from jamflow.models.enums import str_enum_to_sa_column
 
 
 @pytest.fixture
-def test_enum():
+def str_enum_class():
     class TestEnum(StrEnum):
         VALUE_ONE = "VALUEONE"
         VALUE_TWO = "ValueTwo"
@@ -16,8 +16,8 @@ def test_enum():
     return TestEnum
 
 
-def test_str_enum_column_values_are_actual_values(test_enum):
-    column = str_enum_to_sa_column(test_enum)
+def test_str_enum_column_values_are_actual_values(str_enum_class):
+    column = str_enum_to_sa_column(str_enum_class)
     assert column.type.enums == ["VALUEONE", "ValueTwo", "valuethree"]
     assert column.type.name == "testenum"
     assert column.type.__class__.__name__ == "Enum"
@@ -25,9 +25,9 @@ def test_str_enum_column_values_are_actual_values(test_enum):
 
 def test_str_enum_column_passes_kwargs(
     mocker: MockerFixture,
-    test_enum,
+    str_enum_class,
 ):
     mock_column = mocker.patch("jamflow.models.enums.Column")
 
-    str_enum_to_sa_column(test_enum, nullable=True, default="VALUE_ONE")
+    str_enum_to_sa_column(str_enum_class, nullable=True, default="VALUE_ONE")
     mock_column.assert_called_once_with(mocker.ANY, nullable=True, default="VALUE_ONE")
