@@ -34,9 +34,20 @@ class S3StorageService:
     def __init__(self, storage_name: str):
         self._bucket_name = storage_name
 
-    async def store_file(self, file: bytes | BinaryIO, path: str) -> None:
+    async def store_file(
+        self,
+        file: bytes | BinaryIO,
+        *,
+        path: str,
+        content_type: str,
+    ) -> None:
         try:
-            await self._client.put_object(Bucket=self._bucket_name, Key=path, Body=file)
+            await self._client.put_object(
+                Bucket=self._bucket_name,
+                Key=path,
+                Body=file,
+                ContentType=content_type,
+            )
         except (BotoCoreError, ClientError) as exc:
             await log.aerror("Failed to store file", exc_info=True, path=path)
             raise StorageException(

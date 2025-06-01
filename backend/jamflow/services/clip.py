@@ -6,7 +6,11 @@ from jamflow.core.log import get_logger
 from jamflow.models.clip import Clip
 from jamflow.models.track import Track
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
-from jamflow.services.audio import clip_audio_file, get_file_size
+from jamflow.services.audio import (
+    clip_audio_file,
+    get_audio_mime_type,
+    get_file_size,
+)
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_audio_storage_service
 from jamflow.services.utils import generate_clip_path
@@ -36,8 +40,13 @@ async def clip_create(
         )
         clip_format = track.format
         path = generate_clip_path(track.path, clip_id, clip_format)
+        content_type = get_audio_mime_type(clip_format)
 
-        await audio_storage.store_file(file=clip_file, path=path)
+        await audio_storage.store_file(
+            file=clip_file,
+            path=path,
+            content_type=content_type,
+        )
         await log.ainfo("File successfully stored", path=path)
         clip_url = await audio_storage.generate_expiring_url(path)
 

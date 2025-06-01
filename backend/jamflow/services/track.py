@@ -11,6 +11,7 @@ from jamflow.services.audio import (
     AudioServiceException,
     get_audio_duration,
     get_audio_file_format,
+    get_audio_mime_type,
 )
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_audio_storage_service
@@ -26,12 +27,15 @@ async def track_create(
     track_create_dto: TrackCreateDto,
 ) -> TrackReadDto:
     format = get_audio_file_format(track_create_dto.upload_file.file)
+    content_type = get_audio_mime_type(format)
 
     track_id = uuid.uuid4()
     path = generate_track_path(track_id, format)
     async with get_audio_storage_service() as audio_storage:
         await audio_storage.store_file(
-            file=track_create_dto.upload_file.file, path=path
+            file=track_create_dto.upload_file.file,
+            path=path,
+            content_type=content_type,
         )
         await log.ainfo("File successfully stored", path=path)
         track_url = await audio_storage.generate_expiring_url(path)

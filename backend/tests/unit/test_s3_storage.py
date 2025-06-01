@@ -57,11 +57,35 @@ async def test_store_file_calls_put_object_on_success(mock_s3_client):
     # not raise an exception to simulate a successful file storage
 
     async with S3StorageService("test-bucket") as service:
-        await service.store_file(b"test data", "test/path")
+        await service.store_file(
+            b"test data",
+            path="test/path",
+            content_type="text/plain",
+        )
 
     # verify that put_object was called with the correct parameters
     mock_s3_client.put_object.assert_called_once_with(
-        Bucket="test-bucket", Key="test/path", Body=b"test data"
+        Bucket="test-bucket",
+        Key="test/path",
+        Body=b"test data",
+        ContentType="text/plain",
+    )
+
+
+async def test_store_file_accepts_wrong_content_type(mock_s3_client):
+    async with S3StorageService("test-bucket") as service:
+        await service.store_file(
+            b"test data",
+            path="test/path",
+            content_type="wrong/type",
+        )
+
+    # verify that put_object was called with the correct parameters
+    mock_s3_client.put_object.assert_called_once_with(
+        Bucket="test-bucket",
+        Key="test/path",
+        Body=b"test data",
+        ContentType="wrong/type",
     )
 
 
@@ -72,11 +96,18 @@ async def test_store_file_raises_storage_exception_on_error(mock_s3_client):
     async with S3StorageService("test-bucket") as service:
         # verify that a StorageException is raised
         with pytest.raises(StorageException):
-            await service.store_file(b"test data", "test/path")
+            await service.store_file(
+                b"test data",
+                path="test/path",
+                content_type="text/plain",
+            )
 
     # verify that put_object was called with the correct parameters
     mock_s3_client.put_object.assert_called_once_with(
-        Bucket="test-bucket", Key="test/path", Body=b"test data"
+        Bucket="test-bucket",
+        Key="test/path",
+        Body=b"test data",
+        ContentType="text/plain",
     )
 
 
