@@ -132,6 +132,9 @@ def test_clip_audio_file_returns_clipped_segment(mp3_file):
     clipped_segment = AudioSegment.from_file(clipped_file, format="mp3")
     assert 1000 <= len(clipped_segment) <= 1100
 
+    original_segment = AudioSegment.from_file(mp3_file, format="mp3")
+    assert original_segment[start:end] == clipped_segment
+
 
 def test_clip_audio_file_with_invalid_format_raises_exception():
     with pytest.raises(AudioServiceException, match="Unsupported file format: invalid"):

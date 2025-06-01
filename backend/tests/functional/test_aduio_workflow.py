@@ -38,6 +38,7 @@ async def test_track_upload_and_clip_create(
     assert response.status_code == 200, response.content
     assert response.headers["Content-Type"] == "audio/mpeg"
     assert response.content == track_file["upload_file"][1]
+    track_segment = AudioSegment.from_file(BytesIO(response.content), format="mp3")
 
     # Create a clip from the uploaded track and verify the operation succeeds
     clip_data = {
@@ -56,4 +57,5 @@ async def test_track_upload_and_clip_create(
     assert response.headers["Content-Type"] == "audio/mpeg"
     clip_segment = AudioSegment.from_file(BytesIO(response.content), format="mp3")
     assert len(clip_segment) == 1000
-    # TODO: assert content is correct
+    expected_clip = track_segment[1000:2000]
+    assert clip_segment.raw_data == expected_clip.raw_data
