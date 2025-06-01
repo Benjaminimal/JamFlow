@@ -9,10 +9,12 @@ from pytest_mock import MockerFixture
 
 from jamflow.services.audio import (
     AudioFileFormat,
+    AudioMimeType,
     AudioServiceException,
     clip_audio_file,
     get_audio_duration,
     get_audio_file_format,
+    get_audio_mime_type,
     get_file_size,
 )
 
@@ -151,3 +153,24 @@ def test_clip_audio_file_with_invalid_range_raises_exception():
 def test_clip_audio_file_with_empty_file_raises_exception():
     with pytest.raises(AudioServiceException, match="Cannot clip an empty file"):
         clip_audio_file(BytesIO(b""), "mp3", start=0, end=1000)
+
+
+@pytest.mark.parametrize(
+    "file_format,expected_mime_type",
+    [
+        (AudioFileFormat.MP3, AudioMimeType.MP3),
+        (AudioFileFormat.OGG, AudioMimeType.OGG),
+        (AudioFileFormat.WAV, AudioMimeType.WAV),
+    ],
+)
+def test_get_audio_mime_type_works_for_all_accepted_audio_formats(
+    file_format: AudioFileFormat,
+    expected_mime_type: str,
+):
+    mime_type = get_audio_mime_type(file_format)
+    assert mime_type == expected_mime_type
+
+
+def test_get_audio_mime_type_raises_exception_for_unknown_format():
+    with pytest.raises(AudioServiceException, match="Unsupported file format: unknown"):
+        get_audio_mime_type("unknown")

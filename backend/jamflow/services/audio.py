@@ -1,3 +1,4 @@
+from enum import StrEnum
 from tempfile import TemporaryFile
 from typing import BinaryIO
 
@@ -17,6 +18,12 @@ log = get_logger()
 
 class AudioServiceException(ServiceException):
     pass
+
+
+class AudioMimeType(StrEnum):
+    MP3 = "audio/mpeg"
+    OGG = "audio/ogg"
+    WAV = "audio/wav"
 
 
 def get_audio_file_format(file: BinaryIO) -> AudioFileFormat:
@@ -110,3 +117,15 @@ def get_file_size(file: BinaryIO) -> int:
     size = file.tell()
     file.seek(0)
     return size
+
+
+def get_audio_mime_type(file_format: AudioFileFormat) -> AudioMimeType:
+    match file_format:
+        case AudioFileFormat.MP3:
+            return AudioMimeType.MP3
+        case AudioFileFormat.OGG:
+            return AudioMimeType.OGG
+        case AudioFileFormat.WAV:
+            return AudioMimeType.WAV
+        case _:
+            raise AudioServiceException(f"Unsupported file format: {file_format}")
