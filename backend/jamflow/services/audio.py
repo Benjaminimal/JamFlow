@@ -7,7 +7,7 @@ from mutagen import MutagenError  # type: ignore [attr-defined]
 from mutagen.mp3 import MP3
 from mutagen.oggvorbis import OggVorbis
 from mutagen.wave import WAVE
-from pydub import AudioSegment
+from pydub import AudioSegment  # type: ignore [import-untyped]
 
 from jamflow.core.log import get_logger
 from jamflow.models.enums import AudioFileFormat
