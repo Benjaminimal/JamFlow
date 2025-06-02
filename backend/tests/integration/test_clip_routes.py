@@ -5,6 +5,7 @@ from fastapi import status
 from httpx import AsyncClient
 
 from jamflow.models.clip import Clip
+from jamflow.schemas.clip import ClipReadDto
 from jamflow.schemas.track import TrackReadDto
 
 
@@ -117,3 +118,65 @@ async def test_clip_create_with_end_gt_track_length_returns_422(
     # assert False, response_data
     assert response_data["detail"]["field"] == "end"
     assert response_data["detail"]["msg"] == "Clip end time exceeds track duration"
+
+
+async def test_clip_list_without_clips_returns_empty_list(client: AsyncClient):
+    response = await client.get("/api/v1/clips")
+    assert response.status_code == status.HTTP_200_OK, response.content
+    assert response.json() == []
+
+
+async def test_clip_list_with_two_clips_returns_all(
+    client: AsyncClient,
+    clip_1: ClipReadDto,
+    clip_2: ClipReadDto,
+    track_1: TrackReadDto,
+    track_2: TrackReadDto,
+):
+    response = await client.get("/api/v1/clips")
+    assert response.status_code == status.HTTP_200_OK, response.content
+    clips = response.json()
+    assert len(clips) == 2
+    assert all(
+        set(clip.keys())
+        == {
+            "id",
+            "title",
+            "track_id",
+            "duration",
+            "start",
+            "end",
+            "created_at",
+            "updated_at",
+            "format",
+            "size",
+            "url",
+        }
+        for clip in clips
+    )
+
+    clip_1_data, clip_2_data = clips
+    assert clip_1_data["id"] == str(clip_1.id)
+    assert clip_1_data["title"] == "Test Clip 1"
+    assert clip_1_data["track_id"] == str(track_1.id)
+    assert clip_1_data["url"].startswith(("http://", "https://"))
+    assert clip_2_data["id"] == str(clip_2.id)
+    assert clip_2_data["title"] == "Test Clip 2"
+    assert clip_2_data["track_id"] == str(track_2.id)
+    assert clip_2_data["url"].startswith(("http://", "https://"))
+
+
+async def test_list_clip_with_track_id_filter_returns_filtered_clips(
+    client: AsyncClient,
+    clip_1: ClipReadDto,
+    clip_2: ClipReadDto,  # noqa: ARG001
+    track_1: TrackReadDto,
+):
+    response = await client.get("/api/v1/clips", params={"track_id": track_1.id})
+    assert response.status_code == status.HTTP_200_OK, response.content
+    clips = response.json()
+
+    assert len(clips) == 1
+    assert clips[0]["id"] == str(clip_1.id)
+    assert clips[0]["title"] == "Test Clip 1"
+    assert clips[0]["track_id"] == str(track_1.id)

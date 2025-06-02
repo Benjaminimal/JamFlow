@@ -1,5 +1,6 @@
 import uuid
 
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.log import get_logger
@@ -70,3 +71,23 @@ async def clip_create(
     clip_read_dto = ClipReadDto.model_validate(dict(clip) | {"url": clip_url})
 
     return clip_read_dto
+
+
+async def clip_list(
+    session: AsyncSession,
+    track_id: uuid.UUID | None = None,
+) -> list[ClipReadDto]:
+    statement = select(Clip)
+    if track_id is not None:
+        statement = statement.where(Clip.track_id == track_id)
+    result = await session.exec(statement)
+    clips = result.all()
+    async with get_audio_storage_service() as audio_storage:
+        clip_read_dtos = [
+            ClipReadDto.model_validate(
+                dict(clip)
+                | {"url": await audio_storage.generate_expiring_url(clip.path)}
+            )
+            for clip in clips
+        ]
+    return clip_read_dtos

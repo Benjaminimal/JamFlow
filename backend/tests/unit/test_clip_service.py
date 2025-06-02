@@ -1,9 +1,42 @@
+import uuid
+
 import pytest
 from pytest_mock import MockerFixture
 
+from jamflow.models.clip import Clip
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
-from jamflow.services.clip import clip_create
+from jamflow.services.clip import clip_create, clip_list
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
+
+
+@pytest.fixture
+def clip_1() -> Clip:
+    return Clip(
+        id=uuid.uuid4(),
+        title="Test Clip 1",
+        track_id=uuid.uuid4(),
+        duration=900,
+        start=1200,
+        end=2100,
+        format="mp3",
+        size=7750,
+        path="path/to/clip1.mp3",
+    )
+
+
+@pytest.fixture
+def clip_2() -> Clip:
+    return Clip(
+        id=uuid.uuid4(),
+        title="Test Clip 2",
+        track_id=uuid.uuid4(),
+        duration=900,
+        start=500,
+        end=1400,
+        format="mp3",
+        size=7800,
+        path="path/to/clip2.mp3",
+    )
 
 
 @pytest.fixture
@@ -87,3 +120,44 @@ async def test_clip_create_with_end_gt_track_length_raises_exception(
         ValidationException, match="Clip end time exceeds track duration"
     ):
         await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
+
+
+async def test_clip_list_retruns_clip_dtos_and_generates_url(
+    mocker: MockerFixture,
+    mock_db_session,
+    mock_audio_storage,
+    clip_1: Clip,
+    clip_2: Clip,
+):
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = [clip_1, clip_2]
+    mock_db_session.exec.return_value = mock_result
+
+    result = await clip_list(mock_db_session)
+
+    assert len(result) == 2
+    assert isinstance(result[0], ClipReadDto)
+    assert result[0].title == "Test Clip 1"
+    mock_db_session.exec.assert_called_once()
+    mock_audio_storage.generate_expiring_url.assert_called()
+
+
+async def test_clip_list_filters_by_track_id(
+    mocker: MockerFixture,
+    mock_db_session,
+):
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = []
+    mock_db_session.exec.return_value = mock_result
+
+    mock_select = mocker.patch("jamflow.services.clip.select")
+    mock_statement = mock_select.return_value
+    mock_statement.where.return_value = mock_statement
+
+    fake_track_id = uuid.uuid4()
+
+    await clip_list(mock_db_session, track_id=fake_track_id)
+
+    mock_statement.where.assert_called_once()
+    args, _ = mock_statement.where.call_args
+    assert str(args[0]) == str(Clip.track_id == fake_track_id)
