@@ -54,9 +54,7 @@ async def test_track_list_with_three_tracks_returns_all(
     assert track_2_data["title"] == "Test Track ogg"
     assert track_3_data["id"] == str(track_3.id)
     assert track_3_data["title"] == "Test Track wav"
-    assert track_3_data["url"].startswith("http://") or (
-        track_3_data["url"].startswith("https://")
-    )
+    assert track_3_data["url"].startswith(("http://", "https://"))
 
 
 async def test_track_list_empty_returns_empty_list(client: AsyncClient):
@@ -89,9 +87,7 @@ async def test_track_read_with_existing_track_returns_expected_response(
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "mp3"
     assert response_data["size"] == 19662
-    assert response_data["url"].startswith("http://") or (
-        response_data["url"].startswith("https://")
-    )
+    assert response_data["url"].startswith(("http://", "https://"))
 
 
 async def test_track_read_with_non_existant_track_returns_404(client: AsyncClient):
@@ -144,9 +140,7 @@ async def test_track_create_returns_complete_track_with_extracted_metadata(
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "mp3"
     assert response_data["size"] == 19662
-    assert response_data["url"].startswith("http://") or (
-        response_data["url"].startswith("https://")
-    )
+    assert response_data["url"].startswith(("http://", "https://"))
 
     assert await count_rows(Track) == 1
     persisted_track = await get_row(Track, "Test Track", column=Track.title)

@@ -112,4 +112,4 @@ async def test_generate_presigned_url_returns_valid_url(s3_storage: S3StorageSer
     url = await s3_storage.generate_expiring_url("test-file.txt")
     assert "test-file.txt" in url
     assert str(settings.STORAGE_URL) in url
-    assert url.startswith("http://") or url.startswith("https://")
+    assert url.startswith(("http://", "https://"))
