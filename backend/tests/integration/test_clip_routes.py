@@ -180,3 +180,13 @@ async def test_list_clip_with_track_id_filter_returns_filtered_clips(
     assert clips[0]["id"] == str(clip_1.id)
     assert clips[0]["title"] == "Test Clip 1"
     assert clips[0]["track_id"] == str(track_1.id)
+
+
+async def test_list_clip_with_non_existent_track_id_returns_empty_list(
+    client: AsyncClient,
+    clip_1: ClipReadDto,  # noqa: ARG001
+    track_1: TrackReadDto,  # noqa: ARG001
+):
+    response = await client.get("/api/v1/clips", params={"track_id": str(uuid4())})
+    assert response.status_code == status.HTTP_200_OK, response.content
+    assert response.json() == []

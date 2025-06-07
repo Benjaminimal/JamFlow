@@ -161,3 +161,49 @@ async def test_clip_list_filters_by_track_id(
     mock_statement.where.assert_called_once()
     args, _ = mock_statement.where.call_args
     assert str(args[0]) == str(Clip.track_id == fake_track_id)
+
+
+async def test_clip_list_with_no_clips_returns_empty_list(
+    mocker: MockerFixture,
+    mock_db_session,
+):
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = []
+    mock_db_session.exec.return_value = mock_result
+
+    result = await clip_list(mock_db_session)
+
+    assert result == []
+    mock_db_session.exec.assert_called_once()
+
+
+async def test_clip_list_with_track_id_filter_returns_filtered_clips(
+    mocker: MockerFixture,
+    mock_db_session,
+    clip_1: Clip,
+    clip_2: Clip,  # noqa: ARG001
+):
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = [clip_1]
+    mock_db_session.exec.return_value = mock_result
+
+    result = await clip_list(mock_db_session, track_id=clip_1.track_id)
+
+    assert len(result) == 1
+    assert result[0].id == clip_1.id
+    assert result[0].title == clip_1.title
+    mock_db_session.exec.assert_called_once()
+
+
+async def test_clip_list_with_non_existent_track_id_returns_empty_list(
+    mocker: MockerFixture,
+    mock_db_session,
+):
+    mock_result = mocker.MagicMock()
+    mock_result.all.return_value = []
+    mock_db_session.exec.return_value = mock_result
+
+    result = await clip_list(mock_db_session, track_id=uuid.uuid4())
+
+    assert result == []
+    mock_db_session.exec.assert_called_once()
