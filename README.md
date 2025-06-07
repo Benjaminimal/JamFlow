@@ -15,8 +15,6 @@ With JamFlow you can easily clip parts of your uploaded audio files, making it e
 
 ## Tech Stack
 
-List the main technologies, frameworks, and tools used. This is what recruiters often scan for first.
-
 **Backend**:
 
 - Python
