@@ -17,7 +17,8 @@ router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=TrackReadDto)
 async def track_create_view(
-    session: SessionDep, data: TrackCreateDto = Form(...)
+    session: SessionDep,
+    data: TrackCreateDto = Form(..., media_type="multipart/form-data"),
 ) -> TrackReadDto:
     track = await track_create(session, track_create_dto=data)
     return track
