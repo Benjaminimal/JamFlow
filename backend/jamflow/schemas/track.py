@@ -7,10 +7,11 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     BeforeValidator,
-    StringConstraints,
+    HttpUrl,
 )
 
 from jamflow.models.enums import AudioFileFormat
+from jamflow.schemas.types import NonBlankBoundedString
 from jamflow.schemas.validators import (
     empty_string_to_none,
     get_file_size_validator,
@@ -21,10 +22,7 @@ MAX_UPLOAD_FILE_SIZE = 200 * 1024 * 1024  # 200 MB
 
 
 class TrackCreateDto(BaseModel):
-    title: Annotated[
-        str,
-        StringConstraints(strip_whitespace=True, min_length=1, max_length=255),
-    ] = Form(...)
+    title: NonBlankBoundedString = Form(...)
     recorded_date: Annotated[
         date | None,
         BeforeValidator(empty_string_to_none),
@@ -45,6 +43,7 @@ class TrackReadDto(BaseModel, from_attributes=True):
     format: AudioFileFormat
     size: int  # in bytes
     recorded_date: date | None
+    url: HttpUrl
 
 
 class TrackSignedUrlDto(BaseModel):

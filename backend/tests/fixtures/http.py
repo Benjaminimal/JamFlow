@@ -27,3 +27,12 @@ async def client(simple_client: AsyncClient, db_session: AsyncSession) -> AsyncC
     app.dependency_overrides[get_session] = override_get_session
     yield simple_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def public_client() -> AsyncClient:
+    """
+    Fixture to create an general purpose test client without a base URL.
+    """
+    async with AsyncClient() as c:
+        yield c

@@ -1,8 +1,5 @@
-import pytest
 from sqlmodel import text
 from sqlmodel.ext.asyncio.session import AsyncSession
-
-pytestmark = pytest.mark.integration
 
 
 async def test_rollbacks_between_functions_ping(db_session: AsyncSession):

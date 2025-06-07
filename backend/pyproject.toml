@@ -19,6 +19,8 @@ dependencies = [
   # Audio processing
   "filetype>=1.2.0",
   "mutagen>=1.47.0",
+  "pydub>=0.25.1",
+  "audioop-lts>=0.2.1", # pydub dependency
 ]
 
 [dependency-groups]
@@ -36,9 +38,6 @@ test = [
   "httpx>=0.28.1",
   "pytest-asyncio>=0.25.3",
   "pytest-mock>=3.14.0",
-  # Generting test data
-  "pydub>=0.25.1",
-  "audioop-lts>=0.2.1", # pydub dependency
 ]
 
 [tool.ruff.lint]
@@ -62,10 +61,8 @@ strict = true
 exclude = ["^migrations/", "^tests/", "^.*/__pycache__/", "^.venv/"]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore unused arguments for pytest fixtures
-"tests/**.py" = ["ARG001"]
-# Ignore unused imports for migration generation
-"migrations/env.py" = ["F401"]
+# Ignore star import for migration generation
+"migrations/env.py" = ["F403"]
 
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
@@ -75,7 +72,5 @@ keep-runtime-typing = true
 # https://pytest-asyncio.readthedocs.io/en/latest/reference/configuration.html
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-# https://docs.pytest.org/en/stable/how-to/mark.html#registering-marks
-markers = ["unit", "integration"]
 # https://docs.pytest.org/en/stable/how-to/capture-warnings.html#controlling-warnings
 filterwarnings = ["ignore::DeprecationWarning:botocore.auth"]

@@ -37,7 +37,14 @@ async def track_list_view(session: SessionDep) -> list[TrackReadDto]:
     "/{track_id:uuid}",
     status_code=status.HTTP_200_OK,
     response_model=TrackReadDto,
-    responses={status.HTTP_404_NOT_FOUND: {"description": "Track not found"}},
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Track not found",
+            "content": {
+                "application/json": {"example": {"detail": {"msg": "Track not found"}}}
+            },
+        },
+    },
 )
 async def track_read_view(session: SessionDep, track_id: UUID4) -> TrackReadDto:
     track = await track_read(session, track_id=track_id)
