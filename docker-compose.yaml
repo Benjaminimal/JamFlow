@@ -44,8 +44,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: ["/bin/bash", "/app/scripts/entrypoint.sh"]
     env_file:
       - ./.env
+    environment:
+      - DB_HOST=db
+      - STORAGE_URL=http://storage:9000/
+
     ports:
       - "8000:8000"
     depends_on:

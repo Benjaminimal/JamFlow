@@ -17,7 +17,7 @@ class Settings(
     STORAGE_URL: HttpUrl
     STORAGE_ACCESS_KEY: str
     STORAGE_SECRET_KEY: str
-    STORAGE_NAME_AUDIO: str = "audio"
+    STORAGE_NAME_AUDIO: str
 
     DB_HOST: str
     DB_PORT: int
