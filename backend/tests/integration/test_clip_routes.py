@@ -190,3 +190,44 @@ async def test_list_clip_with_non_existent_track_id_returns_empty_list(
     response = await client.get("/api/v1/clips", params={"track_id": str(uuid4())})
     assert response.status_code == status.HTTP_200_OK, response.content
     assert response.json() == []
+
+
+async def test_clip_read_with_existing_clip_returns_expected_response(
+    client: AsyncClient,
+    clip_1: ClipReadDto,
+):
+    response = await client.get(f"/api/v1/clips/{clip_1.id}")
+    assert response.status_code == status.HTTP_200_OK, response.content
+    response_data = response.json()
+
+    assert set(response_data.keys()) == {
+        "id",
+        "title",
+        "track_id",
+        "duration",
+        "start",
+        "end",
+        "created_at",
+        "updated_at",
+        "format",
+        "size",
+        "url",
+    }
+    assert response_data["id"] == str(clip_1.id)
+    assert response_data["title"] == "Test Clip 1"
+    assert response_data["track_id"] == str(clip_1.track_id)
+    assert response_data["duration"] == 1000
+    assert response_data["start"] == 0
+    assert response_data["end"] == 1000
+    assert response_data["format"] == "mp3"
+    assert response_data["url"].startswith(("http://", "https://"))
+
+
+async def test_clip_read_with_non_existent_clip_returns_404(
+    client: AsyncClient,
+):
+    response = await client.get(f"/api/v1/clips/{uuid4()}")
+    assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
+
+    response_data = response.json()
+    assert response_data["detail"] == {"msg": "Clip not found"}

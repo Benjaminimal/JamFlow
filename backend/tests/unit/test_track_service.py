@@ -156,11 +156,10 @@ async def test_track_list_returns_track_dtos_and_generates_url(
 
 
 async def test_track_read_returns_track_dto_and_generates_urls(
-    mocker: MockerFixture,
+    mock_db_session,
     mock_audio_storage,
     track_1: Track,
 ):
-    mock_db_session = mocker.AsyncMock()
     mock_db_session.get.return_value = track_1
 
     result = await track_read(mock_db_session, track_id=track_1.id)
@@ -168,7 +167,7 @@ async def test_track_read_returns_track_dto_and_generates_urls(
     assert isinstance(result, TrackReadDto)
     assert result.title == "Track 1"
     mock_db_session.get.assert_called_once_with(Track, track_1.id)
-    mock_audio_storage.generate_expiring_url.assert_called()
+    mock_audio_storage.generate_expiring_url.assert_called_once_with(track_1.path)
 
 
 async def test_track_read_with_missing_track_rasies_error(mocker: MockerFixture):

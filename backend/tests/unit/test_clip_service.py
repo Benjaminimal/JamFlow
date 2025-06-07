@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from jamflow.models.clip import Clip
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
-from jamflow.services.clip import clip_create, clip_list
+from jamflow.services.clip import clip_create, clip_list, clip_read
 from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 
 
@@ -207,3 +207,27 @@ async def test_clip_list_with_non_existent_track_id_returns_empty_list(
 
     assert result == []
     mock_db_session.exec.assert_called_once()
+
+
+async def test_clip_read_returns_clip_dto_and_generates_url(
+    mock_db_session,
+    mock_audio_storage,
+    clip_1: Clip,
+):
+    mock_db_session.get.return_value = clip_1
+
+    result = await clip_read(mock_db_session, clip_id=clip_1.id)
+
+    assert isinstance(result, ClipReadDto)
+    assert result.title == "Test Clip 1"
+    mock_db_session.get.assert_called_once_with(Clip, clip_1.id)
+    mock_audio_storage.generate_expiring_url.assert_called_once_with(clip_1.path)
+
+
+async def test_clip_read_with_missing_clip_raises_error(mock_db_session):
+    mock_db_session.get.return_value = None
+
+    with pytest.raises(ResourceNotFoundException, match="Clip not found"):
+        await clip_read(mock_db_session, clip_id=uuid.uuid4())
+
+    mock_db_session.get.assert_called_once()

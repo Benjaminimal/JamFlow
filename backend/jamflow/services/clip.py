@@ -91,3 +91,19 @@ async def clip_list(
             for clip in clips
         ]
     return clip_read_dtos
+
+
+async def clip_read(
+    session: AsyncSession,
+    clip_id: uuid.UUID,
+) -> ClipReadDto:
+    clip = await session.get(Clip, clip_id)
+    if clip is None:
+        raise ResourceNotFoundException("Clip")
+
+    async with get_audio_storage_service() as audio_storage:
+        clip_url = await audio_storage.generate_expiring_url(clip.path)
+
+    clip_read_dto = ClipReadDto.model_validate(dict(clip) | {"url": clip_url})
+
+    return clip_read_dto
