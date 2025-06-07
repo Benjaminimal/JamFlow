@@ -1,15 +1,27 @@
 from fastapi import FastAPI
 
-from jamflow.core.config import settings
+from jamflow.api import router as api_router
+from jamflow.api.exception_handlers import (
+    application_exception_handler,
+    conflict_exception_handler,
+    resource_not_found_exception_handler,
+    validation_exception_handler,
+)
+from jamflow.core.exceptions import ApplicationException
+from jamflow.core.middlewares import request_bind_log_context_middleware
+from jamflow.services.exceptions import (
+    ConflictException,
+    ResourceNotFoundException,
+    ValidationException,
+)
 
 app = FastAPI()
 
+app.middleware("http")(request_bind_log_context_middleware)
 
-@app.get("/")
-async def read_root():
-    return {"message": f"Hello World. Welcome to {settings.PROJECT_NAME}!"}
+app.exception_handler(ApplicationException)(application_exception_handler)
+app.exception_handler(ValidationException)(validation_exception_handler)
+app.exception_handler(ResourceNotFoundException)(resource_not_found_exception_handler)
+app.exception_handler(ConflictException)(conflict_exception_handler)
 
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+app.include_router(api_router)

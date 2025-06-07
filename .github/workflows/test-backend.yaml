@@ -1,38 +1,31 @@
 name: Test Backend
 
 on:
-  workflow_run:
-    workflows: [Build Backend]
+  push:
+    branches:
+      - main
+  pull_request:
     types:
-      - completed
+      - opened
+      - synchronize
 
 jobs:
   test-backend:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U test_user -d test_db"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Run tests
+      - name: Set up environment
+        run: mv .env.test .env
+      - name: Build Docker image
+        run: docker compose build backend
+      - name: Start services
         run: |
-          docker run \
-            --network host \
-            -e DB_HOST=localhost \
-            -e DB_PORT=5432 \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=password \
-            -e DB_NAME=jamflowdb \
-            jamflow-backend \
-            pytest
+          docker compose up --detach db storage
+          docker ps
+      - name: Run tests
+        run: docker compose run -e CI=1 backend scripts/test.sh
+      - name: Clean up
+        if: always()
+        run: docker compose down --volumes

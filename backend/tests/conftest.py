@@ -1,69 +1,24 @@
-import pytest
-from sqlalchemy import NullPool, text
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-from sqlmodel import SQLModel
-
-from jamflow.core.config import settings
-
-TEST_DB_NAME = f"{settings.DB_NAME}_test"
-TEST_DB_URI = TEST_DB_NAME.join(
-    str(settings.SQLALCHEMY_DATABASE_URI).rsplit(settings.DB_NAME, 1)
+from .fixtures.database import (  # noqa: F401
+    db_engine,
+    db_session,
 )
-
-
-@pytest.fixture(scope="session")
-async def db_engine():
-    """
-    Set up and tear down a fresh test database including tables for the entire test session.
-    """
-    # Create a fresh test database
-    root_engine = create_async_engine(
-        str(settings.SQLALCHEMY_DATABASE_ROOT_URI), isolation_level="AUTOCOMMIT"
-    )
-    async with root_engine.connect() as conn:
-        await conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB_NAME}"))
-        await conn.execute(text(f"CREATE DATABASE {TEST_DB_NAME}"))
-
-    # Provide an engine with a NullPool to avoid connection pooling issues
-    engine = create_async_engine(
-        TEST_DB_URI,
-        future=True,
-        poolclass=NullPool,
-    )
-
-    # Create all tables
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-
-    yield engine
-
-    # Drop all tables
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
-
-    # Drop the test database
-    async with root_engine.connect() as conn:
-        await conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB_NAME}"))
-
-    # Dispose of resources
-    await engine.dispose()
-    await root_engine.dispose()
-
-
-@pytest.fixture(scope="function")
-async def db_session(db_engine: AsyncEngine):
-    """
-    Create a new connection and transaction for each test.
-    This ensures that the session has its own dedicated connection.
-    """
-    async with db_engine.connect() as conn:
-        session_maker = async_sessionmaker(bind=conn, expire_on_commit=False)
-        # Begin a non-ORM transaction on this connection
-        transaction = await conn.begin()
-        # Bind a session to this connection
-        async with session_maker(bind=conn) as session:
-            try:
-                yield session
-            finally:
-                # Roll back the transaction so that changes are not committed
-                await transaction.rollback()
+from .fixtures.files import (  # noqa: F401
+    audio_file_factory,
+    mp3_file,
+    mp3_upload_file,
+    ogg_file,
+    ogg_upload_file,
+    temp_test_dir,
+    txt_upload_file,
+    wav_file,
+    wav_upload_file,
+)
+from .fixtures.http import (  # noqa: F401
+    client,
+    public_client,
+    simple_client,
+)
+from .fixtures.storage import (  # noqa: F401
+    audio_storage,
+    storage_name_override,
+)
