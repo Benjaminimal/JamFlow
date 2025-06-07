@@ -44,6 +44,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: ["/bin/bash", "/app/scripts/entrypoint.sh"]
     env_file:
       - ./.env
     ports:

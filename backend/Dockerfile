@@ -10,7 +10,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Install ffmpeg
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg=7:5.1.6-0+deb12u1 \
+  && apt-get install -y --no-install-recommends \
+  ffmpeg=7:5.1.6-0+deb12u1 \
+  postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
 # Place executables in the environment at the front of the path
@@ -41,6 +43,7 @@ COPY ./migrations /app/migrations
 COPY ./tests /app/tests
 COPY ./jamflow /app/jamflow
 COPY ./scripts /app/scripts
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # Expose the port
 EXPOSE 8000
