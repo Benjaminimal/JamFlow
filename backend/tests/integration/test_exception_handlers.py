@@ -1,13 +1,13 @@
 import pytest
 from httpx import AsyncClient
 
-from jamflow.core.exceptions import ApplicationException
-from jamflow.main import app
-from jamflow.services.exceptions import (
-    ConflictException,
-    ResourceNotFoundException,
-    ValidationException,
+from jamflow.core.exceptions import (
+    ApplicationError,
+    DataIntegrityError,
+    ResourceNotFoundError,
+    ValidationError,
 )
+from jamflow.main import app
 
 
 @pytest.mark.parametrize(
@@ -15,25 +15,25 @@ from jamflow.services.exceptions import (
     [
         (
             "/application-error",
-            ApplicationException("Application error occurred"),
+            ApplicationError("Application error occurred"),
             500,
             {"detail": {"msg": "Application error occurred"}},
         ),
         (
             "/validation-error",
-            ValidationException("Validation failed", field="username"),
+            ValidationError("Validation failed", field="username"),
             422,
             {"detail": {"msg": "Validation failed", "field": "username"}},
         ),
         (
             "/not-found-error",
-            ResourceNotFoundException("Something"),
+            ResourceNotFoundError("Something not found"),
             404,
             {"detail": {"msg": "Something not found"}},
         ),
         (
             "/conflict-error",
-            ConflictException("Conflict occurred"),
+            DataIntegrityError("Conflict occurred"),
             409,
             {"detail": {"msg": "Conflict occurred"}},
         ),

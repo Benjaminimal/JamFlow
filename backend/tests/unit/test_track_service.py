@@ -6,11 +6,10 @@ import pytest
 from fastapi import UploadFile
 from pytest_mock import MockerFixture, MockFixture
 
+from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.models import Track
 from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
-from jamflow.services.audio import AudioServiceException
-from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.track import (
     track_create,
     track_generate_signed_urls,
@@ -128,10 +127,10 @@ async def test_track_create_raises_validation_exception_when_audio_duration_fail
 ):
     mocker.patch(
         "jamflow.services.track.get_audio_duration",
-        side_effect=AudioServiceException("Test error"),
+        side_effect=ValidationError("Test error"),
     )
 
-    with pytest.raises(ValidationException, match="Failed to get audio duration"):
+    with pytest.raises(ValidationError, match="Test error"):
         await track_create(session=mock_db_session, track_create_dto=track_create_dto)
 
 
@@ -174,7 +173,7 @@ async def test_track_read_with_missing_track_rasies_error(mocker: MockerFixture)
     mock_db_session = mocker.AsyncMock()
     mock_db_session.get.return_value = None
 
-    with pytest.raises(ResourceNotFoundException, match="Track not found"):
+    with pytest.raises(ResourceNotFoundError, match="Track not found"):
         await track_read(mock_db_session, track_id=uuid.uuid4())
 
     mock_db_session.get.assert_called_once()

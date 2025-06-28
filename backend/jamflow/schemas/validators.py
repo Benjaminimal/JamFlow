@@ -2,9 +2,9 @@ from collections.abc import Callable
 
 from fastapi import UploadFile
 
+from jamflow.core.exceptions import ValidationError
 from jamflow.models.enums import AudioFileFormat
 from jamflow.services.audio import get_audio_file_format
-from jamflow.services.exceptions import ServiceException
 
 
 def empty_string_to_none(value: str | None) -> str | None:
@@ -23,13 +23,15 @@ def validate_audo_file_format(upload_file: UploadFile) -> UploadFile:
     """
     try:
         get_audio_file_format(upload_file.file)
-    except ServiceException as exc:
+    except ValidationError as exc:
+        # TODO: Unsure if we shnould remap to ValueError or just let it bubble up
         raise ValueError(
             f"Unsupported file format. Supported formats: {', '.join(AudioFileFormat)}"
         ) from exc
     return upload_file
 
 
+# TODO: should we use our custom ValidationError here?
 def get_file_size_validator(max_size: int) -> Callable[[UploadFile], UploadFile]:
     """
     Returns a file size validator with a specific max size.

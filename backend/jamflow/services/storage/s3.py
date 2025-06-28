@@ -7,8 +7,8 @@ from botocore.exceptions import BotoCoreError, ClientError
 from types_aiobotocore_s3.client import S3Client
 
 from jamflow.core.config import settings
+from jamflow.core.exceptions import StorageError
 from jamflow.core.log import bind_log_context, get_logger, unbind_log_context
-from jamflow.services.exceptions import StorageException
 
 log = get_logger()
 
@@ -25,7 +25,7 @@ async def get_storage_client() -> S3Client:
             return client
     except BotoCoreError as exc:
         await log.aerror("Failed to create s3 client", exc_info=True)
-        raise StorageException("Failed to create storage client") from exc
+        raise StorageError("Failed to create storage client") from exc
 
 
 class S3StorageService:
@@ -50,7 +50,7 @@ class S3StorageService:
             )
         except (BotoCoreError, ClientError) as exc:
             await log.aerror("Failed to store file", exc_info=True, path=path)
-            raise StorageException(
+            raise StorageError(
                 f"Failed to store file {path} in {self._bucket_name}"
             ) from exc
 
@@ -65,7 +65,7 @@ class S3StorageService:
             return temp_file
         except (BotoCoreError, ClientError) as exc:
             await log.aerror("Failed to get file", exc_info=True, path=path)
-            raise StorageException(
+            raise StorageError(
                 f"Failed to get file {path} from {self._bucket_name}"
             ) from exc
 
@@ -80,9 +80,7 @@ class S3StorageService:
                 )
         except (BotoCoreError, ClientError) as exc:
             await log.aerror("Failed to purge bucket", exc_info=True)
-            raise StorageException(
-                f"Failed to purge bucket {self._bucket_name}"
-            ) from exc
+            raise StorageError(f"Failed to purge bucket {self._bucket_name}") from exc
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         try:
@@ -96,7 +94,7 @@ class S3StorageService:
             await log.aerror(
                 "Failed to generate presigned URL", exc_info=True, path=path
             )
-            raise StorageException(
+            raise StorageError(
                 f"Failed to generate presigned URL for {path} in {self._bucket_name}"
             ) from exc
         pass
@@ -127,7 +125,7 @@ class S3StorageService:
             if exc.response.get("Error", {}).get("Code", None) == "404":
                 return False
             await log.aerror("Failed to head bucket", exc_info=True)
-            raise StorageException(
+            raise StorageError(
                 f"Unexpected error when trying to access storage {self._bucket_name}"
             ) from exc
         return True
@@ -137,6 +135,4 @@ class S3StorageService:
             await self._client.create_bucket(Bucket=self._bucket_name)
         except ClientError as exc:
             await log.aerror("Failed to create bucket", exc_info=True)
-            raise StorageException(
-                f"Unable to access {self._bucket_name} storage"
-            ) from exc
+            raise StorageError(f"Unable to access {self._bucket_name} storage") from exc

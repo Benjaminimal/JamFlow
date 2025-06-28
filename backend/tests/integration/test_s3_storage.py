@@ -2,7 +2,7 @@ import pytest
 from types_aiobotocore_s3.client import S3Client
 
 from jamflow.core.config import settings
-from jamflow.services.exceptions import StorageException
+from jamflow.core.exceptions import StorageError
 from jamflow.services.storage.s3 import S3StorageService, get_storage_client
 
 TEST_BUCKET_NAME = "test-storage-service-bucket"
@@ -70,7 +70,7 @@ async def test_get_file_returns_correct_content(
 async def test_get_file_for_missing_key_raises_storage_exception(
     s3_storage: S3StorageService,
 ):
-    with pytest.raises(StorageException, match="Failed to get file"):
+    with pytest.raises(StorageError, match="Failed to get file"):
         await s3_storage.get_file(path="nonexistent.txt")
 
 

@@ -6,7 +6,7 @@ class StorageService(Protocol):
     """
     Storage service used to interact with remote file storage.
 
-    :raises StorageException: if the storage can't be accessed.
+    :raises StorageError: if the storage can't be accessed.
     """
 
     async def __aenter__(self) -> Self: ...
@@ -30,7 +30,7 @@ class StorageService(Protocol):
 
         :param path: The path where the file should be stored.
         :param file: The file data to be stored, as bytes or a file-like object.
-        :raises StorageException: if the file could not be stored.
+        :raises StorageError: if the file could not be stored.
         """
         ...
 
@@ -39,7 +39,7 @@ class StorageService(Protocol):
         Get a file from storage.
 
         :param path: The path to the file in storage.
-        :raises StorageException: if the file could not be retrieved.
+        :raises StorageError: if the file could not be retrieved.
         """
         ...
 
@@ -47,7 +47,7 @@ class StorageService(Protocol):
         """
         Delete all files from storage.
 
-        :raises StorageException: if the storage could not be purged.
+        :raises StorageError: if the storage could not be purged.
         """
         ...
 
@@ -58,6 +58,6 @@ class StorageService(Protocol):
         param path: The path to the file in storage.
         :param expiration: Time in seconds for the presigned URL to remain valid.
                            Defaults to 3600 seconds (1 hour).
-        :raises StorageException: if the URL could not be generated.
+        :raises StorageError: if the URL could not be generated.
         """
         ...

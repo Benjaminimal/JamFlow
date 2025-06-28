@@ -3,6 +3,7 @@ import uuid
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.core.log import get_logger
 from jamflow.models.clip import Clip
 from jamflow.models.track import Track
@@ -12,7 +13,6 @@ from jamflow.services.audio import (
     get_audio_mime_type,
     get_file_size,
 )
-from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_audio_storage_service
 from jamflow.services.utils import generate_clip_path
 
@@ -24,10 +24,10 @@ async def clip_create(
 ) -> ClipReadDto:
     track = await session.get(Track, clip_create_dto.track_id)
     if track is None:
-        raise ResourceNotFoundException("Track")
+        raise ResourceNotFoundError("Track not found")
 
     if track.duration < clip_create_dto.end:
-        raise ValidationException("Clip end time exceeds track duration", field="end")
+        raise ValidationError("Clip end time exceeds track duration", field="end")
 
     clip_id = uuid.uuid4()
     async with get_audio_storage_service() as audio_storage:
@@ -99,7 +99,7 @@ async def clip_read(
 ) -> ClipReadDto:
     clip = await session.get(Clip, clip_id)
     if clip is None:
-        raise ResourceNotFoundException("Clip")
+        raise ResourceNotFoundError("Clip not found")
 
     async with get_audio_storage_service() as audio_storage:
         clip_url = await audio_storage.generate_expiring_url(clip.path)

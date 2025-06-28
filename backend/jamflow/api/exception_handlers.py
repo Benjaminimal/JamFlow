@@ -1,17 +1,17 @@
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 
-from jamflow.core.exceptions import ApplicationException
-from jamflow.services.exceptions import (
-    ConflictException,
-    ResourceNotFoundException,
-    ValidationException,
+from jamflow.core.exceptions import (
+    ApplicationError,
+    DataIntegrityError,
+    ResourceNotFoundError,
+    ValidationError,
 )
 
 
 async def application_exception_handler(
     request: Request,  # noqa: ARG001
-    exc: ApplicationException,
+    exc: ApplicationError,
 ) -> Response:
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -25,7 +25,7 @@ async def application_exception_handler(
 
 async def validation_exception_handler(
     request: Request,  # noqa: ARG001
-    exc: ValidationException,
+    exc: ValidationError,
 ) -> Response:
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -40,7 +40,7 @@ async def validation_exception_handler(
 
 async def resource_not_found_exception_handler(
     request: Request,  # noqa: ARG001
-    exc: ResourceNotFoundException,
+    exc: ResourceNotFoundError,
 ) -> Response:
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -54,7 +54,7 @@ async def resource_not_found_exception_handler(
 
 async def conflict_exception_handler(
     request: Request,  # noqa: ARG001
-    exc: ConflictException,
+    exc: DataIntegrityError,
 ) -> Response:
     return JSONResponse(
         status_code=status.HTTP_409_CONFLICT,
