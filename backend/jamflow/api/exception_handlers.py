@@ -16,6 +16,7 @@ from jamflow.core.exceptions import (
     ValidationError,
 )
 from jamflow.core.log import get_logger
+from jamflow.schemas.error import ApiErrorDto, ErrorCode, ErrorDetailDto
 
 log = get_logger()
 
@@ -34,6 +35,20 @@ _APP_ERROR_HTTP_STATUS_MAP = {
     ConfigurationError: status.HTTP_500_INTERNAL_SERVER_ERROR,
 }
 
+_API_ERROR_CODE_MAP = {
+    ValidationError: ErrorCode.VALIDATION_ERROR,
+    AuthenticationError: ErrorCode.UNAUTHORIZED,
+    AuthorizationError: ErrorCode.FORBIDDEN,
+    ResourceNotFoundError: ErrorCode.NOT_FOUND,
+    BusinessLogicError: ErrorCode.BUSINESS_RULE_VIOLATION,
+    DataIntegrityError: ErrorCode.CONFLICT,
+    RateLimitError: ErrorCode.RATE_LIMITED,
+    DatabaseError: ErrorCode.INTERNAL_ERROR,
+    ExternalServiceError: ErrorCode.INTERNAL_ERROR,
+    StorageError: ErrorCode.INTERNAL_ERROR,
+    ConfigurationError: ErrorCode.INTERNAL_ERROR,
+}
+
 
 async def application_exception_handler(
     request: Request,  # noqa: ARG001
@@ -42,18 +57,21 @@ async def application_exception_handler(
     """
     Handle application-specific self-raised exceptions.
     """
-    for error_type, status_code in _APP_ERROR_HTTP_STATUS_MAP.items():
-        if isinstance(exc, error_type):
-            status_code = status_code
-            break
+    exec_type = type(exc)
+    status_code = get_http_status(exec_type)
+    error_code = get_error_code(exec_type)
+
+    if status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
+        await log.aexception("Unhandled application exception", exec_info=exc)
+
+    error_content = ApiErrorDto(
+        code=error_code,
+        details=[ErrorDetailDto(message=exc.message)],
+    )
 
     return JSONResponse(
         status_code=status_code,
-        content={
-            "detail": {
-                "msg": exc.message,
-            },
-        },
+        content=error_content.model_dump(exclude_none=True),
     )
 
 
@@ -65,11 +83,31 @@ async def external_exception_handler(
     Handle standard library and third-party library exceptions.
     """
     await log.aexception("Unhandled external exception", exec_info=exc)
+
+    error_content = ApiErrorDto(
+        code=ErrorCode.INTERNAL_ERROR,
+        details=[ErrorDetailDto(message="Internal server error")],
+    )
+
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "detail": {
-                "msg": "Internal server error",
-            },
-        },
+        content=error_content.model_dump(exclude_none=True),
     )
+
+
+def get_http_status(exec_type: type[ApplicationError]) -> int:
+    """
+    Get the HTTP status code for a given application error type.
+
+    :rasises KeyError: If no status code is registered for the error type.
+    """
+    return _APP_ERROR_HTTP_STATUS_MAP[exec_type]
+
+
+def get_error_code(exec_type: type[ApplicationError]) -> ErrorCode:
+    """
+    Get the API error code for a given application error type.
+
+    :raises KeyError: If no error code is registered for the error type.
+    """
+    return _API_ERROR_CODE_MAP[exec_type]
