@@ -1,5 +1,5 @@
 import pytest
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 
 from jamflow.core.exceptions import (
     ApplicationError,
@@ -16,6 +16,20 @@ from jamflow.core.exceptions import (
     ValidationError,
 )
 from jamflow.main import app
+
+
+@pytest.fixture
+async def non_raising_client():
+    """
+    Fixture to create an ASGI test client that does not raise exceptions.
+    This is useful for testing exception handling without having unhandled
+    exceptions bubble up.
+    """
+    async with AsyncClient(
+        transport=ASGITransport(app, raise_app_exceptions=False),
+        base_url="http://test",
+    ) as c:
+        yield c
 
 
 class MockLibraryError(Exception):
@@ -36,9 +50,9 @@ class MockLibraryError(Exception):
         ),
         (
             "/validation-error",
-            ValidationError("Validation failed", field="username"),
+            ValidationError("Validation failed"),
             400,
-            {"detail": {"msg": "Validation failed", "field": "username"}},
+            {"detail": {"msg": "Validation failed"}},
         ),
         (
             "/authentication-error",
@@ -100,6 +114,28 @@ class MockLibraryError(Exception):
             500,
             {"detail": {"msg": "Configuration error occurred"}},
         ),
+    ],
+)
+async def test_application_exception_handler(
+    non_raising_client: AsyncClient,
+    path: str,
+    exception: Exception,
+    expected_status: int,
+    expected_response: dict,
+):
+    @app.get(path)
+    async def error_route():
+        raise exception
+
+    response = await non_raising_client.get(path)
+
+    assert response.status_code == expected_status
+    assert response.json() == expected_response
+
+
+@pytest.mark.parametrize(
+    "path,exception,expected_status,expected_response",
+    [
         (
             "/mock-library-error",
             MockLibraryError("Mock library error occurred"),
@@ -132,8 +168,9 @@ class MockLibraryError(Exception):
         ),
     ],
 )
-async def test_exception_handlers(
-    simple_client: AsyncClient,
+async def test_external_exception_handler(
+    non_raising_client: AsyncClient,
+    caplog,
     path: str,
     exception: Exception,
     expected_status: int,
@@ -143,7 +180,12 @@ async def test_exception_handlers(
     async def error_route():
         raise exception
 
-    response = await simple_client.get(path)
+    with caplog.at_level("ERROR"):
+        response = await non_raising_client.get(path)
 
     assert response.status_code == expected_status
     assert response.json() == expected_response
+    assert len(caplog.records) == 1
+
+    # TODO: refine logging setup such that we can assert on the log context
+    assert '"event": "Unhandled external exception"' in caplog.records[0].message
