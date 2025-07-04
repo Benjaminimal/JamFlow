@@ -4,7 +4,7 @@ from typing import Annotated
 from unittest import mock
 
 import pytest
-from fastapi import Query
+from fastapi import HTTPException, Query
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
 
@@ -50,9 +50,9 @@ def temp_route():
     """
     registered_paths = []
 
-    def decorator(path: str, method: str = "GET"):
+    def decorator(path: str, method: str = "GET", **kwargs):
         def wrapper(func: Callable):
-            app.router.add_api_route(path, func, methods=[method])
+            app.router.add_api_route(path, func, methods=[method], **kwargs)
             registered_paths.append(path)
             return func
 
@@ -61,7 +61,9 @@ def temp_route():
     yield decorator
 
     app.router.routes = [
-        r for r in app.router.routes if getattr(r, "path", None) not in registered_paths
+        route
+        for route in app.router.routes
+        if getattr(route, "path", None) not in registered_paths
     ]
 
 
@@ -275,14 +277,16 @@ def test_all_application_error_children_map_to_http_status_codes():
 def test_all_application_error_children_map_to_error_codes():
     all_subclasses = ApplicationError.__subclasses__()
     for exec_type in all_subclasses:
+        statucs_code = get_http_status(exec_type)
         try:
-            get_error_code(exec_type)
+            get_error_code(statucs_code)
         except KeyError:
             pytest.fail(f"{exec_type} not mapped to an HTTP status code")
 
 
 async def test_timestamp_in_error_response(
     non_raising_client: AsyncClient,
+    temp_route,
     mocker,
 ):
     fixed_dt = datetime.datetime(2020, 3, 2, 11, 32, 11)
@@ -291,11 +295,13 @@ async def test_timestamp_in_error_response(
         return_value=fixed_dt,
     )
 
-    @app.get("/timestamp-error")
+    path = "/error"
+
+    @temp_route(path)
     async def error_route():
         raise ApplicationError("This is a test error")
 
-    response = await non_raising_client.get("/timestamp-error")
+    response = await non_raising_client.get(path)
 
     response_data = response.json()
     assert "timestamp" in response_data
@@ -305,89 +311,147 @@ async def test_timestamp_in_error_response(
 
 async def test_request_body_validation_error(
     non_raising_client: AsyncClient,
+    temp_route,
 ):
+    path = "/error"
+
     class BodySchema(BaseModel):
         name: str
         age: int
 
-    @app.post("/body-validation-error")
+    @temp_route(path, method="POST")
     async def error_route(body: BodySchema):
         return {"name": body.name, "age": body.age}
 
-    response = await non_raising_client.post(
-        "/body-validation-error", json={"name": 123}
-    )
+    response = await non_raising_client.post(path, json={"name": 123})
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     response_data = response.json()
-    assert response_data.keys() == {"detail"}
-    assert isinstance(response_data["detail"], list)
-    assert len(response_data["detail"]) == 2
-    assert response_data["detail"][0] == {
-        "loc": ["body", "name"],
-        "msg": "Input should be a valid string",
-        "type": "string_type",
-        "input": 123,
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "VALIDATION_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 2
+    assert response_data["details"][0] == {
+        "message": "Input should be a valid string",
+        "field": "name",
     }
-    assert response_data["detail"][1] == {
-        "loc": ["body", "age"],
-        "msg": "Field required",
-        "type": "missing",
-        "input": {"name": 123},
+    assert response_data["details"][1] == {
+        "message": "Field required",
+        "field": "age",
     }
 
 
 async def test_path_param_validation_error(
     non_raising_client: AsyncClient,
+    temp_route,
 ):
-    @app.get("/path-validation-error/{item_id}")
+    @temp_route("/error/{item_id}")
     async def error_route(item_id: int):
         return {"item_id": item_id}
 
-    response = await non_raising_client.get("/path-validation-error/foo")
+    response = await non_raising_client.get("/error/foo")
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     response_data = response.json()
-    assert response_data.keys() == {"detail"}
-    assert isinstance(response_data["detail"], list)
-    assert len(response_data["detail"]) == 1
-    assert response_data["detail"][0] == {
-        "loc": ["path", "item_id"],
-        "msg": "Input should be a valid integer, unable to parse string as an integer",
-        "type": "int_parsing",
-        "input": "foo",
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "VALIDATION_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0] == {
+        "message": "Input should be a valid integer, unable to parse string as an integer",
+        "field": "item_id",
     }
 
 
 async def test_query_param_validation_error(
     non_raising_client: AsyncClient,
+    temp_route,
 ):
-    class FilterSchema(BaseModel):
+    path = "/error"
+
+    class QueryParamSchema(BaseModel):
         name: str
         age: int
 
-    @app.get("/param-validation-error")
-    async def error_route(filter_query: Annotated[FilterSchema, Query()]):
-        return {"name": filter_query.name, "age": filter_query.age}
+    @temp_route(path)
+    async def error_route(query_params: Annotated[QueryParamSchema, Query()]):
+        return {"name": query_params.name, "age": query_params.age}
 
-    response = await non_raising_client.get(
-        "/param-validation-error", params={"age": "foo"}
-    )
+    response = await non_raising_client.get(path, params={"age": "foo"})
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     response_data = response.json()
-    assert response_data.keys() == {"detail"}
-    assert isinstance(response_data["detail"], list)
-    assert len(response_data["detail"]) == 2
-    assert response_data["detail"][0] == {
-        "loc": ["query", "name"],
-        "msg": "Field required",
-        "type": "missing",
-        "input": {"age": "foo"},
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "VALIDATION_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 2
+    assert response_data["details"][0] == {
+        "message": "Field required",
+        "field": "name",
     }
-    assert response_data["detail"][1] == {
-        "loc": ["query", "age"],
-        "msg": "Input should be a valid integer, unable to parse string as an integer",
-        "type": "int_parsing",
-        "input": "foo",
+    assert response_data["details"][1] == {
+        "message": "Input should be a valid integer, unable to parse string as an integer",
+        "field": "age",
+    }
+
+
+async def test_response_validation_error(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    class ResponseSchema(BaseModel):
+        name: str
+        age: int
+
+    path = "/error"
+
+    @temp_route(path, response_model=ResponseSchema)
+    async def error_route():
+        return {"age": "not-an-integer"}
+
+    response = await non_raising_client.get(path)
+
+    assert response.status_code == 500
+    response_data = response.json()
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "INTERNAL_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0] == {
+        "message": "Internal server error",
+    }
+
+
+async def test_fast_api_http_exception_handler(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    path = "/error"
+
+    @temp_route(path)
+    def error_route():
+        raise HTTPException(status_code=422, detail="Balance exceeded")
+
+    response = await non_raising_client.get(path)
+    assert response.status_code == 422
+    assert response.json() == {
+        "code": "BUSINESS_RULE_VIOLATION",
+        "timestamp": mock.ANY,
+        "details": [{"message": "Balance exceeded"}],
+    }
+
+
+async def test_fast_api_404_for_unknown_path(
+    non_raising_client: AsyncClient,
+):
+    response = await non_raising_client.get("/non-existent")
+    assert response.status_code == 404
+    assert response.json() == {
+        "code": "NOT_FOUND",
+        "timestamp": mock.ANY,
+        "details": [{"message": "Endpoint not found"}],
     }

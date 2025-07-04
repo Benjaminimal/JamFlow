@@ -1,9 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.exceptions import HTTPException, RequestValidationError
 
 from jamflow.api import router as api_router
 from jamflow.api.exception_handlers import (
     application_exception_handler,
     external_exception_handler,
+    fast_api_http_exception_handler,
+    fast_api_validation_exception_handler,
+    http_404_handler,
 )
 from jamflow.core.exceptions import ApplicationError
 from jamflow.core.middlewares import (
@@ -17,6 +21,10 @@ app.middleware("http")(request_bind_log_context_middleware)
 app.middleware("http")(request_id_middleware)
 
 app.add_exception_handler(ApplicationError, application_exception_handler)
+app.add_exception_handler(RequestValidationError, fast_api_validation_exception_handler)
+app.add_exception_handler(HTTPException, fast_api_http_exception_handler)
 app.add_exception_handler(Exception, external_exception_handler)
+app.add_exception_handler(status.HTTP_404_NOT_FOUND, http_404_handler)
+
 
 app.include_router(api_router)
