@@ -1,5 +1,9 @@
+from typing import Annotated
+
 import pytest
+from fastapi import Query
 from httpx import ASGITransport, AsyncClient
+from pydantic import BaseModel
 
 from jamflow.core.exceptions import (
     ApplicationError,
@@ -189,3 +193,93 @@ async def test_external_exception_handler(
 
     # TODO: refine logging setup such that we can assert on the log context
     assert '"event": "Unhandled external exception"' in caplog.records[0].message
+
+
+async def test_request_body_validation_error(
+    non_raising_client: AsyncClient,
+):
+    class BodySchema(BaseModel):
+        name: str
+        age: int
+
+    @app.post("/body-validation-error")
+    async def error_route(body: BodySchema):
+        return {"name": body.name, "age": body.age}
+
+    response = await non_raising_client.post(
+        "/body-validation-error", json={"name": 123}
+    )
+
+    assert response.status_code == 422
+    response_data = response.json()
+    assert response_data.keys() == {"detail"}
+    assert isinstance(response_data["detail"], list)
+    assert len(response_data["detail"]) == 2
+    assert response_data["detail"][0] == {
+        "loc": ["body", "name"],
+        "msg": "Input should be a valid string",
+        "type": "string_type",
+        "input": 123,
+    }
+    assert response_data["detail"][1] == {
+        "loc": ["body", "age"],
+        "msg": "Field required",
+        "type": "missing",
+        "input": {"name": 123},
+    }
+
+
+async def test_path_param_validation_error(
+    non_raising_client: AsyncClient,
+):
+    @app.get("/path-validation-error/{item_id}")
+    async def error_route(item_id: int):
+        return {"item_id": item_id}
+
+    response = await non_raising_client.get("/path-validation-error/foo")
+
+    assert response.status_code == 422
+    response_data = response.json()
+    assert response_data.keys() == {"detail"}
+    assert isinstance(response_data["detail"], list)
+    assert len(response_data["detail"]) == 1
+    assert response_data["detail"][0] == {
+        "loc": ["path", "item_id"],
+        "msg": "Input should be a valid integer, unable to parse string as an integer",
+        "type": "int_parsing",
+        "input": "foo",
+    }
+
+
+async def test_query_param_validation_error(
+    non_raising_client: AsyncClient,
+):
+    class FilterSchema(BaseModel):
+        name: str
+        age: int
+
+    @app.get("/param-validation-error")
+    async def error_route(filter_query: Annotated[FilterSchema, Query()]):
+        return {"name": filter_query.name, "age": filter_query.age}
+
+    response = await non_raising_client.get(
+        "/param-validation-error", params={"age": "foo"}
+    )
+
+    assert response.status_code == 422
+    response_data = response.json()
+    assert response_data.keys() == {"detail"}
+    assert isinstance(response_data["detail"], list)
+    assert len(response_data["detail"]) == 2
+    assert response_data["detail"][0] == {
+        "loc": ["query", "name"],
+        "msg": "Field required",
+        "type": "missing",
+        "input": {"age": "foo"},
+    }
+    assert response_data["detail"][1] == {
+        "loc": ["query", "age"],
+        "msg": "Input should be a valid integer, unable to parse string as an integer",
+        "type": "int_parsing",
+        "input": "foo",
+    }
