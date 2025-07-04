@@ -13,11 +13,15 @@ from jamflow.core.exceptions import (
     ResourceNotFoundError,
     ValidationError,
 )
-from jamflow.core.middlewares import request_bind_log_context_middleware
+from jamflow.core.middlewares import (
+    request_bind_log_context_middleware,
+    request_id_middleware,
+)
 
 app = FastAPI()
 
 app.middleware("http")(request_bind_log_context_middleware)
+app.middleware("http")(request_id_middleware)
 
 app.exception_handler(ApplicationError)(application_exception_handler)
 app.exception_handler(ValidationError)(validation_exception_handler)
