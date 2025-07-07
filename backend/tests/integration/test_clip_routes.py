@@ -69,7 +69,7 @@ async def test_clip_create_with_non_existent_track_returns_404(
     assert await count_rows(Clip) == 0
 
     response_data = response.json()
-    assert response_data["detail"] == {"msg": "Track not found"}
+    assert response_data["details"][0]["message"] == "Track not found"
 
 
 async def test_clip_create_with_overlapping_times_returns_422(
@@ -80,12 +80,13 @@ async def test_clip_create_with_overlapping_times_returns_422(
     clip_data["end"] = 1000
 
     response = await client.post("/api/v1/clips", json=clip_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["body"]
+    assert len(response_data["details"]) == 1
     assert (
-        response_data["detail"][0]["msg"] == "Value error, Start must be less than end"
+        response_data["details"][0]["message"]
+        == "Value error, Start must be less than end"
     )
 
 
@@ -96,12 +97,14 @@ async def test_clip_create_with_empty_title_returns_422(
     clip_data["title"] = "\t \n"
 
     response = await client.post("/api/v1/clips", json=clip_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["body", "title"]
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0]["field"] == "title"
     assert (
-        response_data["detail"][0]["msg"] == "String should have at least 1 character"
+        response_data["details"][0]["message"]
+        == "String should have at least 1 character"
     )
 
 
@@ -112,12 +115,14 @@ async def test_clip_create_with_end_gt_track_length_returns_422(
     clip_data["end"] = 3000
 
     response = await client.post("/api/v1/clips", json=clip_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     response_data = response.json()
     # assert False, response_data
-    assert response_data["detail"]["field"] == "end"
-    assert response_data["detail"]["msg"] == "Clip end time exceeds track duration"
+    assert len(response_data["details"]) == 1
+    assert (
+        response_data["details"][0]["message"] == "Clip end time exceeds track duration"
+    )
 
 
 async def test_clip_list_without_clips_returns_empty_list(client: AsyncClient):
@@ -230,4 +235,5 @@ async def test_clip_read_with_non_existent_clip_returns_404(
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
 
     response_data = response.json()
-    assert response_data["detail"] == {"msg": "Clip not found"}
+    assert len(response_data["details"][0]) == 1
+    assert response_data["details"][0]["message"] == "Clip not found"

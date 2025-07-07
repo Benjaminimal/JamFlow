@@ -27,7 +27,7 @@ async def clip_create(
         raise ResourceNotFoundError("Track not found")
 
     if track.duration < clip_create_dto.end:
-        raise ValidationError("Clip end time exceeds track duration", field="end")
+        raise ValidationError("Clip end time exceeds track duration")
 
     clip_id = uuid.uuid4()
     async with get_audio_storage_service() as audio_storage:

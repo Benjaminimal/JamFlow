@@ -87,9 +87,10 @@ async def fast_api_validation_exception_handler(
         }
 
         loc = error.get("loc", [])
-        field = loc[-1] if loc else None
-        if field is not None:
-            error_detail_kwargs["field"] = field
+        if len(loc) > 1:
+            field = loc[-1]
+            if field is not None:
+                error_detail_kwargs["field"] = field
 
         details.append(ErrorDetailDto(**error_detail_kwargs))
 
