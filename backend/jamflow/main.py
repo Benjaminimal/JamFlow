@@ -7,7 +7,7 @@ from jamflow.api.exception_handlers import (
     external_exception_handler,
     fast_api_http_exception_handler,
     fast_api_validation_exception_handler,
-    http_404_handler,
+    page_not_found_handler,
 )
 from jamflow.core.exceptions import ApplicationError
 from jamflow.core.middlewares import (
@@ -24,7 +24,7 @@ app.add_exception_handler(ApplicationError, application_exception_handler)
 app.add_exception_handler(RequestValidationError, fast_api_validation_exception_handler)
 app.add_exception_handler(HTTPException, fast_api_http_exception_handler)
 app.add_exception_handler(Exception, external_exception_handler)
-app.add_exception_handler(status.HTTP_404_NOT_FOUND, http_404_handler)
+app.add_exception_handler(status.HTTP_404_NOT_FOUND, page_not_found_handler)
 
 
 app.include_router(api_router)

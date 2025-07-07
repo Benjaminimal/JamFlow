@@ -53,7 +53,7 @@ async def application_exception_handler(
     exc: ApplicationError,
 ) -> Response:
     """
-    Handle application-specific self-raised exceptions.
+    Map exceptions directly raised by the application to HTTP responses.
     """
     exec_type = type(exc)
     status_code = get_http_status(exec_type)
@@ -77,6 +77,9 @@ async def fast_api_validation_exception_handler(
     request: Request,  # noqa: ARG001
     exc: RequestValidationError,
 ) -> Response:
+    """
+    Map Exceptions raised by FastAPI request validation to HTTP responses.
+    """
     details = []
     for error in exc.errors():
         error_detail_kwargs = {
@@ -106,6 +109,9 @@ async def fast_api_http_exception_handler(
     request: Request,  # noqa: ARG001
     exc: HTTPException,
 ) -> Response:
+    """
+    Map generic HTTP exceptions raised by FastAPI to HTTP responses.
+    """
     error_code = get_error_code(exc.status_code)
 
     error_content = ApiErrorDto(
@@ -124,7 +130,7 @@ async def external_exception_handler(
     exc: Exception,
 ) -> Response:
     """
-    Handle standard library and third-party library exceptions.
+    Map library raised or unhandled exceptions to HTTP responses.
     """
     await log.aexception("Unhandled external exception", exec_info=exc)
 
@@ -139,12 +145,12 @@ async def external_exception_handler(
     )
 
 
-def http_404_handler(
+def page_not_found_handler(
     request: Request,  # noqa: ARG001
     exc: HTTPException,  # noqa: ARG001
 ) -> Response:
     """
-    Handle endpoints that are not found.
+    Map HTTP 404 Not Found errors to the custom error response format.
     """
     error_content = ApiErrorDto(
         code=ErrorCode.NOT_FOUND,
