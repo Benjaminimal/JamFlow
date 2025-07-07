@@ -3,7 +3,7 @@ from botocore.client import ClientError
 from botocore.exceptions import BotoCoreError
 from pytest_mock import MockerFixture
 
-from jamflow.services.exceptions import StorageException
+from jamflow.core.exceptions import StorageError
 from jamflow.services.storage.s3 import S3StorageService
 
 
@@ -22,7 +22,7 @@ async def test_raises_storage_exception_on_invalid_credentials(mocker: MockerFix
     mock_session = mocker.patch("jamflow.services.storage.s3.get_session")
     mock_session.return_value.create_client.side_effect = BotoCoreError()
 
-    with pytest.raises(StorageException):
+    with pytest.raises(StorageError):
         async with S3StorageService("test-bucket"):
             pass
 
@@ -94,8 +94,8 @@ async def test_store_file_raises_storage_exception_on_error(mock_s3_client):
     mock_s3_client.put_object.side_effect = BotoCoreError()
 
     async with S3StorageService("test-bucket") as service:
-        # verify that a StorageException is raised
-        with pytest.raises(StorageException):
+        # verify that a StorageError is raised
+        with pytest.raises(StorageError):
             await service.store_file(
                 b"test data",
                 path="test/path",
@@ -139,7 +139,7 @@ async def test_get_file_raises_storage_exception_on_error(mock_s3_client):
 
     # Initialize S3Storage with mock client
     async with S3StorageService("test-bucket") as service:
-        with pytest.raises(StorageException):
+        with pytest.raises(StorageError):
             await service.get_file("test/path")
 
     mock_s3_client.get_object.assert_called_once_with(
@@ -170,8 +170,8 @@ async def test_generate_expiring_url_raises_storage_exception_on_error(mock_s3_c
     mock_s3_client.generate_presigned_url.side_effect = BotoCoreError()
 
     async with S3StorageService("test-bucket") as service:
-        # verify that a StorageException is raised
-        with pytest.raises(StorageException):
+        # verify that a StorageError is raised
+        with pytest.raises(StorageError):
             await service.generate_expiring_url("test/path")
 
     # verify that generate_presigned_url was called with the correct parameters

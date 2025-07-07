@@ -7,10 +7,10 @@ from mutagen import MutagenError
 from pydub import AudioSegment
 from pytest_mock import MockerFixture
 
+from jamflow.core.exceptions import BusinessLogicError, ValidationError
 from jamflow.services.audio import (
     AudioFileFormat,
     AudioMimeType,
-    AudioServiceException,
     clip_audio_file,
     get_audio_duration,
     get_audio_file_format,
@@ -31,7 +31,7 @@ def test_get_audio_file_format_with_failing_detection_raises_exception(
     mocker: MockerFixture,
 ):
     mocker.patch("filetype.guess", return_value=None)
-    with pytest.raises(AudioServiceException, match="Cannot guess file type"):
+    with pytest.raises(ValidationError, match="Cannot guess file type"):
         get_audio_file_format(mocker.MagicMock())
 
 
@@ -40,7 +40,7 @@ def test_get_audio_file_format_with_unsupported_type_raises_exception(
 ):
     mocker.patch("filetype.guess", return_value=MagicMock(extension="exe"))
 
-    with pytest.raises(AudioServiceException, match="Unsupported file type: exe"):
+    with pytest.raises(ValidationError, match="Unsupported file type: exe"):
         get_audio_file_format(mocker.MagicMock())
 
 
@@ -62,7 +62,7 @@ def test_get_audio_duration_with_metadata_error_raises_audio_service_exception(
     mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
     mock_mp3.side_effect = MutagenError("Metadata error")
 
-    with pytest.raises(AudioServiceException, match="Failed to read metadata"):
+    with pytest.raises(ValidationError, match="Failed to read metadata"):
         get_audio_duration(mocker.MagicMock(), AudioFileFormat.MP3)
 
 
@@ -73,7 +73,7 @@ def test_get_audio_duration_without_metadata_raises_audio_service_exception(
     mock_metadata = MagicMock(info=None)
     mock_mp3.return_value = mock_metadata
 
-    with pytest.raises(AudioServiceException, match="No metadata found"):
+    with pytest.raises(ValidationError, match="No metadata found"):
         get_audio_duration(mocker.MagicMock(), AudioFileFormat.MP3)
 
 
@@ -137,22 +137,22 @@ def test_clip_audio_file_returns_clipped_segment(wav_file):
 
 
 def test_clip_audio_file_with_invalid_format_raises_exception():
-    with pytest.raises(AudioServiceException, match="Unsupported file format: invalid"):
+    with pytest.raises(ValidationError, match="Unsupported file format: invalid"):
         clip_audio_file(BytesIO(b"test data"), "invalid", start=0, end=1000)
 
 
 def test_clip_audio_file_with_negative_start_raises_exception():
-    with pytest.raises(AudioServiceException, match="Start cannot be negative"):
+    with pytest.raises(ValidationError, match="Start cannot be negative"):
         clip_audio_file(BytesIO(b"test data"), "mp3", start=-1000, end=1000)
 
 
 def test_clip_audio_file_with_invalid_range_raises_exception():
-    with pytest.raises(AudioServiceException, match="Start must be less than end"):
+    with pytest.raises(ValidationError, match="Start must be less than end"):
         clip_audio_file(BytesIO(b"test data"), "mp3", start=2000, end=1000)
 
 
 def test_clip_audio_file_with_empty_file_raises_exception():
-    with pytest.raises(AudioServiceException, match="Cannot clip an empty file"):
+    with pytest.raises(ValidationError, match="Cannot clip an empty file"):
         clip_audio_file(BytesIO(b""), "mp3", start=0, end=1000)
 
 
@@ -173,5 +173,5 @@ def test_get_audio_mime_type_works_for_all_accepted_audio_formats(
 
 
 def test_get_audio_mime_type_raises_exception_for_unknown_format():
-    with pytest.raises(AudioServiceException, match="Unsupported file format: unknown"):
+    with pytest.raises(BusinessLogicError, match="Unsupported file format: unknown"):
         get_audio_mime_type("unknown")

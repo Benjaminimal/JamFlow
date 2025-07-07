@@ -5,15 +5,14 @@ from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
+from jamflow.core.exceptions import ResourceNotFoundError
 from jamflow.models import Track
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import (
-    AudioServiceException,
     get_audio_duration,
     get_audio_file_format,
     get_audio_mime_type,
 )
-from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 from jamflow.services.storage import get_audio_storage_service
 from jamflow.services.utils import generate_track_path
 from jamflow.utils import timezone_now
@@ -41,12 +40,7 @@ async def track_create(
         track_url = await audio_storage.generate_expiring_url(path)
 
     track_create_dto.upload_file.file.seek(0)
-    try:
-        duration = get_audio_duration(track_create_dto.upload_file.file, format)
-    except AudioServiceException as exc:
-        raise ValidationException(
-            "Failed to get audio duration", field="upload_file"
-        ) from exc
+    duration = get_audio_duration(track_create_dto.upload_file.file, format)
 
     track = Track.model_validate(
         track_create_dto,
@@ -86,7 +80,7 @@ async def track_list(session: AsyncSession) -> list[TrackReadDto]:
 async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
     track = await session.get(Track, track_id)
     if track is None:
-        raise ResourceNotFoundException("Track")
+        raise ResourceNotFoundError("Track not found")
     async with get_audio_storage_service() as audio_storage:
         track_url = await audio_storage.generate_expiring_url(track.path)
     track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})

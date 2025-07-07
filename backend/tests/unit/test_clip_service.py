@@ -3,10 +3,10 @@ import uuid
 import pytest
 from pytest_mock import MockerFixture
 
+from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.models.clip import Clip
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
 from jamflow.services.clip import clip_create, clip_list, clip_read
-from jamflow.services.exceptions import ResourceNotFoundException, ValidationException
 
 
 @pytest.fixture
@@ -99,7 +99,7 @@ async def test_clip_create_with_non_existent_track_raises_exception(mock_db_sess
     # Simulate track not found
     mock_db_session.get.return_value = None
 
-    with pytest.raises(ResourceNotFoundException, match="Track not found"):
+    with pytest.raises(ResourceNotFoundError, match="Track not found"):
         await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
 
 
@@ -116,9 +116,7 @@ async def test_clip_create_with_end_gt_track_length_raises_exception(
         end=3000,
     )
 
-    with pytest.raises(
-        ValidationException, match="Clip end time exceeds track duration"
-    ):
+    with pytest.raises(ValidationError, match="Clip end time exceeds track duration"):
         await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
 
 
@@ -227,7 +225,7 @@ async def test_clip_read_returns_clip_dto_and_generates_url(
 async def test_clip_read_with_missing_clip_raises_error(mock_db_session):
     mock_db_session.get.return_value = None
 
-    with pytest.raises(ResourceNotFoundException, match="Clip not found"):
+    with pytest.raises(ResourceNotFoundError, match="Clip not found"):
         await clip_read(mock_db_session, clip_id=uuid.uuid4())
 
     mock_db_session.get.assert_called_once()

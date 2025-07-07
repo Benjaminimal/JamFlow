@@ -11,7 +11,10 @@ async def simple_client() -> AsyncClient:
     """
     Fixture to create an ASGI test client.
     """
-    async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as c:
+    async with AsyncClient(
+        transport=ASGITransport(app),
+        base_url="http://test",
+    ) as c:
         yield c
 
 

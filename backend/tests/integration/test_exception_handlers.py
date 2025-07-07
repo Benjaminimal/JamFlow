@@ -1,64 +1,457 @@
+import datetime
+from collections.abc import Callable
+from typing import Annotated
+from unittest import mock
+
 import pytest
-from httpx import AsyncClient
+from fastapi import HTTPException, Query
+from httpx import ASGITransport, AsyncClient
+from pydantic import BaseModel
 
-from jamflow.core.exceptions import ApplicationException
-from jamflow.main import app
-from jamflow.services.exceptions import (
-    ConflictException,
-    ResourceNotFoundException,
-    ValidationException,
+from jamflow.api.exception_handlers import (
+    get_error_code,
+    get_http_status,
 )
+from jamflow.core.exceptions import (
+    ApplicationError,
+    AuthenticationError,
+    AuthorizationError,
+    BusinessLogicError,
+    ConfigurationError,
+    DatabaseError,
+    DataIntegrityError,
+    ExternalServiceError,
+    RateLimitError,
+    ResourceNotFoundError,
+    StorageError,
+    ValidationError,
+)
+from jamflow.main import app
 
 
-async def test_application_exception_returns_500(simple_client: AsyncClient):
-    @app.get("/application-error")
-    async def application_error():
-        raise ApplicationException("Application error occurred")
+@pytest.fixture
+async def non_raising_client():
+    """
+    Fixture to create an ASGI test client that does not raise exceptions.
+    This is useful for testing exception handling without having unhandled
+    exceptions bubble up.
+    """
+    async with AsyncClient(
+        transport=ASGITransport(app, raise_app_exceptions=False),
+        base_url="http://test",
+    ) as c:
+        yield c
 
-    response = await simple_client.get("/application-error")
+
+@pytest.fixture
+def temp_route():
+    """
+    Fixture to create temporary routes for testing.
+    """
+    registered_paths = []
+
+    def decorator(path: str, method: str = "GET", **kwargs):
+        def wrapper(func: Callable):
+            app.router.add_api_route(path, func, methods=[method], **kwargs)
+            registered_paths.append(path)
+            return func
+
+        return wrapper
+
+    yield decorator
+
+    app.router.routes = [
+        route
+        for route in app.router.routes
+        if getattr(route, "path", None) not in registered_paths
+    ]
+
+
+class MockLibraryError(Exception):
+    """
+    Mock error to simulate an unhandled external library exception
+    bubbling up to the api layer.
+    """
+
+
+@pytest.mark.parametrize(
+    "exception,expected_status,expected_response",
+    [
+        (
+            ValidationError("Validation failed"),
+            400,
+            {
+                "code": "VALIDATION_ERROR",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Validation failed"}],
+            },
+        ),
+        (
+            AuthenticationError("Authentication failed"),
+            401,
+            {
+                "code": "UNAUTHORIZED",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Authentication failed"}],
+            },
+        ),
+        (
+            AuthorizationError("Permission denied"),
+            403,
+            {
+                "code": "FORBIDDEN",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Permission denied"}],
+            },
+        ),
+        (
+            ResourceNotFoundError("Something not found"),
+            404,
+            {
+                "code": "NOT_FOUND",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Something not found"}],
+            },
+        ),
+        (
+            BusinessLogicError("Business logic error occurred"),
+            422,
+            {
+                "code": "BUSINESS_RULE_VIOLATION",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Business logic error occurred"}],
+            },
+        ),
+        (
+            DataIntegrityError("Conflict occurred"),
+            409,
+            {
+                "code": "CONFLICT",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Conflict occurred"}],
+            },
+        ),
+        (
+            RateLimitError("Rate limit exceeded"),
+            429,
+            {
+                "code": "RATE_LIMITED",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Rate limit exceeded"}],
+            },
+        ),
+    ],
+)
+async def test_application_exception_handler_4xx(
+    non_raising_client: AsyncClient,
+    temp_route,
+    caplog,
+    exception: Exception,
+    expected_status: int,
+    expected_response: dict,
+):
+    path = "/error"
+
+    @temp_route(path)
+    def handler():
+        raise exception
+
+    with caplog.at_level("ERROR"):
+        response = await non_raising_client.get(path)
+
+    assert response.status_code == expected_status
+    assert response.json() == expected_response
+    assert len(caplog.records) == 0
+
+
+@pytest.mark.parametrize(
+    "exception,expected_response",
+    [
+        (
+            StorageError("Storage operation failed"),
+            {
+                "code": "INTERNAL_ERROR",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Storage operation failed"}],
+            },
+        ),
+        (
+            DatabaseError("Database operation failed"),
+            {
+                "code": "INTERNAL_ERROR",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Database operation failed"}],
+            },
+        ),
+        (
+            ExternalServiceError("External service error occurred"),
+            {
+                "code": "INTERNAL_ERROR",
+                "timestamp": mock.ANY,
+                "details": [{"message": "External service error occurred"}],
+            },
+        ),
+        (
+            ConfigurationError("Configuration error occurred"),
+            {
+                "code": "INTERNAL_ERROR",
+                "timestamp": mock.ANY,
+                "details": [{"message": "Configuration error occurred"}],
+            },
+        ),
+    ],
+)
+async def test_application_exception_handler_500(
+    non_raising_client: AsyncClient,
+    temp_route,
+    caplog,
+    exception: Exception,
+    expected_response: dict,
+):
+    path = "/error"
+
+    @temp_route(path)
+    async def error_route():
+        raise exception
+
+    with caplog.at_level("ERROR"):
+        response = await non_raising_client.get(path)
+
     assert response.status_code == 500
-    assert response.json() == {"detail": {"msg": "Application error occurred"}}
+    assert response.json() == expected_response
+
+    assert len(caplog.records) == 1
+    # TODO: refine logging setup such that we can assert on the log context
+    assert '"event": "Unhandled application exception"' in caplog.records[0].message
 
 
-async def test_validation_exception_returns_422(simple_client: AsyncClient):
-    @app.get("/validation-error")
-    async def validation_error():
-        raise ValidationException("Validation failed", field="username")
+@pytest.mark.parametrize(
+    "exception",
+    [
+        MockLibraryError("Mock library error occurred"),
+        TypeError("Type error occurred"),
+        ValueError("Value error occurred"),
+        KeyError("Key error occurred"),
+        Exception("An unexpected error occurred"),
+        # NOTE: ApplicationError should never be raised directly
+        #       and should result in an unexpected error.
+        ApplicationError("Application error occurred"),
+    ],
+)
+async def test_external_exception_handler(
+    non_raising_client: AsyncClient,
+    temp_route,
+    caplog,
+    exception: Exception,
+):
+    path = "/error"
 
-    response = await simple_client.get("/validation-error")
-    assert response.status_code == 422
+    @temp_route(path)
+    async def error_route():
+        raise exception
+
+    with caplog.at_level("ERROR"):
+        response = await non_raising_client.get(path)
+
+    assert response.status_code == 500
     assert response.json() == {
-        "detail": {"msg": "Validation failed", "field": "username"}
+        "code": "INTERNAL_ERROR",
+        "timestamp": mock.ANY,
+        "details": [{"message": "Internal server error"}],
+    }
+
+    assert len(caplog.records) == 1
+    # TODO: refine logging setup such that we can assert on the log context
+    assert '"event": "Unhandled external exception"' in caplog.records[0].message
+
+
+def test_all_application_error_children_map_to_http_status_codes():
+    all_subclasses = ApplicationError.__subclasses__()
+    for exec_type in all_subclasses:
+        try:
+            get_http_status(exec_type)
+        except KeyError:
+            pytest.fail(f"{exec_type} not mapped to an HTTP status code")
+
+
+def test_all_application_error_children_map_to_error_codes():
+    all_subclasses = ApplicationError.__subclasses__()
+    for exec_type in all_subclasses:
+        statucs_code = get_http_status(exec_type)
+        try:
+            get_error_code(statucs_code)
+        except KeyError:
+            pytest.fail(f"{exec_type} not mapped to an HTTP status code")
+
+
+async def test_timestamp_in_error_response(
+    non_raising_client: AsyncClient,
+    temp_route,
+    mocker,
+):
+    fixed_dt = datetime.datetime(2020, 3, 2, 11, 32, 11)
+    mocker.patch(
+        "jamflow.schemas.error.timezone_now",
+        return_value=fixed_dt,
+    )
+
+    path = "/error"
+
+    @temp_route(path)
+    async def error_route():
+        raise ApplicationError("This is a test error")
+
+    response = await non_raising_client.get(path)
+
+    response_data = response.json()
+    assert "timestamp" in response_data
+    assert isinstance(response_data["timestamp"], str)
+    assert response_data["timestamp"] == "2020-03-02T11:32:11"
+
+
+async def test_request_body_validation_error(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    path = "/error"
+
+    class BodySchema(BaseModel):
+        name: str
+        age: int
+
+    @temp_route(path, method="POST")
+    async def error_route(body: BodySchema):
+        return {"name": body.name, "age": body.age}
+
+    response = await non_raising_client.post(path, json={"name": 123})
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "VALIDATION_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 2
+    assert response_data["details"][0] == {
+        "message": "Input should be a valid string",
+        "field": "name",
+    }
+    assert response_data["details"][1] == {
+        "message": "Field required",
+        "field": "age",
     }
 
 
-async def test_resource_not_found_exception_returns_404(simple_client: AsyncClient):
-    @app.get("/not-found-error")
-    async def not_found_error():
-        raise ResourceNotFoundException("Something")
+async def test_path_param_validation_error(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    @temp_route("/error/{item_id}")
+    async def error_route(item_id: int):
+        return {"item_id": item_id}
 
-    response = await simple_client.get("/not-found-error")
-    assert response.status_code == 404
-    assert response.json() == {"detail": {"msg": "Something not found"}}
+    response = await non_raising_client.get("/error/foo")
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "VALIDATION_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0] == {
+        "message": "Input should be a valid integer, unable to parse string as an integer",
+        "field": "item_id",
+    }
 
 
-async def test_conflict_exception_returns_409(simple_client: AsyncClient):
-    @app.get("/conflict-error")
-    async def conflict_error():
-        raise ConflictException("Conflict occurred")
+async def test_query_param_validation_error(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    path = "/error"
 
-    response = await simple_client.get("/conflict-error")
-    assert response.status_code == 409
-    assert response.json() == {"detail": {"msg": "Conflict occurred"}}
+    class QueryParamSchema(BaseModel):
+        name: str
+        age: int
+
+    @temp_route(path)
+    async def error_route(query_params: Annotated[QueryParamSchema, Query()]):
+        return {"name": query_params.name, "age": query_params.age}
+
+    response = await non_raising_client.get(path, params={"age": "foo"})
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "VALIDATION_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 2
+    assert response_data["details"][0] == {
+        "message": "Field required",
+        "field": "name",
+    }
+    assert response_data["details"][1] == {
+        "message": "Input should be a valid integer, unable to parse string as an integer",
+        "field": "age",
+    }
 
 
-# TODO:implement catch-all exception handler
-@pytest.mark.skip("Catch-all exception handler is not impelemnted")
-async def test_unhandled_exception_returns_500(simple_client: AsyncClient):
-    @app.get("/exception")
-    async def exception():
-        raise Exception("Client should not see this")
+async def test_response_validation_error(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    class ResponseSchema(BaseModel):
+        name: str
+        age: int
 
-    response = await simple_client.get("/exception")
+    path = "/error"
+
+    @temp_route(path, response_model=ResponseSchema)
+    async def error_route():
+        return {"age": "not-an-integer"}
+
+    response = await non_raising_client.get(path)
+
     assert response.status_code == 500
-    assert response.json() == {"detail": {"msg": "An unexpected error occurred."}}
+    response_data = response.json()
+    assert response_data.keys() == {"code", "details", "timestamp"}
+    assert response_data["code"] == "INTERNAL_ERROR"
+    assert isinstance(response_data["timestamp"], str)
+    assert isinstance(response_data["details"], list)
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0] == {
+        "message": "Internal server error",
+    }
+
+
+async def test_fast_api_http_exception_handler(
+    non_raising_client: AsyncClient,
+    temp_route,
+):
+    path = "/error"
+
+    @temp_route(path)
+    def error_route():
+        raise HTTPException(status_code=422, detail="Balance exceeded")
+
+    response = await non_raising_client.get(path)
+    assert response.status_code == 422
+    assert response.json() == {
+        "code": "BUSINESS_RULE_VIOLATION",
+        "timestamp": mock.ANY,
+        "details": [{"message": "Balance exceeded"}],
+    }
+
+
+async def test_fast_api_404_for_unknown_path(
+    non_raising_client: AsyncClient,
+):
+    response = await non_raising_client.get("/non-existent")
+    assert response.status_code == 404
+    assert response.json() == {
+        "code": "NOT_FOUND",
+        "timestamp": mock.ANY,
+        "details": [{"message": "Endpoint not found"}],
+    }

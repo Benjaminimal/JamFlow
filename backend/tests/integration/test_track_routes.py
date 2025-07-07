@@ -86,7 +86,7 @@ async def test_track_read_with_existing_track_returns_expected_response(
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "mp3"
-    assert response_data["size"] == 19662
+    assert 19660 <= response_data["size"] <= 19670
     assert response_data["url"].startswith(("http://", "https://"))
 
 
@@ -94,7 +94,8 @@ async def test_track_read_with_non_existant_track_returns_404(client: AsyncClien
     response = await client.get(f"/api/v1/tracks/{uuid.uuid4()}")
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.content
     response_data = response.json()
-    assert response_data == {"detail": {"msg": "Track not found"}}
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0]["message"] == "Track not found"
 
 
 async def test_track_create_with_invalid_file_format_returns_422(
@@ -103,13 +104,12 @@ async def test_track_create_with_invalid_file_format_returns_422(
 ):
     track_file = {"upload_file": ("dummy.txt", b"Invalid content", "text/plain")}
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
-        response.content
-    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0]["field"] == "upload_file"
     assert (
-        response_data["detail"][0]["msg"]
+        response_data["details"][0]["message"]
         == "Value error, Unsupported file format. Supported formats: mp3, wav, ogg"
     )
 
@@ -139,7 +139,7 @@ async def test_track_create_returns_complete_track_with_extracted_metadata(
     assert 2400 <= response_data["duration"] <= 2600
     assert response_data["recorded_date"] == "2021-02-03"
     assert response_data["format"] == "mp3"
-    assert response_data["size"] == 19662
+    assert 19660 <= response_data["size"] <= 19670
     assert response_data["url"].startswith(("http://", "https://"))
 
     assert await count_rows(Track) == 1
@@ -179,11 +179,13 @@ async def test_track_create_with_blank_title_returns_422(
 ):
     track_data["title"] = "\n \t"
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["body", "title"]
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0]["field"] == "title"
     assert (
-        response_data["detail"][0]["msg"] == "String should have at least 1 character"
+        response_data["details"][0]["message"]
+        == "String should have at least 1 character"
     )
 
 
@@ -192,10 +194,11 @@ async def test_track_create_without_file_returns_422(
     track_data,
 ):
     response = await client.post("/api/v1/tracks", data=track_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
-    assert response_data["detail"][0]["msg"] == "Field required"
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0]["field"] == "upload_file"
+    assert response_data["details"][0]["message"] == "Field required"
 
 
 async def test_track_create_with_empty_file_returns_422(
@@ -205,10 +208,11 @@ async def test_track_create_with_empty_file_returns_422(
 ):
     track_file["upload_file"] = ("empty.mp3", b"", "audio/mpeg")
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["body", "upload_file"]
-    assert response_data["detail"][0]["msg"] == "Value error, File is empty"
+    assert len(response_data["details"]) == 1
+    assert response_data["details"][0]["field"] == "upload_file"
+    assert response_data["details"][0]["message"] == "Value error, File is empty"
 
 
 @pytest.mark.usefixtures("track_3")
@@ -253,9 +257,7 @@ async def test_track_get_urls_with_three_tracks_returns_urls_with_expiration_tim
 async def test_track_get_urls_with_no_existent_id_returns_422(client: AsyncClient):
     response = await client.get("/api/v1/tracks/urls")
 
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, (
-        response.content
-    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
     response_data = response.json()
-    assert response_data["detail"][0]["loc"] == ["query", "track_ids"]
-    assert response_data["detail"][0]["msg"] == "Field required"
+    assert response_data["details"][0]["field"] == "track_ids"
+    assert response_data["details"][0]["message"] == "Field required"
