@@ -148,7 +148,7 @@ async def external_exception_handler(
 
 def page_not_found_handler(
     request: Request,  # noqa: ARG001
-    exc: HTTPException,  # noqa: ARG001
+    exc: Exception,  # noqa: ARG001
 ) -> Response:
     """
     Map HTTP 404 Not Found errors to the custom error response format.
