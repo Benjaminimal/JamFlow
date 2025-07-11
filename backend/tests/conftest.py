@@ -21,6 +21,9 @@ from .fixtures.http import (  # noqa: F401
     public_client,
     simple_client,
 )
+from .fixtures.log import (  # noqa: F401
+    assert_log_records,
+)
 from .fixtures.storage import (  # noqa: F401
     audio_storage,
     storage_name_override,

@@ -86,5 +86,13 @@ def configure_logging() -> None:
         logger_factory=stdlib.LoggerFactory(),
         # Effectively freeze configuration after creating the first bound
         # logger.
-        cache_logger_on_first_use=True,
+        cache_logger_on_first_use=_should_cache_logger(),
     )
+
+
+def _should_cache_logger() -> bool:
+    """
+    Determine if the logger should be cached.
+    """
+    # TODO: find a cleaner way to detect if we should cache the logger
+    return "pytest" not in sys.modules

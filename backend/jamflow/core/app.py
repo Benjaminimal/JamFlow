@@ -17,15 +17,11 @@ from jamflow.core.middlewares import (
 )
 
 
-def create_app(
-    *,
-    configure_logs: bool = True,
-) -> FastAPI:
+def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application.
     """
-    if configure_logs:
-        configure_logging()
+    configure_logging()
 
     app = FastAPI()
 

@@ -2,9 +2,7 @@ import re
 
 from fastapi import FastAPI
 from httpx import AsyncClient
-from pytest import LogCaptureFixture
-
-from tests.utils import assert_log_records_for
+from pytest_mock import MockerFixture
 
 
 async def test_request_id_in_response_headers(
@@ -16,44 +14,56 @@ async def test_request_id_in_response_headers(
         return {"message": "Request ID should be in response headers"}
 
     response = await client.get("/test-request-id")
+
+    uuid_pattern = re.compile(r"[0-9a-fA-F-]{36}")
+
     assert response.status_code == 200
-    assert "X-Request-ID" in response.headers
-    assert isinstance(response.headers["X-Request-ID"], str)
-    assert len(response.headers["X-Request-ID"]) == 36  # UUID length
+    assert "X-Request-ID" in response.headers, (
+        "Response headers does not contain 'X-Request-ID'"
+    )
+    request_id = response.headers["X-Request-ID"]
+    assert isinstance(request_id, str), "Request ID is not a string"
+    assert re.match(uuid_pattern, request_id), (
+        f"Request ID does not match UUID format: {request_id}"
+    )
 
 
 async def test_request_details_logged(
     app: FastAPI,
     client: AsyncClient,
-    caplog: LogCaptureFixture,
+    mocker: MockerFixture,
+    assert_log_records,
 ) -> None:
+    static_uuid = "123e4567-e89b-12d3-a456-426614174000"
+    mocker.patch("jamflow.core.middlewares.uuid.uuid4", return_value=static_uuid)
+
     @app.get("/test-logging")
     async def test_logging():
         return {"message": "Request details should be logged"}
 
-    with caplog.at_level("INFO"):
-        response = await client.get("/test-logging")
+    response = await client.get("/test-logging")
 
     assert response.status_code == 200
 
-    uuid_pattern = re.compile(r"[0-9a-fA-F-]{36}")
-
-    assert_log_records_for(
-        caplog,
-        level="INFO",
-        expected_contexts=[
-            {
-                "event": "Request received",
-                "method": "GET",
-                "path": "/test-logging",
-                "request_id": uuid_pattern,
-            },
-            {
-                "event": "Request processed",
-                "method": "GET",
-                "path": "/test-logging",
-                "request_id": uuid_pattern,
-            },
+    assert_log_records(
+        expected_events=[
+            (
+                "Request received",
+                {
+                    "level": "info",
+                    "method": "GET",
+                    "path": "/test-logging",
+                    "request_id": static_uuid,
+                },
+            ),
+            (
+                "Request processed",
+                {
+                    "level": "info",
+                    "method": "GET",
+                    "path": "/test-logging",
+                    "request_id": static_uuid,
+                },
+            ),
         ],
-        logger_name="jamflow.core.middlewares",
     )
