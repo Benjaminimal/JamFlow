@@ -491,6 +491,7 @@ dependencies = [
 dev = [
     { name = "mypy" },
     { name = "pre-commit" },
+    { name = "rich" },
     { name = "ruff" },
     { name = "types-aiobotocore", extra = ["s3"] },
 ]
@@ -521,6 +522,7 @@ requires-dist = [
 dev = [
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "pre-commit", specifier = ">=4.1.0" },
+    { name = "rich", specifier = ">=13.9.4" },
     { name = "ruff", specifier = ">=0.9.3" },
     { name = "types-aiobotocore", extras = ["s3"], specifier = ">=2.19.0" },
 ]

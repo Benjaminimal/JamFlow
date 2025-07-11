@@ -31,6 +31,7 @@ dev = [
   # Code quality
   "pre-commit>=4.1.0",
   "ruff>=0.9.3",
+  "rich>=13.9.4",
 ]
 test = [
   # Testing
