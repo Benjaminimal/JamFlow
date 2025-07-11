@@ -7,6 +7,7 @@ import pytest
 from fastapi import HTTPException, Query
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
+from pytest import LogCaptureFixture
 
 from jamflow.api.exception_handlers import (
     get_error_code,
@@ -72,6 +73,21 @@ class MockLibraryError(Exception):
     Mock error to simulate an unhandled external library exception
     bubbling up to the api layer.
     """
+
+
+def assert_log_events(
+    caplog: LogCaptureFixture, level: str, expected_events: list[str]
+):
+    handler_logs = [
+        record
+        for record in caplog.records
+        if record.name == "jamflow.api.exception_handlers"
+    ]
+    assert len(handler_logs) == len(expected_events)
+    for i, expected_event in enumerate(expected_events):
+        assert handler_logs[i].levelname == level
+        # TODO: refine logging setup such that we can assert on the log context
+        assert expected_event in handler_logs[i].message
 
 
 @pytest.mark.parametrize(
@@ -145,7 +161,7 @@ class MockLibraryError(Exception):
 async def test_application_exception_handler_4xx(
     non_raising_client: AsyncClient,
     temp_route,
-    caplog,
+    caplog: LogCaptureFixture,
     exception: Exception,
     expected_status: int,
     expected_response: dict,
@@ -156,12 +172,13 @@ async def test_application_exception_handler_4xx(
     def handler():
         raise exception
 
-    with caplog.at_level("ERROR"):
+    with caplog.at_level("INFO"):
         response = await non_raising_client.get(path)
 
     assert response.status_code == expected_status
     assert response.json() == expected_response
-    assert len(caplog.records) == 0
+
+    assert_log_events(caplog, "INFO", ['"event": "Application exception handled"'])
 
 
 @pytest.mark.parametrize(
@@ -204,7 +221,7 @@ async def test_application_exception_handler_4xx(
 async def test_application_exception_handler_500(
     non_raising_client: AsyncClient,
     temp_route,
-    caplog,
+    caplog: LogCaptureFixture,
     exception: Exception,
     expected_response: dict,
 ):
@@ -220,9 +237,7 @@ async def test_application_exception_handler_500(
     assert response.status_code == 500
     assert response.json() == expected_response
 
-    assert len(caplog.records) == 1
-    # TODO: refine logging setup such that we can assert on the log context
-    assert '"event": "Unhandled application exception"' in caplog.records[0].message
+    assert_log_events(caplog, "ERROR", ['"event": "Unhandled application exception"'])
 
 
 @pytest.mark.parametrize(
@@ -241,7 +256,7 @@ async def test_application_exception_handler_500(
 async def test_external_exception_handler(
     non_raising_client: AsyncClient,
     temp_route,
-    caplog,
+    caplog: LogCaptureFixture,
     exception: Exception,
 ):
     path = "/error"
@@ -260,9 +275,7 @@ async def test_external_exception_handler(
         "details": [{"message": "Internal server error"}],
     }
 
-    assert len(caplog.records) == 1
-    # TODO: refine logging setup such that we can assert on the log context
-    assert '"event": "Unhandled external exception"' in caplog.records[0].message
+    assert_log_events(caplog, "ERROR", ['"event": "Unhandled external exception"'])
 
 
 def test_all_application_error_children_map_to_http_status_codes():
@@ -312,6 +325,7 @@ async def test_timestamp_in_error_response(
 async def test_request_body_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    caplog: LogCaptureFixture,
 ):
     path = "/error"
 
@@ -323,7 +337,8 @@ async def test_request_body_validation_error(
     async def error_route(body: BodySchema):
         return {"name": body.name, "age": body.age}
 
-    response = await non_raising_client.post(path, json={"name": 123})
+    with caplog.at_level("INFO"):
+        response = await non_raising_client.post(path, json={"name": 123})
 
     assert response.status_code == 400
     response_data = response.json()
@@ -341,16 +356,22 @@ async def test_request_body_validation_error(
         "field": "age",
     }
 
+    assert_log_events(
+        caplog, "INFO", ['"event": "FastAPI validation exception handled"']
+    )
+
 
 async def test_path_param_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    caplog: LogCaptureFixture,
 ):
     @temp_route("/error/{item_id}")
     async def error_route(item_id: int):
         return {"item_id": item_id}
 
-    response = await non_raising_client.get("/error/foo")
+    with caplog.at_level("INFO"):
+        response = await non_raising_client.get("/error/foo")
 
     assert response.status_code == 400
     response_data = response.json()
@@ -364,10 +385,15 @@ async def test_path_param_validation_error(
         "field": "item_id",
     }
 
+    assert_log_events(
+        caplog, "INFO", ['"event": "FastAPI validation exception handled"']
+    )
+
 
 async def test_query_param_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    caplog: LogCaptureFixture,
 ):
     path = "/error"
 
@@ -379,7 +405,8 @@ async def test_query_param_validation_error(
     async def error_route(query_params: Annotated[QueryParamSchema, Query()]):
         return {"name": query_params.name, "age": query_params.age}
 
-    response = await non_raising_client.get(path, params={"age": "foo"})
+    with caplog.at_level("INFO"):
+        response = await non_raising_client.get(path, params={"age": "foo"})
 
     assert response.status_code == 400
     response_data = response.json()
@@ -397,10 +424,15 @@ async def test_query_param_validation_error(
         "field": "age",
     }
 
+    assert_log_events(
+        caplog, "INFO", ['"event": "FastAPI validation exception handled"']
+    )
+
 
 async def test_response_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    caplog: LogCaptureFixture,
 ):
     class ResponseSchema(BaseModel):
         name: str
@@ -412,7 +444,8 @@ async def test_response_validation_error(
     async def error_route():
         return {"age": "not-an-integer"}
 
-    response = await non_raising_client.get(path)
+    with caplog.at_level("ERROR"):
+        response = await non_raising_client.get(path)
 
     assert response.status_code == 500
     response_data = response.json()
@@ -425,10 +458,13 @@ async def test_response_validation_error(
         "message": "Internal server error",
     }
 
+    assert_log_events(caplog, "ERROR", ['"event": "Unhandled external exception"'])
+
 
 async def test_fast_api_http_exception_handler(
     non_raising_client: AsyncClient,
     temp_route,
+    caplog: LogCaptureFixture,
 ):
     path = "/error"
 
@@ -436,7 +472,9 @@ async def test_fast_api_http_exception_handler(
     def error_route():
         raise HTTPException(status_code=422, detail="Balance exceeded")
 
-    response = await non_raising_client.get(path)
+    with caplog.at_level("INFO"):
+        response = await non_raising_client.get(path)
+
     assert response.status_code == 422
     assert response.json() == {
         "code": "BUSINESS_RULE_VIOLATION",
@@ -444,14 +482,21 @@ async def test_fast_api_http_exception_handler(
         "details": [{"message": "Balance exceeded"}],
     }
 
+    assert_log_events(caplog, "INFO", ['"event": "FastAPI HTTP exception handled"'])
+
 
 async def test_fast_api_404_for_unknown_path(
     non_raising_client: AsyncClient,
+    caplog: LogCaptureFixture,
 ):
-    response = await non_raising_client.get("/non-existent")
+    with caplog.at_level("INFO"):
+        response = await non_raising_client.get("/non-existent")
+
     assert response.status_code == 404
     assert response.json() == {
         "code": "NOT_FOUND",
         "timestamp": mock.ANY,
         "details": [{"message": "Endpoint not found"}],
     }
+
+    assert_log_events(caplog, "INFO", ['"event": "Page not found"'])

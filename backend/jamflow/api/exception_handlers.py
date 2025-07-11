@@ -61,6 +61,8 @@ async def application_exception_handler(
 
     if status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
         await logger.aexception("Unhandled application exception", exec_info=exc)
+    else:
+        await logger.ainfo("Application exception handled", exc_info=exc)
 
     error_content = ApiErrorDto(
         code=error_code,
@@ -80,6 +82,8 @@ async def fast_api_validation_exception_handler(
     """
     Map Exceptions raised by FastAPI request validation to HTTP responses.
     """
+    await logger.ainfo("FastAPI validation exception handled", exc_info=exc)
+
     details = []
     for error in exc.errors():
         error_detail_kwargs = {
@@ -113,6 +117,8 @@ async def fast_api_http_exception_handler(
     """
     Map generic HTTP exceptions raised by FastAPI to HTTP responses.
     """
+    await logger.ainfo("FastAPI HTTP exception handled", exc_info=exc)
+
     error_code = get_error_code(exc.status_code)
 
     error_content = ApiErrorDto(
@@ -146,13 +152,15 @@ async def external_exception_handler(
     )
 
 
-def page_not_found_handler(
+async def page_not_found_handler(
     request: Request,  # noqa: ARG001
     exc: Exception,  # noqa: ARG001
 ) -> Response:
     """
     Map HTTP 404 Not Found errors to the custom error response format.
     """
+    await logger.ainfo("Page not found", exc_info=exc)
+
     error_content = ApiErrorDto(
         code=ErrorCode.NOT_FOUND,
         details=[ErrorDetailDto(message="Endpoint not found")],
