@@ -60,9 +60,11 @@ async def application_exception_handler(
     error_code = get_error_code(status_code)
 
     if status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
-        await logger.aexception("Unhandled application exception", exec_info=exc)
+        await logger.aexception(
+            "Unhandled application exception", exec_info=exc, **exc.context
+        )
     else:
-        await logger.ainfo("Application exception handled", exc_info=exc)
+        await logger.ainfo("Application exception handled", exc_info=exc, **exc.context)
 
     error_content = ApiErrorDto(
         code=error_code,

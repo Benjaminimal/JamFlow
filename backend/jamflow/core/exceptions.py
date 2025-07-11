@@ -1,9 +1,23 @@
-class ApplicationError(Exception):
-    """Common base class for in application logic exceptions."""
+from typing import Any
 
-    def __init__(self, message: str) -> None:
+
+class ApplicationError(Exception):
+    """
+    Common base class for in application logic exceptions.
+
+    Adding context information to the error message is recommended as this can
+    be used for structured logging.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        context: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(message)
         self.message = message
+        self.context = context or {}
 
 
 class ValidationError(ApplicationError):
