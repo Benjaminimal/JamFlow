@@ -1,8 +1,8 @@
-import re
-
 from httpx import AsyncClient
+from pytest import LogCaptureFixture
 
 from jamflow.main import app
+from tests.utils import assert_log_records_for
 
 
 async def test_request_id_in_response_headers(
@@ -21,7 +21,7 @@ async def test_request_id_in_response_headers(
 
 async def test_request_details_logged(
     client: AsyncClient,
-    caplog,
+    caplog: LogCaptureFixture,
 ) -> None:
     @app.get("/test-logging")
     async def test_logging():
@@ -31,21 +31,40 @@ async def test_request_details_logged(
         response = await client.get("/test-logging")
 
     assert response.status_code == 200
-    middlware_log_records = [
-        record for record in caplog.records if record.name == "jamflow.core.middlewares"
-    ]
-    assert len(middlware_log_records) == 2
-    received_log, processed_log = middlware_log_records
 
-    uuid_pattern = re.compile(r'"request_id":\s*"[0-9a-fA-F-]{36}"')
-
-    # TODO: refine logging setup such that we can assert on the log context
-    assert '"event": "Request received"' in received_log.message
-    assert '"method": "GET"' in received_log.message
-    assert '"path": "/test-logging"' in received_log.message
-    assert uuid_pattern.search(received_log.message)
-
-    assert '"event": "Request processed"' in processed_log.message
-    assert '"method": "GET"' in processed_log.message
-    assert '"path": "/test-logging"' in processed_log.message
-    assert uuid_pattern.search(processed_log.message)
+    assert_log_records_for(
+        caplog,
+        level="INFO",
+        expected_contexts=[
+            '"event": "Request received"',
+            '"event": "Request processed"',
+        ],
+        logger_name="jamflow.core.middlewares",
+    )
+    assert_log_records_for(
+        caplog,
+        level="INFO",
+        expected_contexts=[
+            '"method": "GET"',
+            '"method": "GET"',
+        ],
+        logger_name="jamflow.core.middlewares",
+    )
+    assert_log_records_for(
+        caplog,
+        level="INFO",
+        expected_contexts=[
+            '"path": "/test-logging"',
+            '"path": "/test-logging"',
+        ],
+        logger_name="jamflow.core.middlewares",
+    )
+    assert_log_records_for(
+        caplog,
+        level="INFO",
+        expected_contexts=[
+            '"request_id": "',
+            '"request_id": "',
+        ],
+        logger_name="jamflow.core.middlewares",
+    )
