@@ -177,7 +177,7 @@ async def test_application_exception_handler_4xx(
     assert response.status_code == expected_status
     assert response.json() == expected_response
 
-    assert_log_records(caplog, "INFO", ['"event": "Application exception handled"'])
+    assert_log_records(caplog, "INFO", [{"event": "Application exception handled"}])
 
 
 @pytest.mark.parametrize(
@@ -236,7 +236,7 @@ async def test_application_exception_handler_500(
     assert response.status_code == 500
     assert response.json() == expected_response
 
-    assert_log_records(caplog, "ERROR", ['"event": "Unhandled application exception"'])
+    assert_log_records(caplog, "ERROR", [{"event": "Unhandled application exception"}])
 
 
 @pytest.mark.parametrize(
@@ -274,7 +274,7 @@ async def test_external_exception_handler(
         "details": [{"message": "Internal server error"}],
     }
 
-    assert_log_records(caplog, "ERROR", ['"event": "Unhandled external exception"'])
+    assert_log_records(caplog, "ERROR", [{"event": "Unhandled external exception"}])
 
 
 def test_all_application_error_children_map_to_http_status_codes():
@@ -356,7 +356,7 @@ async def test_request_body_validation_error(
     }
 
     assert_log_records(
-        caplog, "INFO", ['"event": "FastAPI validation exception handled"']
+        caplog, "INFO", [{"event": "FastAPI validation exception handled"}]
     )
 
 
@@ -385,7 +385,7 @@ async def test_path_param_validation_error(
     }
 
     assert_log_records(
-        caplog, "INFO", ['"event": "FastAPI validation exception handled"']
+        caplog, "INFO", [{"event": "FastAPI validation exception handled"}]
     )
 
 
@@ -424,7 +424,7 @@ async def test_query_param_validation_error(
     }
 
     assert_log_records(
-        caplog, "INFO", ['"event": "FastAPI validation exception handled"']
+        caplog, "INFO", [{"event": "FastAPI validation exception handled"}]
     )
 
 
@@ -457,7 +457,7 @@ async def test_response_validation_error(
         "message": "Internal server error",
     }
 
-    assert_log_records(caplog, "ERROR", ['"event": "Unhandled external exception"'])
+    assert_log_records(caplog, "ERROR", [{"event": "Unhandled external exception"}])
 
 
 async def test_fast_api_http_exception_handler(
@@ -481,7 +481,7 @@ async def test_fast_api_http_exception_handler(
         "details": [{"message": "Balance exceeded"}],
     }
 
-    assert_log_records(caplog, "INFO", ['"event": "FastAPI HTTP exception handled"'])
+    assert_log_records(caplog, "INFO", [{"event": "FastAPI HTTP exception handled"}])
 
 
 async def test_fast_api_404_for_unknown_path(
@@ -498,4 +498,4 @@ async def test_fast_api_404_for_unknown_path(
         "details": [{"message": "Endpoint not found"}],
     }
 
-    assert_log_records(caplog, "INFO", ['"event": "Page not found"'])
+    assert_log_records(caplog, "INFO", [{"event": "Page not found"}])

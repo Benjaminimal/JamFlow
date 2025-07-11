@@ -1,3 +1,5 @@
+import re
+
 from httpx import AsyncClient
 from pytest import LogCaptureFixture
 
@@ -32,39 +34,24 @@ async def test_request_details_logged(
 
     assert response.status_code == 200
 
+    uuid_pattern = re.compile(r"[0-9a-fA-F-]{36}")
+
     assert_log_records_for(
         caplog,
         level="INFO",
         expected_contexts=[
-            '"event": "Request received"',
-            '"event": "Request processed"',
-        ],
-        logger_name="jamflow.core.middlewares",
-    )
-    assert_log_records_for(
-        caplog,
-        level="INFO",
-        expected_contexts=[
-            '"method": "GET"',
-            '"method": "GET"',
-        ],
-        logger_name="jamflow.core.middlewares",
-    )
-    assert_log_records_for(
-        caplog,
-        level="INFO",
-        expected_contexts=[
-            '"path": "/test-logging"',
-            '"path": "/test-logging"',
-        ],
-        logger_name="jamflow.core.middlewares",
-    )
-    assert_log_records_for(
-        caplog,
-        level="INFO",
-        expected_contexts=[
-            '"request_id": "',
-            '"request_id": "',
+            {
+                "event": "Request received",
+                "method": "GET",
+                "path": "/test-logging",
+                "request_id": uuid_pattern,
+            },
+            {
+                "event": "Request processed",
+                "method": "GET",
+                "path": "/test-logging",
+                "request_id": uuid_pattern,
+            },
         ],
         logger_name="jamflow.core.middlewares",
     )
