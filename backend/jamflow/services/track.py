@@ -17,7 +17,7 @@ from jamflow.services.storage import get_audio_storage_service
 from jamflow.services.utils import generate_track_path
 from jamflow.utils import timezone_now
 
-log = get_logger()
+logger = get_logger()
 
 
 async def track_create(
@@ -36,7 +36,7 @@ async def track_create(
             path=path,
             content_type=content_type,
         )
-        await log.ainfo("File successfully stored", path=path)
+        await logger.ainfo("File successfully stored", path=path)
         track_url = await audio_storage.generate_expiring_url(path)
 
     track_create_dto.upload_file.file.seek(0)
@@ -55,7 +55,7 @@ async def track_create(
 
     session.add(track)
     await session.commit()
-    await log.ainfo("Track successfully created", track_id=track.id)
+    await logger.ainfo("Track successfully created", track_id=track.id)
 
     await session.refresh(track)
     track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})

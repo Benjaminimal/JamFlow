@@ -13,7 +13,7 @@ from jamflow.core.exceptions import BusinessLogicError, ValidationError
 from jamflow.core.log import get_logger
 from jamflow.models.enums import AudioFileFormat
 
-log = get_logger()
+logger = get_logger()
 
 
 class AudioMimeType(StrEnum):
@@ -30,11 +30,11 @@ def get_audio_file_format(file: BinaryIO) -> AudioFileFormat:
     """
     kind = filetype.guess(file)
     if kind is None:
-        log.error("Failed to guess file type")
+        logger.error("Failed to guess file type")
         raise ValidationError("Cannot guess file type")
     extension = kind.extension
     if extension not in AudioFileFormat:
-        log.error("Unsupported file type detected", file_type=extension)
+        logger.error("Unsupported file type detected", file_type=extension)
         raise ValidationError(f"Unsupported file type: {extension}")
     return AudioFileFormat(extension)
 
@@ -58,17 +58,17 @@ def get_audio_duration(
         case AudioFileFormat.WAV:
             metadata_class = WAVE
         case other:
-            log.error("Unhandled file format", file_format=other)
+            logger.error("Unhandled file format", file_format=other)
             raise BusinessLogicError(f"Unhandled file format: {other}")
 
     try:
         metadata = metadata_class(file)
     except MutagenError as exc:
-        log.error("Failed to read metadata", exc_info=True)
+        logger.error("Failed to read metadata", exc_info=True)
         raise ValidationError("Failed to read metadata") from exc
 
     if metadata is None or metadata.info is None:
-        log.error("No metadata found")
+        logger.error("No metadata found")
         raise ValidationError("No metadata found")
 
     return int(metadata.info.length * 1000)

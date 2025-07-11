@@ -16,7 +16,7 @@ from jamflow.services.audio import (
 from jamflow.services.storage import get_audio_storage_service
 from jamflow.services.utils import generate_clip_path
 
-log = get_logger()
+logger = get_logger()
 
 
 async def clip_create(
@@ -48,7 +48,7 @@ async def clip_create(
             path=path,
             content_type=content_type,
         )
-        await log.ainfo("File successfully stored", path=path)
+        await logger.ainfo("File successfully stored", path=path)
         clip_url = await audio_storage.generate_expiring_url(path)
 
     clip_size = get_file_size(clip_file)
@@ -65,7 +65,7 @@ async def clip_create(
 
     session.add(clip)
     await session.commit()
-    await log.ainfo("Clip successfully created", clip_id=clip.id)
+    await logger.ainfo("Clip successfully created", clip_id=clip.id)
 
     await session.refresh(clip)
     clip_read_dto = ClipReadDto.model_validate(dict(clip) | {"url": clip_url})

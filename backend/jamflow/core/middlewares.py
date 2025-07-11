@@ -5,7 +5,7 @@ from fastapi import Request, Response
 
 from jamflow.core.log import bind_log_context, clear_log_context, get_logger
 
-log = get_logger()
+logger = get_logger()
 
 
 async def request_id_middleware(
@@ -41,12 +41,12 @@ async def request_bind_log_context_middleware(
 
     request_id = getattr(request.state, "request_id", None)
     if not request_id:
-        await log.awarning("Request ID not found in request state")
+        await logger.awarning("Request ID not found in request state")
     bind_log_context(request_id=request_id)
 
-    await log.ainfo("Request received")
+    await logger.ainfo("Request received")
 
     response = await call_next(request)
 
-    await log.ainfo("Request processed", status_code=response.status_code)
+    await logger.ainfo("Request processed", status_code=response.status_code)
     return response

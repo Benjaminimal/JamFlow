@@ -19,7 +19,7 @@ from jamflow.core.exceptions import (
 from jamflow.core.log import get_logger
 from jamflow.schemas.error import ApiErrorDto, ErrorCode, ErrorDetailDto
 
-log = get_logger()
+logger = get_logger()
 
 
 _APP_ERROR_HTTP_STATUS_MAP = {
@@ -60,7 +60,7 @@ async def application_exception_handler(
     error_code = get_error_code(status_code)
 
     if status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
-        await log.aexception("Unhandled application exception", exec_info=exc)
+        await logger.aexception("Unhandled application exception", exec_info=exc)
 
     error_content = ApiErrorDto(
         code=error_code,
@@ -133,7 +133,7 @@ async def external_exception_handler(
     """
     Map library raised or unhandled exceptions to HTTP responses.
     """
-    await log.aexception("Unhandled external exception", exec_info=exc)
+    await logger.aexception("Unhandled external exception", exec_info=exc)
 
     error_content = ApiErrorDto(
         code=ErrorCode.INTERNAL_ERROR,
