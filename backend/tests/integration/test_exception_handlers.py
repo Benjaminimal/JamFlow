@@ -4,7 +4,7 @@ from typing import Annotated
 from unittest import mock
 
 import pytest
-from fastapi import HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
 
@@ -26,11 +26,10 @@ from jamflow.core.exceptions import (
     StorageError,
     ValidationError,
 )
-from jamflow.main import app
 
 
 @pytest.fixture
-async def non_raising_client():
+async def non_raising_client(app: FastAPI) -> AsyncClient:
     """
     Fixture to create an ASGI test client that does not raise exceptions.
     This is useful for testing exception handling without having unhandled
@@ -44,7 +43,7 @@ async def non_raising_client():
 
 
 @pytest.fixture
-def temp_route():
+def temp_route(app: FastAPI):
     """
     Fixture to create temporary routes for testing.
     """
@@ -145,7 +144,7 @@ class MockLibraryError(Exception):
 async def test_application_exception_handler_4xx(
     non_raising_client: AsyncClient,
     temp_route,
-    caplog,
+    assert_log_records,
     exception: Exception,
     expected_status: int,
     expected_response: dict,
@@ -156,12 +155,12 @@ async def test_application_exception_handler_4xx(
     def handler():
         raise exception
 
-    with caplog.at_level("ERROR"):
-        response = await non_raising_client.get(path)
+    response = await non_raising_client.get(path)
 
     assert response.status_code == expected_status
     assert response.json() == expected_response
-    assert len(caplog.records) == 0
+
+    assert_log_records([("Application exception handled", {"level": "info"})])
 
 
 @pytest.mark.parametrize(
@@ -204,7 +203,7 @@ async def test_application_exception_handler_4xx(
 async def test_application_exception_handler_500(
     non_raising_client: AsyncClient,
     temp_route,
-    caplog,
+    assert_log_records,
     exception: Exception,
     expected_response: dict,
 ):
@@ -214,15 +213,12 @@ async def test_application_exception_handler_500(
     async def error_route():
         raise exception
 
-    with caplog.at_level("ERROR"):
-        response = await non_raising_client.get(path)
+    response = await non_raising_client.get(path)
 
     assert response.status_code == 500
     assert response.json() == expected_response
 
-    assert len(caplog.records) == 1
-    # TODO: refine logging setup such that we can assert on the log context
-    assert '"event": "Unhandled application exception"' in caplog.records[0].message
+    assert_log_records([("Unhandled application exception", {"level": "error"})])
 
 
 @pytest.mark.parametrize(
@@ -241,7 +237,7 @@ async def test_application_exception_handler_500(
 async def test_external_exception_handler(
     non_raising_client: AsyncClient,
     temp_route,
-    caplog,
+    assert_log_records,
     exception: Exception,
 ):
     path = "/error"
@@ -250,8 +246,7 @@ async def test_external_exception_handler(
     async def error_route():
         raise exception
 
-    with caplog.at_level("ERROR"):
-        response = await non_raising_client.get(path)
+    response = await non_raising_client.get(path)
 
     assert response.status_code == 500
     assert response.json() == {
@@ -260,9 +255,7 @@ async def test_external_exception_handler(
         "details": [{"message": "Internal server error"}],
     }
 
-    assert len(caplog.records) == 1
-    # TODO: refine logging setup such that we can assert on the log context
-    assert '"event": "Unhandled external exception"' in caplog.records[0].message
+    assert_log_records([("Unhandled external exception", {"level": "error"})])
 
 
 def test_all_application_error_children_map_to_http_status_codes():
@@ -312,6 +305,7 @@ async def test_timestamp_in_error_response(
 async def test_request_body_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    assert_log_records,
 ):
     path = "/error"
 
@@ -341,10 +335,13 @@ async def test_request_body_validation_error(
         "field": "age",
     }
 
+    assert_log_records([("FastAPI validation exception handled", {"level": "info"})])
+
 
 async def test_path_param_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    assert_log_records,
 ):
     @temp_route("/error/{item_id}")
     async def error_route(item_id: int):
@@ -364,10 +361,13 @@ async def test_path_param_validation_error(
         "field": "item_id",
     }
 
+    assert_log_records([("FastAPI validation exception handled", {"level": "info"})])
+
 
 async def test_query_param_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    assert_log_records,
 ):
     path = "/error"
 
@@ -397,10 +397,13 @@ async def test_query_param_validation_error(
         "field": "age",
     }
 
+    assert_log_records([("FastAPI validation exception handled", {"level": "info"})])
+
 
 async def test_response_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
+    assert_log_records,
 ):
     class ResponseSchema(BaseModel):
         name: str
@@ -425,10 +428,13 @@ async def test_response_validation_error(
         "message": "Internal server error",
     }
 
+    assert_log_records([("Unhandled external exception", {"level": "error"})])
+
 
 async def test_fast_api_http_exception_handler(
     non_raising_client: AsyncClient,
     temp_route,
+    assert_log_records,
 ):
     path = "/error"
 
@@ -437,6 +443,7 @@ async def test_fast_api_http_exception_handler(
         raise HTTPException(status_code=422, detail="Balance exceeded")
 
     response = await non_raising_client.get(path)
+
     assert response.status_code == 422
     assert response.json() == {
         "code": "BUSINESS_RULE_VIOLATION",
@@ -444,14 +451,20 @@ async def test_fast_api_http_exception_handler(
         "details": [{"message": "Balance exceeded"}],
     }
 
+    assert_log_records([("FastAPI HTTP exception handled", {"level": "info"})])
+
 
 async def test_fast_api_404_for_unknown_path(
     non_raising_client: AsyncClient,
+    assert_log_records,
 ):
     response = await non_raising_client.get("/non-existent")
+
     assert response.status_code == 404
     assert response.json() == {
         "code": "NOT_FOUND",
         "timestamp": mock.ANY,
         "details": [{"message": "Endpoint not found"}],
     }
+
+    assert_log_records([("Page not found", {"level": "info"})])

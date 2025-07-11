@@ -3,11 +3,9 @@ import sys
 from typing import Any
 
 import structlog
-from structlog import contextvars, processors, stdlib
+from structlog import contextvars, dev, processors, stdlib
 
 from jamflow.core.config import settings
-
-# TODO: implement consistent logging across the application
 
 
 def get_logger() -> stdlib.BoundLogger:
@@ -60,10 +58,8 @@ def configure_logging() -> None:
             # If the "stack_info" key in the event dict is true, remove it and
             # render the current stack trace in the "stack" key.
             processors.StackInfoRenderer(),
-            # If the "exc_info" key in the event dict is either true or a
-            # sys.exc_info() tuple, remove "exc_info" and render the exception
-            # with traceback into the "exception" key.
-            processors.format_exc_info,
+            # Choose how to render the exception info
+            _get_exec_info_processor(),  # type: ignore [no-untyped-call]
             # If some value is in bytes, decode it to a Unicode str.
             processors.UnicodeDecoder(),
             # Add callsite parameters.
@@ -75,8 +71,8 @@ def configure_logging() -> None:
                     processors.CallsiteParameter.LINENO,
                 }
             ),
-            # Render the final event dict as JSON.
-            processors.JSONRenderer(),
+            # Render the final event dict
+            _get_renderer(),
         ],
         # `wrapper_class` is the bound logger that you get back from
         # get_logger(). This one imitates the API of `logging.Logger`.
@@ -88,8 +84,34 @@ def configure_logging() -> None:
         logger_factory=stdlib.LoggerFactory(),
         # Effectively freeze configuration after creating the first bound
         # logger.
-        cache_logger_on_first_use=True,
+        cache_logger_on_first_use=_should_cache_logger(),
     )
 
 
-configure_logging()
+def _get_renderer() -> processors.JSONRenderer | dev.ConsoleRenderer:
+    """
+    Get the appropriate renderer based on the settings.
+    """
+    if settings.LOG_JSON:
+        return processors.JSONRenderer()
+    return dev.ConsoleRenderer()
+
+
+def _get_exec_info_processor():  # type: ignore [no-untyped-def]
+    """
+    Get the exception info processor based on the settings.
+    """
+    if settings.LOG_JSON:
+        # If the "exc_info" key in the event dict is either true or a
+        # sys.exc_info() tuple, remove "exc_info" and render the exception
+        # with traceback into the "exception" key.
+        return processors.format_exc_info
+    return structlog.dev.set_exc_info
+
+
+def _should_cache_logger() -> bool:
+    """
+    Determine if the logger should be cached.
+    """
+    # TODO: find a cleaner way to detect if we should cache the logger
+    return "pytest" not in sys.modules

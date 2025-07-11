@@ -13,6 +13,7 @@ class Settings(
     DEBUG: bool = False
 
     LOG_LEVEL: str = "INFO"
+    LOG_JSON: bool = True
 
     STORAGE_URL: HttpUrl
     STORAGE_ACCESS_KEY: str

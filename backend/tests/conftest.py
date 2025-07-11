@@ -1,3 +1,6 @@
+from .fixtures.app import (  # noqa: F401
+    app,
+)
 from .fixtures.database import (  # noqa: F401
     db_engine,
     db_session,
@@ -17,6 +20,9 @@ from .fixtures.http import (  # noqa: F401
     client,
     public_client,
     simple_client,
+)
+from .fixtures.log import (  # noqa: F401
+    assert_log_records,
 )
 from .fixtures.storage import (  # noqa: F401
     audio_storage,

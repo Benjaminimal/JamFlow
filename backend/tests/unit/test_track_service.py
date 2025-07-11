@@ -4,7 +4,7 @@ from io import BytesIO
 
 import pytest
 from fastapi import UploadFile
-from pytest_mock import MockerFixture, MockFixture
+from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.models import Track
@@ -121,7 +121,7 @@ async def test_track_create_with_wrong_extension_saves_with_correct_extension(
 
 
 async def test_track_create_raises_validation_exception_when_audio_duration_fails(
-    mocker: MockFixture,
+    mocker: MockerFixture,
     mock_db_session,
     track_create_dto: TrackCreateDto,
 ):

@@ -1,13 +1,13 @@
 import pytest
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.database import get_session
-from jamflow.main import app
 
 
 @pytest.fixture
-async def simple_client() -> AsyncClient:
+async def simple_client(app: FastAPI) -> AsyncClient:
     """
     Fixture to create an ASGI test client.
     """
@@ -19,7 +19,11 @@ async def simple_client() -> AsyncClient:
 
 
 @pytest.fixture
-async def client(simple_client: AsyncClient, db_session: AsyncSession) -> AsyncClient:
+async def client(
+    simple_client: AsyncClient,
+    app: FastAPI,
+    db_session: AsyncSession,
+) -> AsyncClient:
     """
     Fixture to create an ASGI test client with a database session dependency override.
     """
