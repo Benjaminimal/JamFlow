@@ -1,3 +1,6 @@
+from .fixtures.app import (  # noqa: F401
+    app,
+)
 from .fixtures.database import (  # noqa: F401
     db_engine,
     db_session,

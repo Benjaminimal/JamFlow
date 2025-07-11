@@ -4,7 +4,7 @@ from typing import Annotated
 from unittest import mock
 
 import pytest
-from fastapi import HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
 from pytest import LogCaptureFixture
@@ -27,12 +27,11 @@ from jamflow.core.exceptions import (
     StorageError,
     ValidationError,
 )
-from jamflow.main import app
 from tests.utils import assert_log_records_for
 
 
 @pytest.fixture
-async def non_raising_client():
+async def non_raising_client(app: FastAPI) -> AsyncClient:
     """
     Fixture to create an ASGI test client that does not raise exceptions.
     This is useful for testing exception handling without having unhandled
@@ -46,7 +45,7 @@ async def non_raising_client():
 
 
 @pytest.fixture
-def temp_route():
+def temp_route(app: FastAPI):
     """
     Fixture to create temporary routes for testing.
     """

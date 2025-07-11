@@ -1,13 +1,14 @@
 import re
 
+from fastapi import FastAPI
 from httpx import AsyncClient
 from pytest import LogCaptureFixture
 
-from jamflow.main import app
 from tests.utils import assert_log_records_for
 
 
 async def test_request_id_in_response_headers(
+    app: FastAPI,
     client: AsyncClient,
 ) -> None:
     @app.get("/test-request-id")
@@ -22,6 +23,7 @@ async def test_request_id_in_response_headers(
 
 
 async def test_request_details_logged(
+    app: FastAPI,
     client: AsyncClient,
     caplog: LogCaptureFixture,
 ) -> None:

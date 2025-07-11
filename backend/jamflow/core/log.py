@@ -88,6 +88,3 @@ def configure_logging() -> None:
         # logger.
         cache_logger_on_first_use=True,
     )
-
-
-configure_logging()
