@@ -32,7 +32,7 @@ repos:
 
       - id: frontend-eslint-fix
         name: ESLint fix frontend files
-        entry: sh -c "cd frontend && npm run lint:fix"
+        entry: sh -c "cd frontend && npm run lint"
         language: system
         files: ^frontend/
 
