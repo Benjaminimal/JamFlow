@@ -23,13 +23,20 @@ repos:
 
   - repo: local
     hooks:
-      - id: eslint-fix
+      - id: frontend-typecheck
+        name: TypeScript type checking
+        entry: sh -c "cd frontend && npm run typecheck"
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+
+      - id: frontend-eslint-fix
         name: ESLint fix frontend files
         entry: sh -c "cd frontend && npm run lint:fix"
         language: system
         files: ^frontend/
 
-      - id: prettier
+      - id: frontend-prettier
         name: Prettier frontend files
         entry: sh -c "cd frontend && npm run format"
         language: system
