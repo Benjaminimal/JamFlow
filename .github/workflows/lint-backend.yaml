@@ -28,3 +28,4 @@ jobs:
         run: uv sync --all-groups
       - name: Lint
         run: uv run bash scripts/lint.sh
+      # TODO: check formatting
