@@ -11,10 +11,26 @@ repos:
           - --unsafe
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  # TODO: run type checking for the backend!
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
     rev: v0.9.3
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: eslint-fix
+        name: ESLint fix frontend files
+        entry: sh -c "cd frontend && npm run lint:fix"
+        language: system
+        files: ^frontend/
+
+      - id: prettier
+        name: Prettier frontend files
+        entry: sh -c "cd frontend && npm run format"
+        language: system
+        files: ^frontend/
