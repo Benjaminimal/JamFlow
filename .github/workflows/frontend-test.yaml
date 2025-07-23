@@ -1,4 +1,4 @@
-name: Lint Frontend
+name: Frontend Test
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - synchronize
 
 jobs:
-  lint-frontend:
+  frontend-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,9 +24,5 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm ci
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint:check
-      - name: Check formatting
-        run: npm run format:check
+      - name: Run tests
+        run: npm test
