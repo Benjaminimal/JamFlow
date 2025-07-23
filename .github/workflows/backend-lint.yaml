@@ -1,4 +1,4 @@
-name: Lint Backend
+name: Backend Lint
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - synchronize
 
 jobs:
-  lint-backend:
+  backend-lint:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,3 +28,4 @@ jobs:
         run: uv sync --all-groups
       - name: Lint
         run: uv run bash scripts/lint.sh
+      # TODO: check formatting
