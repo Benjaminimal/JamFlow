@@ -1,6 +1,5 @@
+import { getErrorMessage } from "@lib/errorUtils";
 import { useRouteError } from "react-router-dom";
-
-import { getErrorMessage } from "../lib/errorUtils";
 
 export default function ErrorPage() {
   const error = useRouteError();

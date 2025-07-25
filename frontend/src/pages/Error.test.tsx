@@ -8,7 +8,7 @@ vi.mock("react-router-dom", async () => ({
 
 const mockUseRouteError = vi.mocked(router.useRouteError);
 
-import ErrorPage from "./Error";
+import ErrorPage from "@pages/Error";
 
 describe("ErrorPage", () => {
   beforeEach(() => {

@@ -1,4 +1,4 @@
-import "./Root.css";
+import "@pages/Root.css";
 
 import { Link, Outlet } from "react-router-dom";
 

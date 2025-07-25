@@ -1,6 +1,5 @@
+import Upload from "@pages/Upload";
 import { render, screen } from "@testing-library/react";
-
-import Upload from "./Upload";
 
 test("render Upload page", () => {
   render(<Upload />);
