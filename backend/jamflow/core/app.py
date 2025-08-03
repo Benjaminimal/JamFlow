@@ -1,5 +1,6 @@
 from fastapi import FastAPI, status
 from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
 from jamflow.api import router as api_router
 from jamflow.api.exception_handlers import (
@@ -27,6 +28,13 @@ def create_app() -> FastAPI:
 
     app.middleware("http")(request_bind_log_context_middleware)
     app.middleware("http")(request_id_middleware)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     app.exception_handler(ApplicationError)(application_exception_handler)
     app.exception_handler(RequestValidationError)(fast_api_validation_exception_handler)

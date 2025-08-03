@@ -1,4 +1,4 @@
-from pydantic import HttpUrl, PostgresDsn, computed_field
+from pydantic import HttpUrl, Json, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings
 
 
@@ -50,6 +50,8 @@ class Settings(
             username=self.DB_USER,
             password=self.DB_PASSWORD,
         )
+
+    CORS_ALLOWED_ORIGINS: Json[list[str]] = []
 
 
 settings = Settings()  # type: ignore[call-arg]
