@@ -1,6 +1,6 @@
-import { type FormEvent, useState } from "react";
-
-import { uploadTrack } from "@/api/tracks";
+import { uploadTrack } from "@api/tracks";
+import { NotificationContext } from "@contexts/NotifcationContext";
+import { type FormEvent, useContext, useState } from "react";
 
 type UseUploadFormResult = {
   title: string;
@@ -20,6 +20,8 @@ export function useUploadForm(): UseUploadFormResult {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { addNotification } = useContext(NotificationContext);
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
   ): Promise<void> {
@@ -31,28 +33,30 @@ export function useUploadForm(): UseUploadFormResult {
     });
 
     // TODO: extract validation
-    // TODO: add a notification mechanism
     if (!uploadFile) {
-      console.error("No file selected for upload.");
+      addNotification("No file selected for upload");
       return;
     }
 
     if (!title.trim()) {
-      console.error("Title is required.");
+      addNotification("Title is required");
       return;
     }
 
     try {
       setIsSubmitting(true);
       const track = await uploadTrack({ title, recordedDate, uploadFile });
-      // TODO: add success state
+      addNotification("Upload successful");
+      // TODO: remove log
       console.log("Upload successful", track);
       // TODO: file input won't reset on form submission
       setUploadFile(null);
       setTitle("");
       setRecordedDate("");
     } catch (err) {
-      // TODO: proper error handling
+      // TODO: properly distinguish errors
+      addNotification("Upload failed");
+      // TODO: remove log
       console.error("Upload failed", err);
     } finally {
       setIsSubmitting(false);

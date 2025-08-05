@@ -30,6 +30,7 @@
       "@api/*": ["api/*"],
       "@assets/*": ["assets/*"],
       "@components/*": ["components/*"],
+      "@contexts/*": ["contexts/*"],
       "@hooks/*": ["hooks/*"],
       "@lib/*": ["lib/*"],
       "@pages/*": ["pages/*"]
