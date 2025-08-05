@@ -1,3 +1,25 @@
+// TODO: these error types are currently not used
+export type ErrorCode =
+  | "VALIDATION_ERROR"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "BUSINESS_RULE_VIOLATION"
+  | "CONFLICT"
+  | "RATE_LIMITED"
+  | "INTERNAL_ERROR";
+
+export type ErrorResponse = {
+  code: ErrorCode;
+  timestamp: string;
+  details: ErrorDetails[];
+};
+
+export type ErrorDetails = {
+  message: string;
+  field: string | null;
+};
+
 export type AudioFormat = "mp3" | "wav" | "ogg";
 
 export type TrackCreateRequest = {

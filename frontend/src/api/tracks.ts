@@ -1,3 +1,4 @@
+import { mapAxiosError } from "@api/errorHandler";
 import type { TrackCreateResponse } from "@api/types";
 import axios from "axios";
 
@@ -15,13 +16,15 @@ export async function uploadTrack({
     formData.append("recorded_date", recordedDate);
   }
 
-  // TODO: map errors to custom hierarchy
-  const response = await axios.post<TrackCreateResponse>(
-    "http://localhost:8000/api/v1/tracks",
-    formData,
-  );
-
-  return mapTrackApiToInternal(response.data);
+  try {
+    const response = await axios.post<TrackCreateResponse>(
+      "http://localhost:8000/api/v1/tracks",
+      formData,
+    );
+    return mapTrackApiToInternal(response.data);
+  } catch (error) {
+    throw mapAxiosError(error);
+  }
 }
 
 function mapTrackApiToInternal({
