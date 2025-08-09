@@ -1,6 +1,6 @@
+import apiClient from "@api/client";
 import { mapAxiosError } from "@api/errorHandler";
 import type { TrackCreateResponse } from "@api/types";
-import axios from "axios";
 
 import type { Track, TrackCreateForm } from "@/types";
 
@@ -17,9 +17,8 @@ export async function uploadTrack({
   }
 
   try {
-    // TODO: configure global things like timeout, baseUrl, etc.
-    const response = await axios.post<TrackCreateResponse>(
-      "http://localhost:8000/api/v1/tracks",
+    const response = await apiClient.post<TrackCreateResponse>(
+      "/tracks",
       formData,
     );
     return mapTrackApiToInternal(response.data);
