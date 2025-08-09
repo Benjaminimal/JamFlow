@@ -1,6 +1,6 @@
-import type { ErrorResponse } from "@api/types";
 import axios from "axios";
 
+import type { ErrorResponse } from "@/api/types";
 import {
   ApplicationError,
   AuthenticationError,

@@ -1,10 +1,11 @@
-import "@pages/Root.css";
+import "@/pages/Root.css";
 
-import Notification from "@components/Notification";
-import { NotificationContext } from "@contexts/NotifcationContext";
-import NotificationProvider from "@contexts/NotificationProvider";
 import { type JSX, useContext } from "react";
 import { Link, Outlet } from "react-router-dom";
+
+import Notification from "@/components/Notification";
+import { NotificationContext } from "@/contexts/NotifcationContext";
+import NotificationProvider from "@/contexts/NotificationProvider";
 
 export default function Root(): JSX.Element {
   return (

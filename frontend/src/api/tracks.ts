@@ -1,7 +1,6 @@
-import apiClient from "@api/client";
-import { mapAxiosError } from "@api/errorHandler";
-import type { TrackCreateResponse } from "@api/types";
-
+import apiClient from "@/api/client";
+import { mapAxiosError } from "@/api/errorHandler";
+import type { TrackCreateResponse } from "@/api/types";
 import type { Track, TrackCreateForm } from "@/types";
 
 export async function uploadTrack({

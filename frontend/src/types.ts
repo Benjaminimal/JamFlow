@@ -1,4 +1,4 @@
-import type { AudioFormat } from "@api/types";
+import type { AudioFormat } from "@/api/types";
 
 export type TrackCreateForm = {
   title: string;

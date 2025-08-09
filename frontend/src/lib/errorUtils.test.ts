@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@lib/errorUtils";
+import { getErrorMessage } from "@/lib/errorUtils";
 
 describe("getErrorMessage", () => {
   describe("when error has valid message", () => {

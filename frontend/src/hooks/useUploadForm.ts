@@ -1,7 +1,7 @@
-import { uploadTrack } from "@api/tracks";
-import { NotificationContext } from "@contexts/NotifcationContext";
 import { useContext, useState } from "react";
 
+import { uploadTrack } from "@/api/tracks";
+import { NotificationContext } from "@/contexts/NotifcationContext";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
 type UseUploadFormResult = {

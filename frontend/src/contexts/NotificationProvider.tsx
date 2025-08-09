@@ -1,8 +1,9 @@
+import { type JSX, type ReactNode, useState } from "react";
+
 import {
   type Notification,
   NotificationContext,
-} from "@contexts/NotifcationContext";
-import { type JSX, type ReactNode, useState } from "react";
+} from "@/contexts/NotifcationContext";
 
 export default function NotificationProvider({
   children,
