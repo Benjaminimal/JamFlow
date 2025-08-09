@@ -1,3 +1,4 @@
+import type { ErrorResponse } from "@api/types";
 import axios from "axios";
 
 import {
@@ -10,6 +11,7 @@ import {
   NotFoundError,
   PermissionError,
   ValidationError,
+  type ValidationErrorDetails,
 } from "@/errors";
 
 export function mapAxiosError(error: unknown): ApplicationError {
@@ -34,9 +36,16 @@ export function mapAxiosError(error: unknown): ApplicationError {
 
   switch (statusCode) {
     case 400:
-    case 422:
-      // TODO: add field level information from the server response
-      return new ValidationError("Validation failed", options);
+    case 422: {
+      const validationErrorsDetails = mapValidationErrorDetails(
+        error.response.data,
+      );
+      return new ValidationError(
+        "Validation failed",
+        validationErrorsDetails,
+        options,
+      );
+    }
     case 401:
       return new AuthenticationError("Authentication required", options);
     case 403:
@@ -57,4 +66,33 @@ export function mapAxiosError(error: unknown): ApplicationError {
   }
 
   return new ApplicationError("Unable to map error from request", options);
+}
+
+const apiToInternalFieldMap: Record<string, string> = {
+  title: "title",
+  recorded_date: "recordedDate",
+  upload_file: "file",
+};
+
+function mapValidationErrorDetails(
+  errorResponse: ErrorResponse,
+): ValidationErrorDetails {
+  const details: ValidationErrorDetails = {};
+  for (const { message, field } of errorResponse.details) {
+    if (!field) {
+      if (!details.nonField) {
+        details.nonField = [];
+      }
+      details.nonField.push(message);
+      continue;
+    }
+
+    const key =
+      field in apiToInternalFieldMap ? apiToInternalFieldMap[field] : field;
+    if (!(key in details)) {
+      details[key] = [];
+    }
+    details[key]!.push(message);
+  }
+  return details;
 }

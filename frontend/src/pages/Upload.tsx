@@ -12,6 +12,7 @@ export default function Upload(): JSX.Element {
     setUploadFile,
     isSubmitting,
     handleSubmit,
+    formErrors,
   } = useUploadForm();
 
   return (
@@ -22,6 +23,7 @@ export default function Upload(): JSX.Element {
       onRecordedDateChange={setRecordedDate}
       onFileChange={setUploadFile}
       disabled={isSubmitting}
+      formErrors={formErrors}
       onSubmit={handleSubmit}
     ></UploadForm>
   );

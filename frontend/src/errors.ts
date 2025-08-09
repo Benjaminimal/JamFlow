@@ -8,8 +8,25 @@ export class ApplicationError extends Error {
   }
 }
 
+export type ValidationErrorDetails = {
+  nonField?: string[];
+  [field: string]: string[] | undefined;
+};
+
+export class ValidationError extends ApplicationError {
+  details: ValidationErrorDetails;
+
+  constructor(
+    message: string,
+    details: ValidationErrorDetails,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options);
+    this.details = details;
+  }
+}
+
 export class NetworkError extends ApplicationError {}
-export class ValidationError extends ApplicationError {}
 export class AuthenticationError extends ApplicationError {}
 export class PermissionError extends ApplicationError {}
 export class NotFoundError extends ApplicationError {}

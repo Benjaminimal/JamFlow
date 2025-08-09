@@ -17,6 +17,7 @@ export async function uploadTrack({
   }
 
   try {
+    // TODO: configure global things like timeout, baseUrl, etc.
     const response = await axios.post<TrackCreateResponse>(
       "http://localhost:8000/api/v1/tracks",
       formData,

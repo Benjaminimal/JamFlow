@@ -1,76 +1,106 @@
 import { uploadTrack } from "@api/tracks";
 import { NotificationContext } from "@contexts/NotifcationContext";
-import { type FormEvent, useContext, useState } from "react";
+import { useContext, useState } from "react";
+
+import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
 type UseUploadFormResult = {
   title: string;
   recordedDate: string;
   uploadFile: File | null;
+  formErrors: ValidationErrorDetails;
   setTitle: (v: string) => void;
   setRecordedDate: (v: string) => void;
   setUploadFile: (v: File | null) => void;
   isSubmitting: boolean;
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+  handleSubmit: () => Promise<void>;
 };
 
 export function useUploadForm(): UseUploadFormResult {
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [recordedDate, setRecordedDate] = useState("");
+  const [uploadFile, _setUploadFile] = useState<File | null>(null);
+  const [title, _setTitle] = useState("");
+  const [recordedDate, _setRecordedDate] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [formErrors, setFormErrors] = useState<ValidationErrorDetails>({});
+
   const { addNotification } = useContext(NotificationContext);
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ): Promise<void> {
-    event.preventDefault();
-    console.log({
-      title,
-      recordedDate,
-      uploadFile,
-    });
+  const setUploadFile = setField("file", _setUploadFile, setFormErrors);
+  const setTitle = setField("title", _setTitle, setFormErrors);
+  const setRecordedDate = setField(
+    "recordedDate",
+    _setRecordedDate,
+    setFormErrors,
+  );
 
-    // TODO: extract validation
-    if (!uploadFile) {
-      addNotification("No file selected for upload");
-      return;
-    }
+  const resetForm = () => {
+    // FIXME: file input won't reset on form submission
+    _setUploadFile(null);
+    _setTitle("");
+    _setRecordedDate("");
+  };
 
-    if (!title.trim()) {
-      addNotification("Title is required");
+  const handleSubmit = async (): Promise<void> => {
+    const validaitonErrors = getValidationErrors(title, uploadFile);
+    if (validaitonErrors) {
+      setFormErrors(validaitonErrors);
       return;
     }
 
     try {
+      setFormErrors({});
       setIsSubmitting(true);
-      const track = await uploadTrack({ title, recordedDate, uploadFile });
+      await uploadTrack({ title, recordedDate, uploadFile: uploadFile! });
       addNotification("Upload successful");
-      // TODO: remove log
-      console.log("Upload successful", track);
-      // TODO: file input won't reset on form submission
-      setUploadFile(null);
-      setTitle("");
-      setRecordedDate("");
+      resetForm();
     } catch (err) {
-      // TODO: properly distinguish errors
+      if (err instanceof ValidationError) {
+        setFormErrors(err.details);
+      }
+      // TODO: add more info based on error type
       addNotification("Upload failed");
-      // TODO: remove log
-      console.error("Upload failed", err);
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return {
     title,
     recordedDate,
     uploadFile,
+    formErrors,
     setTitle,
     setRecordedDate,
     setUploadFile,
     isSubmitting,
     handleSubmit,
+  };
+}
+
+function getValidationErrors(
+  title: string,
+  uploadFile: File | null,
+): ValidationErrorDetails | null {
+  const validationErrors: ValidationErrorDetails = {};
+  if (!uploadFile) {
+    validationErrors.file = ["No file selected for upload"];
+  }
+
+  if (!title.trim()) {
+    validationErrors.title = ["Title is required"];
+  }
+  return Object.keys(validationErrors).length ? validationErrors : null;
+}
+
+function setField<T>(
+  field: keyof ValidationErrorDetails,
+  setter: (v: T) => void,
+  setFormErrors: React.Dispatch<React.SetStateAction<ValidationErrorDetails>>,
+): (v: T) => void {
+  return (value: T): void => {
+    setFormErrors(({ [field]: _, nonField: __, ...rest }) => rest);
+    setter(value);
   };
 }

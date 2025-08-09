@@ -12,10 +12,10 @@ export type ErrorCode =
 export type ErrorResponse = {
   code: ErrorCode;
   timestamp: string;
-  details: ErrorDetails[];
+  details: ErrorDetail[];
 };
 
-export type ErrorDetails = {
+export type ErrorDetail = {
   message: string;
   field: string | null;
 };
