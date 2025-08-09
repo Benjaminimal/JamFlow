@@ -26,6 +26,10 @@ export default tseslint.config([
     rules: {
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { varsIgnorePattern: "^_+", argsIgnorePattern: "^_+" },
+      ],
     },
   },
 ]);
