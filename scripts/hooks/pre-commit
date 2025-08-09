@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+STAGED_FILES=$(git diff --cached --name-only)
+FRONTEND_FILES=()
+BACKEND_FILES=()
+
+for file in $STAGED_FILES; do
+    if [[ $file == frontend/* ]]; then
+        FRONTEND_FILES+=("$file")
+    elif [[ $file == backend/* ]]; then
+        BACKEND_FILES+=("$file")
+    else
+        # Root level files go through backend checks
+        BACKEND_FILES+=("$file")
+    fi
+done
+
+EXIT_CODE=0
+
+if [ ${#BACKEND_FILES[@]} -gt 0 ]; then
+    echo "Running backend checks..."
+    
+    # Try to find Python in backend venv, fall back to system
+    if [ -x "backend/.venv/bin/python3" ]; then
+        INSTALL_PYTHON="backend/.venv/bin/python3"
+    elif [ -x ".venv/bin/python3" ]; then
+        INSTALL_PYTHON=".venv/bin/python3"
+    else
+        INSTALL_PYTHON=""
+    fi
+    
+    ARGS=(hook-impl --config=.pre-commit-config.yaml --hook-type=pre-commit)
+    HERE="$(cd "$(dirname "$0")" && pwd)"
+    ARGS+=(--hook-dir "$HERE" -- "$@")
+    
+    if [ -n "$INSTALL_PYTHON" ] && [ -x "$INSTALL_PYTHON" ]; then
+        "$INSTALL_PYTHON" -mpre_commit "${ARGS[@]}"
+        [ $? -ne 0 ] && EXIT_CODE=1
+    elif command -v pre-commit >/dev/null; then
+        pre-commit "${ARGS[@]}"
+        [ $? -ne 0 ] && EXIT_CODE=1
+    else
+        echo 'pre-commit not found. Install it or activate your virtualenv.' 1>&2
+        EXIT_CODE=1
+    fi
+fi
+
+if [ ${#FRONTEND_FILES[@]} -gt 0 ]; then
+    echo "Running frontend checks..."
+    cd frontend && npx lint-staged
+    [ $? -ne 0 ] && EXIT_CODE=1
+    cd ..
+fi
+
+exit $EXIT_CODE
