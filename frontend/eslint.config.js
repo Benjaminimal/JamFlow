@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
+import unusedImports from "eslint-plugin-unused-imports";
 import { globalIgnores } from "eslint/config";
 
 export default tseslint.config([
@@ -12,6 +13,7 @@ export default tseslint.config([
     files: ["**/*.{ts,tsx}"],
     plugins: {
       "simple-import-sort": simpleImportSort,
+      "unused-imports": unusedImports,
     },
     extends: [
       js.configs.recommended,
@@ -26,9 +28,17 @@ export default tseslint.config([
     rules: {
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
-      "@typescript-eslint/no-unused-vars": [
+      // Replace the TypeScript unused vars rule with the plugin version
+      "@typescript-eslint/no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
         "error",
-        { varsIgnorePattern: "^_+", argsIgnorePattern: "^_+" },
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
       ],
     },
   },
