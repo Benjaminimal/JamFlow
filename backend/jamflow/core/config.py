@@ -1,5 +1,7 @@
-from pydantic import HttpUrl, Json, PostgresDsn, computed_field
-from pydantic_settings import BaseSettings
+from typing import Annotated
+
+from pydantic import HttpUrl, PostgresDsn, computed_field, field_validator
+from pydantic_settings import BaseSettings, NoDecode
 
 
 class Settings(
@@ -51,7 +53,15 @@ class Settings(
             password=self.DB_PASSWORD,
         )
 
-    CORS_ALLOWED_ORIGINS: Json[list[str]] = []
+    CORS_ALLOWED_ORIGINS: Annotated[list[str], NoDecode] = []
+
+    @field_validator("CORS_ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def decode_cors_origins(cls, value: str) -> list[str]:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            return value.split(",")
 
 
 settings = Settings()  # type: ignore[call-arg]
