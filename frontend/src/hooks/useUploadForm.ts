@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 
+import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { uploadTrack } from "@/api/tracks";
 import { NotificaitonContext } from "@/contexts/NotifcationContext";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
@@ -64,12 +65,12 @@ export function useUploadForm(): UseUploadFormResult {
       });
       addNotification("Upload successful");
       resetForm();
-    } catch (err) {
-      if (err instanceof ValidationError) {
-        setFormErrors(err.details);
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        setFormErrors(error.details);
       }
-      // TODO: add more info based on error type
-      addNotification("Upload failed");
+      const message = getUserFriendlyErrorMessage(error);
+      addNotification(message);
     } finally {
       setIsSubmitting(false);
     }

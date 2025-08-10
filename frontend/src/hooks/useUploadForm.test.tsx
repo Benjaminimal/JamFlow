@@ -282,7 +282,7 @@ describe("useUploadForm", () => {
       await submitForm(result);
 
       expect(addNotificationMock).toHaveBeenCalledExactlyOnceWith(
-        "Upload failed",
+        "Please correct the errors in the form.",
       );
     });
 
