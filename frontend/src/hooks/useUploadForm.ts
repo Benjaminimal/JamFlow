@@ -6,11 +6,11 @@ import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
 type UseUploadFormResult = {
   title: string;
-  recordedDate: string;
+  recordedDate: string | null;
   uploadFile: File | null;
   formErrors: ValidationErrorDetails;
   setTitle: (v: string) => void;
-  setRecordedDate: (v: string) => void;
+  setRecordedDate: (v: string | null) => void;
   setUploadFile: (v: File | null) => void;
   isSubmitting: boolean;
   handleSubmit: () => Promise<void>;
@@ -19,7 +19,7 @@ type UseUploadFormResult = {
 export function useUploadForm(): UseUploadFormResult {
   const [uploadFile, _setUploadFile] = useState<File | null>(null);
   const [title, _setTitle] = useState("");
-  const [recordedDate, _setRecordedDate] = useState("");
+  const [recordedDate, _setRecordedDate] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,20 +39,29 @@ export function useUploadForm(): UseUploadFormResult {
     // FIXME: file input won't reset on form submission
     _setUploadFile(null);
     _setTitle("");
-    _setRecordedDate("");
+    _setRecordedDate(null);
   };
 
   const handleSubmit = async (): Promise<void> => {
-    const validaitonErrors = getValidationErrors(title, uploadFile);
-    if (validaitonErrors) {
-      setFormErrors(validaitonErrors);
+    if (isSubmitting) {
       return;
     }
 
+    const validationErrors = getValidationErrors(title, uploadFile);
+    if (validationErrors) {
+      setFormErrors(validationErrors);
+      return;
+    }
+
+    setFormErrors({});
+
     try {
-      setFormErrors({});
       setIsSubmitting(true);
-      await uploadTrack({ title, recordedDate, uploadFile: uploadFile! });
+      await uploadTrack({
+        title,
+        recordedDate: recordedDate || null,
+        uploadFile: uploadFile!,
+      });
       addNotification("Upload successful");
       resetForm();
     } catch (err) {

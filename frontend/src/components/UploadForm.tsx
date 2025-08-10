@@ -5,8 +5,8 @@ import type { ValidationErrorDetails } from "@/errors";
 type UploadFormProps = {
   title: string;
   onTitleChange: (v: string) => void;
-  recordedDate: string;
-  onRecordedDateChange: (v: string) => void;
+  recordedDate: string | null;
+  onRecordedDateChange: (v: string | null) => void;
   onFileChange: (file: File | null) => void;
   onSubmit: () => Promise<void>;
   formErrors: ValidationErrorDetails;
@@ -47,7 +47,7 @@ export default function UploadForm({
       <div>
         <input
           type="date"
-          value={recordedDate}
+          value={recordedDate || ""}
           onChange={(e) => onRecordedDateChange(e.target.value)}
           placeholder="Recorded Date"
         />
