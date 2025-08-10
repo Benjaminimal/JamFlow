@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
-import { NotificationContext } from "@/contexts/NotifcationContext";
+import { NotificaitonContext } from "@/contexts/NotifcationContext";
 import { ValidationError } from "@/errors";
 import { useUploadForm } from "@/hooks/useUploadForm";
 import type { TrackCreateForm } from "@/types";
@@ -23,11 +23,11 @@ describe("useUploadForm", () => {
   function setup() {
     return renderHook(() => useUploadForm(), {
       wrapper: ({ children }) => (
-        <NotificationContext.Provider
+        <NotificaitonContext.Provider
           value={{ notifications: [], addNotification: addNotificationMock }}
         >
           {children}
-        </NotificationContext.Provider>
+        </NotificaitonContext.Provider>
       ),
     });
   }

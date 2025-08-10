@@ -12,8 +12,7 @@ export type NotificationContextType = {
   addNotification: (v: string) => void;
 };
 
-// FIXME: typo
-export const NotificationContext = createContext<NotificationContextType>({
+export const NotificaitonContext = createContext<NotificationContextType>({
   notifications: [],
   addNotification: () => {
     throw new ApplicationError(

@@ -1,8 +1,8 @@
 import { type JSX, type ReactNode, useState } from "react";
 
 import {
+  NotificaitonContext,
   type Notification,
-  NotificationContext,
 } from "@/contexts/NotifcationContext";
 
 export default function NotificationProvider({
@@ -17,8 +17,8 @@ export default function NotificationProvider({
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications, addNotification }}>
+    <NotificaitonContext.Provider value={{ notifications, addNotification }}>
       {children}
-    </NotificationContext.Provider>
+    </NotificaitonContext.Provider>
   );
 }
