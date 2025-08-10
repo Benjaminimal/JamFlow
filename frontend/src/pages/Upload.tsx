@@ -9,7 +9,7 @@ export default function Upload(): JSX.Element {
     recordedDate,
     setTitle,
     setRecordedDate,
-    setUploadFile,
+    setFile,
     isSubmitting,
     handleSubmit,
     formErrors,
@@ -21,7 +21,7 @@ export default function Upload(): JSX.Element {
       recordedDate={recordedDate}
       onTitleChange={setTitle}
       onRecordedDateChange={setRecordedDate}
-      onFileChange={setUploadFile}
+      onFileChange={setFile}
       disabled={isSubmitting}
       formErrors={formErrors}
       onSubmit={handleSubmit}

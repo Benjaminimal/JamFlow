@@ -6,10 +6,10 @@ import type { Track, TrackCreateForm } from "@/types";
 export async function uploadTrack({
   title,
   recordedDate,
-  uploadFile,
+  file,
 }: TrackCreateForm): Promise<Track> {
   const formData = new FormData();
-  formData.append("upload_file", uploadFile as Blob);
+  formData.append("upload_file", file as Blob);
   formData.append("title", title);
   if (recordedDate) {
     formData.append("recorded_date", recordedDate);

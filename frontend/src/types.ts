@@ -3,7 +3,7 @@ import type { AudioFormat } from "@/api/types";
 export type TrackCreateForm = {
   title: string;
   recordedDate: string | null;
-  uploadFile: File;
+  file: File;
 };
 
 export type Track = {

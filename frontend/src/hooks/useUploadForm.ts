@@ -7,17 +7,17 @@ import { ValidationError, type ValidationErrorDetails } from "@/errors";
 type UseUploadFormResult = {
   title: string;
   recordedDate: string | null;
-  uploadFile: File | null;
+  file: File | null;
   formErrors: ValidationErrorDetails;
   setTitle: (v: string) => void;
   setRecordedDate: (v: string | null) => void;
-  setUploadFile: (v: File | null) => void;
+  setFile: (v: File | null) => void;
   isSubmitting: boolean;
   handleSubmit: () => Promise<void>;
 };
 
 export function useUploadForm(): UseUploadFormResult {
-  const [uploadFile, _setUploadFile] = useState<File | null>(null);
+  const [file, _setFile] = useState<File | null>(null);
   const [title, _setTitle] = useState("");
   const [recordedDate, _setRecordedDate] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export function useUploadForm(): UseUploadFormResult {
 
   const { addNotification } = useContext(NotificationContext);
 
-  const setUploadFile = setField("file", _setUploadFile, setFormErrors);
+  const setFile = setField("file", _setFile, setFormErrors);
   const setTitle = setField("title", _setTitle, setFormErrors);
   const setRecordedDate = setField(
     "recordedDate",
@@ -37,7 +37,7 @@ export function useUploadForm(): UseUploadFormResult {
 
   const resetForm = () => {
     // FIXME: file input won't reset on form submission
-    _setUploadFile(null);
+    _setFile(null);
     _setTitle("");
     _setRecordedDate(null);
   };
@@ -47,7 +47,7 @@ export function useUploadForm(): UseUploadFormResult {
       return;
     }
 
-    const validationErrors = getValidationErrors(title, uploadFile);
+    const validationErrors = getValidationErrors(title, file);
     if (validationErrors) {
       setFormErrors(validationErrors);
       return;
@@ -60,7 +60,7 @@ export function useUploadForm(): UseUploadFormResult {
       await uploadTrack({
         title,
         recordedDate: recordedDate || null,
-        uploadFile: uploadFile!,
+        file: file!,
       });
       addNotification("Upload successful");
       resetForm();
@@ -78,11 +78,11 @@ export function useUploadForm(): UseUploadFormResult {
   return {
     title,
     recordedDate,
-    uploadFile,
+    file,
     formErrors,
     setTitle,
     setRecordedDate,
-    setUploadFile,
+    setFile,
     isSubmitting,
     handleSubmit,
   };
@@ -90,10 +90,10 @@ export function useUploadForm(): UseUploadFormResult {
 
 function getValidationErrors(
   title: string,
-  uploadFile: File | null,
+  file: File | null,
 ): ValidationErrorDetails | null {
   const validationErrors: ValidationErrorDetails = {};
-  if (!uploadFile) {
+  if (!file) {
     validationErrors.file = ["No file selected for upload"];
   }
 

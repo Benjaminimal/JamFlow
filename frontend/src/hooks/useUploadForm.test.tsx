@@ -34,7 +34,7 @@ describe("useUploadForm", () => {
 
   const formData: TrackCreateForm = {
     title: "New title",
-    uploadFile: new File(["dummy content"], "test.txt", {
+    file: new File(["dummy content"], "test.txt", {
       type: "text/plain",
     }),
     recordedDate: "2025-08-09",
@@ -44,13 +44,13 @@ describe("useUploadForm", () => {
     result: ReturnType<typeof setup>["result"],
     {
       title = formData.title,
-      uploadFile = formData.uploadFile,
+      file = formData.file,
       recordedDate = formData.recordedDate,
     } = {},
   ) => {
     act(() => {
       result.current.setTitle(title);
-      result.current.setUploadFile(uploadFile);
+      result.current.setFile(file);
       result.current.setRecordedDate(recordedDate);
     });
 
@@ -68,12 +68,12 @@ describe("useUploadForm", () => {
   describe("initial state", () => {
     it("should initialize all form fields, formErrors, and isSubmitting correctly", () => {
       const { result } = setup();
-      const { title, recordedDate, uploadFile, formErrors, isSubmitting } =
+      const { title, recordedDate, file, formErrors, isSubmitting } =
         result.current;
 
       expect(title).toBe("");
       expect(recordedDate).toBe(null);
-      expect(uploadFile).toBe(null);
+      expect(file).toBe(null);
       expect(formErrors).toEqual({});
       expect(isSubmitting).toBe(false);
     });
@@ -106,17 +106,15 @@ describe("useUploadForm", () => {
       expect(result.current.recordedDate).toBe("2025-08-09");
     });
 
-    it("setUploadFile updates uploadFile state and clears file errors", async () => {
+    it("setFile updates file state and clears file errors", async () => {
       const { result } = setup();
-      const { setUploadFile } = result.current;
+      const { setFile } = result.current;
 
       await triggerErrors(result);
       expect(result.current.formErrors.file).toBeDefined();
 
       act(() => {
-        setUploadFile(
-          new File(["dummy content"], "test.txt", { type: "text/plain" }),
-        );
+        setFile(formData.file);
       });
 
       expect(result.current.formErrors.file).toBeUndefined();
@@ -185,7 +183,7 @@ describe("useUploadForm", () => {
 
       act(() => {
         result.current.setTitle(formData.title);
-        result.current.setUploadFile(formData.uploadFile);
+        result.current.setFile(formData.file);
         result.current.setRecordedDate(formData.recordedDate);
       });
 
@@ -221,7 +219,7 @@ describe("useUploadForm", () => {
 
       expect(result.current.title).toBe("");
       expect(result.current.recordedDate).toBe(null);
-      expect(result.current.uploadFile).toBe(null);
+      expect(result.current.file).toBe(null);
     });
   });
 
@@ -233,7 +231,7 @@ describe("useUploadForm", () => {
 
       expect(uploadTrack).toHaveBeenCalledExactlyOnceWith({
         title: formData.title,
-        uploadFile: formData.uploadFile,
+        file: formData.file,
         recordedDate: null,
       });
 
@@ -247,7 +245,7 @@ describe("useUploadForm", () => {
 
       expect(uploadTrack).toHaveBeenCalledExactlyOnceWith({
         title: formData.title,
-        uploadFile: formData.uploadFile,
+        file: formData.file,
         recordedDate: null,
       });
 
@@ -299,7 +297,7 @@ describe("useUploadForm", () => {
 
       act(() => {
         result.current.setTitle(formData.title);
-        result.current.setUploadFile(formData.uploadFile);
+        result.current.setFile(formData.file);
         result.current.setRecordedDate(formData.recordedDate);
       });
 
@@ -327,7 +325,7 @@ describe("useUploadForm", () => {
 
       act(() => {
         result.current.setTitle(formData.title);
-        result.current.setUploadFile(formData.uploadFile);
+        result.current.setFile(formData.file);
         result.current.setRecordedDate(formData.recordedDate);
       });
 
