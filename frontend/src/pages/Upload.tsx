@@ -25,6 +25,6 @@ export default function Upload(): JSX.Element {
       formErrors={formErrors}
       onSubmit={handleSubmit}
       disabled={isSubmitting}
-    ></UploadForm>
+    />
   );
 }

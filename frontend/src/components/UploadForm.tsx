@@ -23,50 +23,61 @@ export default function UploadForm({
   onSubmit,
   disabled,
 }: UploadFormProps): JSX.Element {
-  const titleErrors = formErrors.title ?? [];
-  const recordedDateErrors = formErrors.recordedDate ?? [];
-  const fileErrors = formErrors.file ?? [];
   return (
     <form
+      data-testid="upload-form"
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
       }}
     >
+      {renderErrors(formErrors.nonField)}
       <div>
+        <label htmlFor="title">Title</label>
         <input
+          id="title"
           type="text"
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="Title"
         />
-        {titleErrors.map((message, idx) => (
-          <p key={idx}>{message}</p>
-        ))}
+        {renderErrors(formErrors.title)}
       </div>
       <div>
+        <label htmlFor="recordedDate">Recorded on</label>
         <input
+          id="recordedDate"
           type="date"
           value={recordedDate || ""}
           onChange={(e) => onRecordedDateChange(e.target.value)}
           placeholder="Recorded Date"
         />
-        {recordedDateErrors.map((message, idx) => (
-          <p key={idx}>{message}</p>
-        ))}
+        {renderErrors(formErrors.recordedDate)}
       </div>
       <div>
+        <label htmlFor="file">File</label>
         <input
+          id="file"
           type="file"
           onChange={(e) => onFileChange(e.target.files?.[0] || null)}
         />
-        {fileErrors.map((message, idx) => (
-          <p key={idx}>{message}</p>
-        ))}
+        {renderErrors(formErrors.file)}
       </div>
       <button type="submit" disabled={disabled}>
         Upload
       </button>
     </form>
+  );
+}
+
+function renderErrors(errors: string[] | undefined): JSX.Element | null {
+  if (!errors?.length) {
+    return null;
+  }
+  return (
+    <div role="alert">
+      {errors.map((message, idx) => (
+        <p key={idx}>{message}</p>
+      ))}
+    </div>
   );
 }
