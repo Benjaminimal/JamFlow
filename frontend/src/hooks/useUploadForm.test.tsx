@@ -276,13 +276,13 @@ describe("useUploadForm", () => {
       const { result } = setup();
 
       (uploadTrack as Mock).mockRejectedValueOnce(
-        new ValidationError("Invalid data", {}),
+        new Error("Invalid data", {}),
       );
 
       await submitForm(result);
 
       expect(addNotificationMock).toHaveBeenCalledExactlyOnceWith(
-        "Please correct the errors in the form.",
+        "Sorry, something went wrong.",
       );
     });
 

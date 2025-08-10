@@ -8,7 +8,7 @@ export default function Notification({
   message,
 }: NotificationProps): JSX.Element {
   return (
-    <div>
+    <div role="status">
       <p>{message}</p>
     </div>
   );

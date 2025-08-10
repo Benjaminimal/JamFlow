@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import { type JSX, useRef } from "react";
 
 import type { ValidationErrorDetails } from "@/errors";
 
@@ -9,7 +9,7 @@ type UploadFormProps = {
   onRecordedDateChange: (v: string | null) => void;
   onFileChange: (file: File | null) => void;
   formErrors: ValidationErrorDetails;
-  onSubmit: () => Promise<void>;
+  onSubmit: () => Promise<{ success: boolean }>;
   disabled: boolean;
 };
 
@@ -23,12 +23,17 @@ export default function UploadForm({
   onSubmit,
   disabled,
 }: UploadFormProps): JSX.Element {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <form
       data-testid="upload-form"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        onSubmit();
+        const { success } = await onSubmit();
+        if (success && fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       }}
     >
       {renderErrors(formErrors.nonField)}
@@ -58,6 +63,7 @@ export default function UploadForm({
         <input
           id="file"
           type="file"
+          ref={fileInputRef}
           onChange={(e) => onFileChange(e.target.files?.[0] || null)}
         />
         {renderErrors(formErrors.file)}

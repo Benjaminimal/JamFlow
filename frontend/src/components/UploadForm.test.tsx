@@ -86,7 +86,7 @@ describe("UploadForm", () => {
     });
 
     it("calls onSubmit when submitting the form", async () => {
-      const onSubmit = vi.fn();
+      const onSubmit = vi.fn().mockResolvedValue({ success: true });
       renderUploadForm({ onSubmit });
 
       fireEvent.submit(screen.getByTestId("upload-form"));
@@ -146,7 +146,7 @@ function renderUploadForm(overrides: UploadFormPropsOverrides = {}) {
     onRecordedDateChange: vi.fn(),
     onFileChange: vi.fn(),
     formErrors: {},
-    onSubmit: vi.fn().mockResolvedValue(undefined),
+    onSubmit: vi.fn(),
     disabled: false,
   };
   const result = render(<UploadForm {...defaultProps} {...overrides} />);

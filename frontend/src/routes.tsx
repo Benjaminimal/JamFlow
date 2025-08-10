@@ -4,7 +4,7 @@ import ErrorPage from "@/pages/Error";
 import Root from "@/pages/Root";
 import Upload from "@/pages/Upload";
 
-const router = createBrowserRouter([
+export const routes = [
   {
     path: "/",
     element: <Root />,
@@ -16,6 +16,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-]);
+];
 
-export default router;
+export const router = createBrowserRouter(routes);

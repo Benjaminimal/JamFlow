@@ -13,7 +13,7 @@ type UseUploadFormResult = {
   file: File | null;
   setFile: (v: File | null) => void;
   formErrors: ValidationErrorDetails;
-  handleSubmit: () => Promise<void>;
+  handleSubmit: () => Promise<{ success: boolean }>;
   isSubmitting: boolean;
 };
 
@@ -37,27 +37,26 @@ export function useUploadForm(): UseUploadFormResult {
   );
 
   const resetForm = () => {
-    // FIXME: file input won't reset on form submission
     _setFile(null);
     _setTitle("");
     _setRecordedDate(null);
   };
 
-  const handleSubmit = async (): Promise<void> => {
+  const handleSubmit = async (): Promise<{ success: boolean }> => {
     if (isSubmitting) {
-      return;
+      return { success: false };
     }
 
     const validationErrors = getValidationErrors(title, file);
     if (validationErrors) {
       setFormErrors(validationErrors);
-      return;
+      return { success: false };
     }
 
     setFormErrors({});
+    setIsSubmitting(true);
 
     try {
-      setIsSubmitting(true);
       await uploadTrack({
         title,
         recordedDate: recordedDate || null,
@@ -65,12 +64,16 @@ export function useUploadForm(): UseUploadFormResult {
       });
       addNotification("Upload successful");
       resetForm();
+      return { success: true };
     } catch (error) {
       if (error instanceof ValidationError) {
         setFormErrors(error.details);
+      } else {
+        // FIXME: on something like a server error the form gets stuck
+        const message = getUserFriendlyErrorMessage(error);
+        addNotification(message);
       }
-      const message = getUserFriendlyErrorMessage(error);
-      addNotification(message);
+      return { success: false };
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +98,7 @@ function getValidationErrors(
 ): ValidationErrorDetails | null {
   const validationErrors: ValidationErrorDetails = {};
   if (!file) {
-    validationErrors.file = ["No file selected for upload"];
+    validationErrors.file = ["File is required"];
   }
 
   if (!title.trim()) {
