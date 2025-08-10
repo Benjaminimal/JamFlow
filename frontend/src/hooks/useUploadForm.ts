@@ -6,14 +6,14 @@ import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
 type UseUploadFormResult = {
   title: string;
-  recordedDate: string | null;
-  file: File | null;
-  formErrors: ValidationErrorDetails;
   setTitle: (v: string) => void;
+  recordedDate: string | null;
   setRecordedDate: (v: string | null) => void;
+  file: File | null;
   setFile: (v: File | null) => void;
-  isSubmitting: boolean;
+  formErrors: ValidationErrorDetails;
   handleSubmit: () => Promise<void>;
+  isSubmitting: boolean;
 };
 
 export function useUploadForm(): UseUploadFormResult {
@@ -77,14 +77,14 @@ export function useUploadForm(): UseUploadFormResult {
 
   return {
     title,
-    recordedDate,
-    file,
-    formErrors,
     setTitle,
+    recordedDate,
     setRecordedDate,
+    file,
     setFile,
-    isSubmitting,
+    formErrors,
     handleSubmit,
+    isSubmitting,
   };
 }
 

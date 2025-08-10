@@ -8,8 +8,8 @@ type UploadFormProps = {
   recordedDate: string | null;
   onRecordedDateChange: (v: string | null) => void;
   onFileChange: (file: File | null) => void;
-  onSubmit: () => Promise<void>;
   formErrors: ValidationErrorDetails;
+  onSubmit: () => Promise<void>;
   disabled: boolean;
 };
 
@@ -19,8 +19,8 @@ export default function UploadForm({
   recordedDate,
   onRecordedDateChange,
   onFileChange,
-  onSubmit,
   formErrors,
+  onSubmit,
   disabled,
 }: UploadFormProps): JSX.Element {
   const titleErrors = formErrors.title ?? [];

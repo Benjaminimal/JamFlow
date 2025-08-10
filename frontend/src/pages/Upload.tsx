@@ -6,25 +6,25 @@ import { useUploadForm } from "@/hooks/useUploadForm";
 export default function Upload(): JSX.Element {
   const {
     title,
-    recordedDate,
     setTitle,
+    recordedDate,
     setRecordedDate,
     setFile,
+    formErrors,
     isSubmitting,
     handleSubmit,
-    formErrors,
   } = useUploadForm();
 
   return (
     <UploadForm
       title={title}
-      recordedDate={recordedDate}
       onTitleChange={setTitle}
+      recordedDate={recordedDate}
       onRecordedDateChange={setRecordedDate}
       onFileChange={setFile}
-      disabled={isSubmitting}
       formErrors={formErrors}
       onSubmit={handleSubmit}
+      disabled={isSubmitting}
     ></UploadForm>
   );
 }
