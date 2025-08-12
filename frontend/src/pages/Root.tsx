@@ -4,7 +4,7 @@ import { type JSX, useContext } from "react";
 import { Link, Outlet } from "react-router-dom";
 
 import Notification from "@/components/Notification";
-import { NotificaitonContext } from "@/contexts/NotifcationContext";
+import { NotificationContext } from "@/contexts/NotificationContext";
 import NotificationProvider from "@/contexts/NotificationProvider";
 
 export default function Root(): JSX.Element {
@@ -18,7 +18,7 @@ export default function Root(): JSX.Element {
 }
 
 function LayoutContent(): JSX.Element {
-  const { notifications } = useContext(NotificaitonContext);
+  const { notifications } = useContext(NotificationContext);
 
   return (
     <>

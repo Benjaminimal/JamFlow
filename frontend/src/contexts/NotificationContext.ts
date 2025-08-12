@@ -12,7 +12,7 @@ export type NotificationContextType = {
   addNotification: (v: string) => void;
 };
 
-export const NotificaitonContext = createContext<NotificationContextType>({
+export const NotificationContext = createContext<NotificationContextType>({
   notifications: [],
   addNotification: () => {
     throw new ApplicationError(

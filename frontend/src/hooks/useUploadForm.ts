@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 
 import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { uploadTrack } from "@/api/tracks";
-import { NotificaitonContext } from "@/contexts/NotifcationContext";
+import { NotificationContext } from "@/contexts/NotificationContext";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
 type UseUploadFormResult = {
@@ -26,7 +26,7 @@ export function useUploadForm(): UseUploadFormResult {
 
   const [formErrors, setFormErrors] = useState<ValidationErrorDetails>({});
 
-  const { addNotification } = useContext(NotificaitonContext);
+  const { addNotification } = useContext(NotificationContext);
 
   const setFile = setField("file", _setFile, setFormErrors);
   const setTitle = setField("title", _setTitle, setFormErrors);
