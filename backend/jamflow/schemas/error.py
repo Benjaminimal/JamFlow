@@ -22,6 +22,7 @@ class ErrorDetailDto(BaseModel):
     field: str | None = None
 
 
+# TODO: document this via OpenAPI
 class ApiErrorDto(BaseModel):
     code: ErrorCode
     details: list[ErrorDetailDto]

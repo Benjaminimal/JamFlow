@@ -23,6 +23,12 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* Path mapping */
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
+
     /* Testing */
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },

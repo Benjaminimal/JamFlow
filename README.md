@@ -23,24 +23,28 @@ With JamFlow you can easily clip parts of your uploaded audio files, making it e
 - PostgreSQL
 - S3 compatible storage
 
-## Getting Started
+## Development Setup
 
 ### Prerequisites
 
+- uv
+- npm
 - Docker
 
-### Installation & Setup
+### Installation
 
 ```bash
 git clone https://github.com/Benjaminimal/JamFlow.git
 cd JamFlow
 cp .env.example .env
 # Configure your .env file
+./scripts/setup-dev.sh
 docker compose up
 ```
 
 **Local services:**
 
+- Frontend application http://localhost:5173
 - Backend server http://localhost:8000
 - MinIO interface http://localhost:9090
 - PostgreSQL localhost:5432
