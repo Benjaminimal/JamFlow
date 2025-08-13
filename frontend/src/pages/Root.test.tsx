@@ -1,14 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { screen } from "@testing-library/react";
 
-import Root from "@/pages/Root";
+import { renderRoute } from "@/test-utils/render";
 
 test("render JamFlow header", () => {
-  render(
-    <MemoryRouter>
-      <Root />
-    </MemoryRouter>,
-  );
+  renderRoute("/");
   const headerElement = screen.getByText("JamFlow");
   expect(headerElement).toBeInTheDocument();
 });
