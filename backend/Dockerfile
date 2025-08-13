@@ -11,7 +11,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # Install ffmpeg
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-  ffmpeg=7:5.1.6-0+deb12u1 \
+  ffmpeg=7:7.1.1-1+b1 \
   postgresql-client \
   && rm -rf /var/lib/apt/lists/*
 
