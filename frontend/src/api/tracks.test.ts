@@ -2,7 +2,6 @@ import type { Mock } from "vitest";
 
 import { uploadTrack } from "@/api/tracks";
 import type { TrackCreateResponse } from "@/api/types";
-import type { TrackCreateForm } from "@/types";
 
 vi.mock("@/api/client", () => ({
   default: {
@@ -16,23 +15,12 @@ vi.mock("@/api/errorHandler", () => ({
 
 import apiClient from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
+import { createTestTrackForm } from "@/test-utils/testData";
 
 describe("track api", () => {
   describe("uploadTrack", () => {
     beforeEach(() => {
       vi.clearAllMocks();
-    });
-
-    const createTrackForm = (
-      overrides: Partial<TrackCreateForm> = {},
-    ): TrackCreateForm => ({
-      title: "New Song",
-      recordedDate: "2025-08-10",
-      // TODO: use audio/mpeg for all dummy test files
-      file: new File(["dummy content"], "test.txt", {
-        type: "text/plain",
-      }),
-      ...overrides,
     });
 
     const createMockApiResponse = (
@@ -55,7 +43,7 @@ describe("track api", () => {
         data: createMockApiResponse(),
       });
 
-      const trackForm = createTrackForm();
+      const trackForm = createTestTrackForm();
       await uploadTrack(trackForm);
 
       expect(apiClient.post).toHaveBeenCalledOnce();
@@ -74,7 +62,7 @@ describe("track api", () => {
         data: createMockApiResponse(),
       });
 
-      const trackForm = createTrackForm();
+      const trackForm = createTestTrackForm();
       const track = await uploadTrack(trackForm);
 
       expect(track.id).toBe("123");
@@ -95,7 +83,7 @@ describe("track api", () => {
       const mappedError = new Error("User friendly error translation");
       (mapAxiosError as Mock).mockReturnValueOnce(mappedError);
 
-      const trackForm = createTrackForm();
+      const trackForm = createTestTrackForm();
       await expect(uploadTrack(trackForm)).rejects.toBe(mappedError);
       expect(mapAxiosError as Mock).toHaveBeenCalledExactlyOnceWith(
         originalError,
@@ -108,7 +96,7 @@ describe("track api", () => {
         data: mockApiResponse,
       });
 
-      const trackForm = createTrackForm({ recordedDate: null });
+      const trackForm = createTestTrackForm({ recordedDate: null });
       const track = await uploadTrack(trackForm);
 
       expect(apiClient.post).toHaveBeenCalledOnce();
