@@ -12,20 +12,26 @@ on:
 jobs:
   backend-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up environment
-        run: mv .env.test .env
+      - name: Set up backend config
+        run: mv ./backend/.env.test ./backend/.env
       - name: Build Docker image
-        run: docker compose build backend
+        run: |
+          source .env.docker-compose
+          docker compose build backend
       - name: Start services
         run: |
+          source .env.docker-compose
           docker compose up --detach db storage
           docker ps
       - name: Run tests
-        run: docker compose run -e CI=1 backend scripts/test.sh
+        run: |
+          source .env.docker-compose
+          docker compose run -e CI=1 backend scripts/test.sh
       - name: Clean up
         if: always()
-        run: docker compose down --volumes
+        run: |
+          source .env.docker-compose
+          docker compose down --volumes

@@ -21,12 +21,14 @@ if [ ! -d ".venv" ]; then
 	uv venv
 fi
 uv sync
+cp .env.example .env
 cd ..
 
 # Frontend setup
 echo "Setting up frontend..."
 cd frontend
 npm install
+cp .env.example .env
 cd ..
 
 # Install git hooks
@@ -36,5 +38,10 @@ echo "Installing git hooks..."
 echo "Development environment ready!"
 echo ""
 echo "Next steps:"
-echo "  Backend: cd backend && source .venv/bin/activate"
-echo "  Frontend: cd frontend && npm run dev"
+echo "  1. Configure environment variables in backend/.env and frontend/.env"
+echo "  2. Start services"
+echo "    source .env.docker-compose && docker compose up -d db storage"
+echo "  3. Run backend"
+echo "    cd backend && source .venv/bin/activate && fastapi run --reload jamflow/main.py"
+echo "  3. Run frontend"
+echo "    cd frontend && npm run dev"
