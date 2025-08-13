@@ -15,10 +15,11 @@ import { createTestFile, createTestTrackForm } from "@/test-utils/testData";
 
 describe("useUploadForm", () => {
   let addNotificationMock: Mock;
+  const uploadTrackMock = uploadTrack as Mock;
 
   beforeEach(() => {
     addNotificationMock = vi.fn();
-    (uploadTrack as Mock).mockReset();
+    uploadTrackMock.mockReset();
   });
 
   function setup() {
@@ -142,7 +143,7 @@ describe("useUploadForm", () => {
       expect(result.current.formErrors.title).toBeDefined();
       expect(result.current.formErrors.recordedDate).toBeUndefined();
       expect(result.current.formErrors.file).toBeDefined();
-      expect(uploadTrack).not.toHaveBeenCalled();
+      expect(uploadTrackMock).not.toHaveBeenCalled();
     });
   });
 
@@ -154,7 +155,7 @@ describe("useUploadForm", () => {
 
       await submitForm(result, formData);
 
-      expect(uploadTrack).toHaveBeenCalledExactlyOnceWith(formData);
+      expect(uploadTrackMock).toHaveBeenCalledExactlyOnceWith(formData);
     });
 
     it("should clear formErrors on success", async () => {
@@ -176,7 +177,7 @@ describe("useUploadForm", () => {
       const uploadPromise = new Promise<void>((resolve) => {
         resolveUpload = resolve;
       });
-      (uploadTrack as Mock).mockReturnValue(uploadPromise);
+      uploadTrackMock.mockReturnValue(uploadPromise);
 
       const formData = createTestTrackForm();
 
@@ -230,7 +231,7 @@ describe("useUploadForm", () => {
 
       await submitForm(result, formData);
 
-      expect(uploadTrack).toHaveBeenCalledExactlyOnceWith({
+      expect(uploadTrackMock).toHaveBeenCalledExactlyOnceWith({
         title: formData.title,
         file: formData.file,
         recordedDate: null,
@@ -246,7 +247,7 @@ describe("useUploadForm", () => {
 
       await submitForm(result, formData);
 
-      expect(uploadTrack).toHaveBeenCalledExactlyOnceWith({
+      expect(uploadTrackMock).toHaveBeenCalledExactlyOnceWith({
         title: formData.title,
         file: formData.file,
         recordedDate: null,
@@ -266,7 +267,7 @@ describe("useUploadForm", () => {
         recordedDate: ["Bad recordedDate"],
         file: ["Bad file"],
       };
-      (uploadTrack as Mock).mockRejectedValueOnce(
+      uploadTrackMock.mockRejectedValueOnce(
         new ValidationError("Invalid data", errorDetails),
       );
 
@@ -278,9 +279,7 @@ describe("useUploadForm", () => {
     it("should call addNotification with failure message on other errors", async () => {
       const { result } = setup();
 
-      (uploadTrack as Mock).mockRejectedValueOnce(
-        new Error("Invalid data", {}),
-      );
+      uploadTrackMock.mockRejectedValueOnce(new Error("Invalid data", {}));
 
       await submitForm(result);
 
@@ -294,7 +293,7 @@ describe("useUploadForm", () => {
 
       expect(result.current.isSubmitting).toBe(false);
 
-      (uploadTrack as Mock).mockRejectedValueOnce(
+      uploadTrackMock.mockRejectedValueOnce(
         new ValidationError("Invalid data", {}),
       );
 
@@ -349,7 +348,7 @@ describe("useUploadForm", () => {
         await firstSubmissionPromise!;
       });
 
-      expect(uploadTrack).toHaveBeenCalledExactlyOnceWith(formData);
+      expect(uploadTrackMock).toHaveBeenCalledExactlyOnceWith(formData);
     });
 
     it("should clear only specific field errors when setting a field", async () => {
