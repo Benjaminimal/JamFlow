@@ -36,10 +36,8 @@ With JamFlow you can easily clip parts of your uploaded audio files, making it e
 ```bash
 git clone https://github.com/Benjaminimal/JamFlow.git
 cd JamFlow
-cp .env.example .env
-# Configure your .env file
+# Run setup script and follow its instructions
 ./scripts/setup-dev.sh
-docker compose up
 ```
 
 **Local services:**

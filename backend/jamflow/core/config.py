@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, NoDecode
 
 class Settings(
     BaseSettings,
-    env_file="../.env",
+    env_file=".env",
     env_ignore_empty=True,
     extra="ignore",
 ):
