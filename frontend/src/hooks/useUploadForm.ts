@@ -69,7 +69,6 @@ export function useUploadForm(): UseUploadFormResult {
       if (error instanceof ValidationError) {
         setFormErrors(error.details);
       } else {
-        // FIXME: on something like a server error the form gets stuck
         const message = getUserFriendlyErrorMessage(error);
         addNotification(message);
       }

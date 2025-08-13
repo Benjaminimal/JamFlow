@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import UploadForm from "@/components/UploadForm";
+import { createTestFile } from "@/test-utils/testData";
 
 describe("UploadForm", () => {
   describe("rendering", () => {
@@ -77,9 +78,7 @@ describe("UploadForm", () => {
       renderUploadForm({ onFileChange });
       const input = screen.getByLabelText("File");
 
-      const file = new File(["dummy content"], "test.txt", {
-        type: "text/plain",
-      });
+      const file = createTestFile();
       fireEvent.change(input, { target: { files: [file] } });
 
       expect(onFileChange).toHaveBeenCalledExactlyOnceWith(file);

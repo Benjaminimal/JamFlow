@@ -7,6 +7,7 @@ vi.mock("@/api/tracks", () => ({
 }));
 
 import { uploadTrack } from "@/api/tracks";
+import { createTestFile } from "@/test-utils/testData";
 
 describe("Upload page integration tests", () => {
   beforeEach(() => {
@@ -39,12 +40,12 @@ describe("Upload page integration tests", () => {
       fireEvent.change(titleInput, { target: { value: "Test Song" } });
       fireEvent.change(dateInput, { target: { value: "2025-08-10" } });
       fireEvent.change(fileInput, {
-        target: { files: [new File(["content"], "test.mp3")] },
+        target: { files: [createTestFile()] },
       });
 
       expect(titleInput).toHaveValue("Test Song");
       expect(dateInput).toHaveValue("2025-08-10");
-      expect(fileInput.files?.[0]?.name).toBe("test.mp3");
+      expect(fileInput.files?.[0]?.name).toBe("New Song.mp3");
     });
   });
 
@@ -97,7 +98,7 @@ function submitValidForm() {
   });
   fireEvent.change(screen.getByLabelText("File"), {
     target: {
-      files: [new File(["content"], "song.mp3", { type: "audio/mpeg" })],
+      files: [createTestFile()],
     },
   });
 
