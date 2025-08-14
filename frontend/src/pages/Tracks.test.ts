@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import type { Mock } from "vitest";
 
 import { renderRoute } from "@/test-utils/render";
 
@@ -6,14 +7,16 @@ vi.mock("@/api/tracks", () => ({
   listTrack: vi.fn(() => Promise.resolve()),
 }));
 
+import { listTracks } from "@/api/tracks";
+
 describe("Tracks page integration tests", () => {
-  beforeEach(() => {
-    renderRoute("/tracks");
-  });
+  const listTracksMock = listTracks as Mock;
 
   describe("empty state", () => {
     it("displays that there are no tracks", () => {
-      // TODO: return empty list from the mocked api
+      listTracksMock.mockResolvedValueOnce([]);
+
+      renderRoute("/tracks");
 
       expect(screen.getByText(/nothing here/i)).toBeInTheDocument();
     });
@@ -21,7 +24,8 @@ describe("Tracks page integration tests", () => {
 
   describe("loading state", () => {
     it("indicates that tracks are being fetched", () => {
-      // TODO: simulate waiting for the request
+      // TODO: let the api mock not resolve
+      renderRoute("/tracks");
 
       expect(screen.getByText(/loading/i)).toBeInTheDocument();
     });
@@ -30,7 +34,13 @@ describe("Tracks page integration tests", () => {
   // TODO: find out what the proper name for this state is
   describe("filled state", () => {
     it("displys all loaded tracks", () => {
-      // TODO: return 2 tracks from the mocked api
+      // TODO: add some real durations
+      listTracksMock.mockResolvedValueOnce([
+        { title: "New Song 1", recordedDate: "2025-08-10", duration: "123" },
+        { title: "New Song 2", duration: "123" },
+      ]);
+
+      renderRoute("/tracks");
 
       // TODO: replace these made up selectors with real ones
       expect(
@@ -47,7 +57,9 @@ describe("Tracks page integration tests", () => {
 
   describe("error state", () => {
     it("displays a user friendly error message for loading errors", () => {
-      // TODO: simulate an error when calling the api
+      listTracksMock.mockRejectedValueOnce(new Error("Server Error"));
+
+      renderRoute("/tracks");
 
       // TODO: not sure if just notify & empty state have a special error state here
       expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();

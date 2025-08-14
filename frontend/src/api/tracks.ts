@@ -26,6 +26,11 @@ export async function uploadTrack({
   }
 }
 
+export async function listTracks(): Promise<Track[]> {
+  // TODO: implement
+  return [];
+}
+
 function mapTrackApiToInternal({
   id,
   updated_at,
