@@ -24,5 +24,21 @@ export default function TrackList(): JSX.Element {
         <p>No tracks found</p>
       </>
     );
-  return <></>;
+  return (
+    <>
+      <div>
+        {tracks.map((track) => (
+          <div key={track.id} data-testid="track-item">
+            <p>{track.title}</p>
+            <p data-testid={`track-${track.id}-duration`}>{track.duration}</p>
+            {track.recordedDate && (
+              <p data-testid={`track-${track.id}-date`}>
+                {track.recordedDate.toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }

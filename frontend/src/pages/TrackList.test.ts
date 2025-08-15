@@ -73,7 +73,7 @@ describe("Tracks page", () => {
       expect(screen.getByText("New Song 1")).toBeInTheDocument();
       expect(screen.getByText("New Song 2")).toBeInTheDocument();
       expect(screen.getByTestId("track-1-date")).toHaveTextContent(
-        "2025-08-10",
+        "10/08/2025",
       );
       expect(screen.queryByTestId("track-2-date")).not.toBeInTheDocument();
       expect(screen.getByTestId("track-1-duration")).toHaveTextContent(
