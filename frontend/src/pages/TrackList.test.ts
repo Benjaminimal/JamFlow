@@ -30,8 +30,8 @@ describe("Tracks page", () => {
 
   describe("when loading tracks", () => {
     it("shows loading indicator", async () => {
-      let resolveList: () => void;
-      const listPromise = new Promise<void>((resolve) => {
+      let resolveList: (tracks: []) => void;
+      const listPromise = new Promise<[]>((resolve) => {
         resolveList = resolve;
       });
       listTracksMock.mockResolvedValueOnce(listPromise);
@@ -40,9 +40,9 @@ describe("Tracks page", () => {
 
       expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
-      resolveList!();
+      resolveList!([]);
       await waitFor(() => {
-        expect(screen.getByText(/loading/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
       });
     });
   });
