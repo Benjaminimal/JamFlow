@@ -1,69 +1,128 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
 import { renderRoute } from "@/test-utils/render";
 
 vi.mock("@/api/tracks", () => ({
-  listTrack: vi.fn(() => Promise.resolve()),
+  listTracks: vi.fn(() => Promise.resolve()),
 }));
 
 import { listTracks } from "@/api/tracks";
 
-describe("Tracks page integration tests", () => {
+describe("Tracks page", () => {
   const listTracksMock = listTracks as Mock;
 
-  describe("empty state", () => {
-    it("displays that there are no tracks", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe("when no tracks exist", () => {
+    it("shows empty state message", async () => {
       listTracksMock.mockResolvedValueOnce([]);
 
       renderRoute("/tracks");
 
-      expect(screen.getByText(/nothing here/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/no tracks found/i)).toBeInTheDocument();
+      });
     });
   });
 
-  describe("loading state", () => {
-    it("indicates that tracks are being fetched", () => {
-      // TODO: let the api mock not resolve
+  describe("when loading tracks", () => {
+    it("shows loading indicator", async () => {
+      let resolveList: () => void;
+      const listPromise = new Promise<void>((resolve) => {
+        resolveList = resolve;
+      });
+      listTracksMock.mockResolvedValueOnce(listPromise);
+
       renderRoute("/tracks");
 
       expect(screen.getByText(/loading/i)).toBeInTheDocument();
+
+      resolveList!();
+      await waitFor(() => {
+        expect(screen.getByText(/loading/i)).not.toBeInTheDocument();
+      });
     });
   });
 
-  // TODO: find out what the proper name for this state is
-  describe("filled state", () => {
-    it("displys all loaded tracks", () => {
-      // TODO: add some real durations
+  describe("when tracks are loaded", () => {
+    it("displays all tracks with correct information", async () => {
       listTracksMock.mockResolvedValueOnce([
-        { title: "New Song 1", recordedDate: "2025-08-10", duration: "123" },
-        { title: "New Song 2", duration: "123" },
+        {
+          id: "1",
+          title: "New Song 1",
+          duration: 5661,
+          recordedDate: new Date("2025-08-10"),
+        },
+        {
+          id: "2",
+          title: "New Song 2",
+          duration: 1451,
+          recordedDate: null,
+        },
       ]);
 
       renderRoute("/tracks");
 
-      // TODO: replace these made up selectors with real ones
-      expect(
-        screen.queryAllByRole("title").map((el) => el.textContent),
-      ).toEqual(["New Song 1", "New Song 2"]);
-      expect(
-        screen.queryAllByRole("recorded-on").map((el) => el.textContent),
-      ).toEqual(["2025-08-10"]);
-      expect(
-        screen.queryAllByRole("duration").map((el) => el.textContent),
-      ).toEqual(["01:32:14", "20:24"]);
+      await waitFor(() => {
+        expect(screen.getAllByTestId("track-item")).toHaveLength(2);
+      });
+
+      expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      expect(screen.getByText("New Song 2")).toBeInTheDocument();
+      expect(screen.getByTestId("track-1-date")).toHaveTextContent(
+        "2025-08-10",
+      );
+      expect(screen.queryByTestId("track-2-date")).not.toBeInTheDocument();
+      expect(screen.getByTestId("track-1-duration")).toHaveTextContent(
+        "1:34:21",
+      );
+      expect(screen.getByTestId("track-2-duration")).toHaveTextContent("24:11");
     });
   });
 
-  describe("error state", () => {
-    it("displays a user friendly error message for loading errors", () => {
+  describe("when loading fails", () => {
+    it("shows error message", async () => {
       listTracksMock.mockRejectedValueOnce(new Error("Server Error"));
 
       renderRoute("/tracks");
 
-      // TODO: not sure if just notify & empty state have a special error state here
-      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /retry/i }),
+        ).toBeInTheDocument();
+      });
     });
-    //
+
+    it("retries loading when retry button is clicked", async () => {
+      listTracksMock
+        .mockRejectedValueOnce(new Error("Server Error"))
+        .mockResolvedValueOnce([
+          {
+            id: "1",
+            title: "New Song 1",
+            recordedDate: new Date("2025-08-10"),
+            duration: 5661,
+          },
+        ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /retry/i }),
+        ).toBeInTheDocument();
+      });
+
+      // TODO: use userEvent here and in other tests
+      fireEvent.click(screen.getByRole("button", { name: /retry/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+    });
   });
 });
