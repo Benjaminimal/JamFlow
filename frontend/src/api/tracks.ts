@@ -1,6 +1,6 @@
 import apiClient from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
-import type { TrackCreateResponse } from "@/api/types";
+import type { TrackResponse } from "@/api/types";
 import type { Track, TrackCreateForm } from "@/types";
 
 export async function uploadTrack({
@@ -16,10 +16,7 @@ export async function uploadTrack({
   }
 
   try {
-    const response = await apiClient.post<TrackCreateResponse>(
-      "/tracks",
-      formData,
-    );
+    const response = await apiClient.post<TrackResponse>("/tracks", formData);
     return mapTrackApiToInternal(response.data);
   } catch (error) {
     throw mapAxiosError(error);
@@ -27,7 +24,12 @@ export async function uploadTrack({
 }
 
 export async function listTracks(): Promise<Track[]> {
-  return [];
+  try {
+    const response = await apiClient.get<TrackResponse[]>("/tracks");
+    return response.data.map(mapTrackApiToInternal);
+  } catch (error) {
+    throw mapAxiosError(error);
+  }
 }
 
 function mapTrackApiToInternal({
@@ -39,7 +41,7 @@ function mapTrackApiToInternal({
   size,
   recorded_date,
   url,
-}: TrackCreateResponse): Track {
+}: TrackResponse): Track {
   return {
     id,
     createdAt: new Date(updated_at),

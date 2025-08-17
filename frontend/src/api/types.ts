@@ -28,7 +28,7 @@ export type TrackCreateRequest = {
   upload_file: File;
 };
 
-export type TrackCreateResponse = {
+export type TrackResponse = {
   id: string;
   created_at: string;
   updated_at: string;

@@ -1,7 +1,7 @@
 import type { Mock } from "vitest";
 
 import { uploadTrack } from "@/api/tracks";
-import type { TrackCreateResponse } from "@/api/types";
+import type { TrackResponse } from "@/api/types";
 
 vi.mock("@/api/client", () => ({
   default: {
@@ -24,8 +24,8 @@ describe("track api", () => {
     });
 
     const createMockApiResponse = (
-      overrides: Partial<TrackCreateResponse> = {},
-    ): TrackCreateResponse => ({
+      overrides: Partial<TrackResponse> = {},
+    ): TrackResponse => ({
       id: "123",
       created_at: "2025-08-12T00:00:00Z",
       updated_at: "2025-08-12T00:00:00Z",
