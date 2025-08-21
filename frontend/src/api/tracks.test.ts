@@ -1,7 +1,11 @@
 import type { Mock } from "vitest";
 
+import * as mappers from "@/api/mappers";
 import { uploadTrack } from "@/api/tracks";
-import type { TrackResponse } from "@/api/types";
+import {
+  createTestTrackForm,
+  createTestTrackResponse,
+} from "@/test-utils/testData";
 
 vi.mock("@/api/client", () => ({
   default: {
@@ -15,7 +19,6 @@ vi.mock("@/api/errorHandler", () => ({
 
 import apiClient from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
-import { createTestTrackForm } from "@/test-utils/testData";
 
 describe("track api", () => {
   describe("uploadTrack", () => {
@@ -23,24 +26,9 @@ describe("track api", () => {
       vi.clearAllMocks();
     });
 
-    const createMockApiResponse = (
-      overrides: Partial<TrackResponse> = {},
-    ): TrackResponse => ({
-      id: "123",
-      created_at: "2025-08-12T00:00:00Z",
-      updated_at: "2025-08-12T00:00:00Z",
-      title: "New Song",
-      duration: 180,
-      format: "mp3",
-      size: 1024,
-      recorded_date: "2025-08-10",
-      url: "http://example.com/track.mp3",
-      ...overrides,
-    });
-
     it("uses the correct form fields", async () => {
       (apiClient.post as Mock).mockResolvedValueOnce({
-        data: createMockApiResponse(),
+        data: createTestTrackResponse(),
       });
 
       const trackForm = createTestTrackForm();
@@ -57,23 +45,16 @@ describe("track api", () => {
       expect(formData.get("upload_file")).toBe(trackForm.file);
     });
 
-    it("maps api response fields correctly to internal model", async () => {
+    it("calls the mapper", async () => {
       (apiClient.post as Mock).mockResolvedValueOnce({
-        data: createMockApiResponse(),
+        data: createTestTrackResponse(),
       });
+      const mapTrackToInternalSpy = vi.spyOn(mappers, "mapTrackToInternal");
 
       const trackForm = createTestTrackForm();
-      const track = await uploadTrack(trackForm);
+      await uploadTrack(trackForm);
 
-      expect(track.id).toBe("123");
-      expect(track.createdAt).toEqual(new Date("2025-08-12T00:00:00Z"));
-      expect(track.updatedAt).toEqual(new Date("2025-08-12T00:00:00Z"));
-      expect(track.title).toBe("New Song");
-      expect(track.duration).toBe(180);
-      expect(track.format).toBe("mp3");
-      expect(track.size).toBe(1024);
-      expect(track.recordedDate).toEqual(new Date("2025-08-10"));
-      expect(track.url).toBe("http://example.com/track.mp3");
+      expect(mapTrackToInternalSpy).toHaveBeenCalledOnce();
     });
 
     it("catches errors and passes them to the mapper", async () => {
@@ -91,7 +72,7 @@ describe("track api", () => {
     });
 
     it("handles missing recordedDate", async () => {
-      const mockApiResponse = createMockApiResponse({ recorded_date: null });
+      const mockApiResponse = createTestTrackResponse({ recorded_date: null });
       (apiClient.post as Mock).mockResolvedValueOnce({
         data: mockApiResponse,
       });
