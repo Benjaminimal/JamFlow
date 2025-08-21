@@ -26,8 +26,10 @@ describe("track api", () => {
       vi.clearAllMocks();
     });
 
+    const apiClientPostMock = apiClient.post as Mock;
+
     it("uses the correct form fields", async () => {
-      (apiClient.post as Mock).mockResolvedValueOnce({
+      apiClientPostMock.mockResolvedValueOnce({
         data: createTestTrackResponse(),
       });
 
@@ -36,7 +38,7 @@ describe("track api", () => {
 
       expect(apiClient.post).toHaveBeenCalledOnce();
 
-      const [path, formData] = (apiClient.post as Mock).mock.calls[0];
+      const [path, formData] = apiClientPostMock.mock.calls[0];
 
       expect(path).toBe("/tracks");
       expect(formData).toBeInstanceOf(FormData);
@@ -46,7 +48,7 @@ describe("track api", () => {
     });
 
     it("calls the mapper", async () => {
-      (apiClient.post as Mock).mockResolvedValueOnce({
+      apiClientPostMock.mockResolvedValueOnce({
         data: createTestTrackResponse(),
       });
       const mapTrackToInternalSpy = vi.spyOn(mappers, "mapTrackToInternal");
@@ -59,7 +61,7 @@ describe("track api", () => {
 
     it("catches errors and passes them to the mapper", async () => {
       const originalError = new Error("Something went wrong");
-      (apiClient.post as Mock).mockRejectedValueOnce(originalError);
+      apiClientPostMock.mockRejectedValueOnce(originalError);
 
       const mappedError = new Error("User friendly error translation");
       (mapAxiosError as Mock).mockReturnValueOnce(mappedError);
@@ -73,7 +75,7 @@ describe("track api", () => {
 
     it("handles missing recordedDate", async () => {
       const mockApiResponse = createTestTrackResponse({ recorded_date: null });
-      (apiClient.post as Mock).mockResolvedValueOnce({
+      apiClientPostMock.mockResolvedValueOnce({
         data: mockApiResponse,
       });
 
@@ -82,7 +84,7 @@ describe("track api", () => {
 
       expect(apiClient.post).toHaveBeenCalledOnce();
 
-      const [path, formData] = (apiClient.post as Mock).mock.calls[0];
+      const [path, formData] = apiClientPostMock.mock.calls[0];
 
       expect(path).toBe("/tracks");
       expect(formData).toBeInstanceOf(FormData);
