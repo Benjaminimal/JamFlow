@@ -117,7 +117,6 @@ describe("Tracks page", () => {
         ).toBeInTheDocument();
       });
 
-      // TODO: use userEvent here and in other tests
       fireEvent.click(screen.getByRole("button", { name: /retry/i }));
 
       await waitFor(() => {
