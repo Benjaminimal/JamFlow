@@ -53,13 +53,13 @@ describe("Tracks page", () => {
         {
           id: "1",
           title: "New Song 1",
-          duration: 5661,
+          duration: 5661_000,
           recordedDate: new Date("2025-08-10"),
         },
         {
           id: "2",
           title: "New Song 2",
-          duration: 1451,
+          duration: 1451_000,
           recordedDate: null,
         },
       ]);
