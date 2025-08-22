@@ -1,11 +1,16 @@
 import type { Mock } from "vitest";
 
-import { uploadTrack } from "@/api/tracks";
-import type { TrackCreateResponse } from "@/api/types";
+import * as mappers from "@/api/mappers";
+import { listTracks, uploadTrack } from "@/api/tracks";
+import {
+  createTestTrackForm,
+  createTestTrackResponse,
+} from "@/test-utils/testData";
 
 vi.mock("@/api/client", () => ({
   default: {
     post: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
@@ -15,32 +20,20 @@ vi.mock("@/api/errorHandler", () => ({
 
 import apiClient from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
-import { createTestTrackForm } from "@/test-utils/testData";
 
 describe("track api", () => {
-  describe("uploadTrack", () => {
-    beforeEach(() => {
-      vi.clearAllMocks();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    const createMockApiResponse = (
-      overrides: Partial<TrackCreateResponse> = {},
-    ): TrackCreateResponse => ({
-      id: "123",
-      created_at: "2025-08-12T00:00:00Z",
-      updated_at: "2025-08-12T00:00:00Z",
-      title: "New Song",
-      duration: 180,
-      format: "mp3",
-      size: 1024,
-      recorded_date: "2025-08-10",
-      url: "http://example.com/track.mp3",
-      ...overrides,
-    });
+  const mapAxiosErrorMock = mapAxiosError as Mock;
+
+  describe("uploadTrack", () => {
+    const apiClientPostMock = apiClient.post as Mock;
 
     it("uses the correct form fields", async () => {
-      (apiClient.post as Mock).mockResolvedValueOnce({
-        data: createMockApiResponse(),
+      apiClientPostMock.mockResolvedValueOnce({
+        data: createTestTrackResponse(),
       });
 
       const trackForm = createTestTrackForm();
@@ -48,7 +41,7 @@ describe("track api", () => {
 
       expect(apiClient.post).toHaveBeenCalledOnce();
 
-      const [path, formData] = (apiClient.post as Mock).mock.calls[0];
+      const [path, formData] = apiClientPostMock.mock.calls[0];
 
       expect(path).toBe("/tracks");
       expect(formData).toBeInstanceOf(FormData);
@@ -57,42 +50,35 @@ describe("track api", () => {
       expect(formData.get("upload_file")).toBe(trackForm.file);
     });
 
-    it("maps api response fields correctly to internal model", async () => {
-      (apiClient.post as Mock).mockResolvedValueOnce({
-        data: createMockApiResponse(),
+    it("calls the mapper", async () => {
+      apiClientPostMock.mockResolvedValueOnce({
+        data: createTestTrackResponse(),
       });
+      const mapTrackToInternalSpy = vi.spyOn(mappers, "mapTrackToInternal");
 
       const trackForm = createTestTrackForm();
-      const track = await uploadTrack(trackForm);
+      await uploadTrack(trackForm);
 
-      expect(track.id).toBe("123");
-      expect(track.createdAt).toEqual(new Date("2025-08-12T00:00:00Z"));
-      expect(track.updatedAt).toEqual(new Date("2025-08-12T00:00:00Z"));
-      expect(track.title).toBe("New Song");
-      expect(track.duration).toBe(180);
-      expect(track.format).toBe("mp3");
-      expect(track.size).toBe(1024);
-      expect(track.recordedDate).toEqual(new Date("2025-08-10"));
-      expect(track.url).toBe("http://example.com/track.mp3");
+      expect(mapTrackToInternalSpy).toHaveBeenCalledOnce();
+
+      mapTrackToInternalSpy.mockClear();
     });
 
     it("catches errors and passes them to the mapper", async () => {
       const originalError = new Error("Something went wrong");
-      (apiClient.post as Mock).mockRejectedValueOnce(originalError);
+      apiClientPostMock.mockRejectedValueOnce(originalError);
 
       const mappedError = new Error("User friendly error translation");
-      (mapAxiosError as Mock).mockReturnValueOnce(mappedError);
+      mapAxiosErrorMock.mockReturnValueOnce(mappedError);
 
       const trackForm = createTestTrackForm();
       await expect(uploadTrack(trackForm)).rejects.toBe(mappedError);
-      expect(mapAxiosError as Mock).toHaveBeenCalledExactlyOnceWith(
-        originalError,
-      );
+      expect(mapAxiosErrorMock).toHaveBeenCalledExactlyOnceWith(originalError);
     });
 
     it("handles missing recordedDate", async () => {
-      const mockApiResponse = createMockApiResponse({ recorded_date: null });
-      (apiClient.post as Mock).mockResolvedValueOnce({
+      const mockApiResponse = createTestTrackResponse({ recorded_date: null });
+      apiClientPostMock.mockResolvedValueOnce({
         data: mockApiResponse,
       });
 
@@ -101,7 +87,7 @@ describe("track api", () => {
 
       expect(apiClient.post).toHaveBeenCalledOnce();
 
-      const [path, formData] = (apiClient.post as Mock).mock.calls[0];
+      const [path, formData] = apiClientPostMock.mock.calls[0];
 
       expect(path).toBe("/tracks");
       expect(formData).toBeInstanceOf(FormData);
@@ -109,6 +95,34 @@ describe("track api", () => {
       expect(formData.has("recorded_date")).toBe(false);
       expect(formData.get("upload_file")).toBe(trackForm.file);
       expect(track.recordedDate).toBeNull();
+    });
+  });
+
+  describe("list tracks", () => {
+    const apiClientGetMock = apiClient.get as Mock;
+
+    it("calls the mapper", async () => {
+      apiClientGetMock.mockResolvedValueOnce({
+        data: Array(3).fill(null).map(createTestTrackResponse),
+      });
+      const mapTrackToInternalSpy = vi.spyOn(mappers, "mapTrackToInternal");
+
+      await listTracks();
+
+      expect(mapTrackToInternalSpy).toHaveBeenCalledTimes(3);
+
+      mapTrackToInternalSpy.mockClear();
+    });
+
+    it("catches errors and passes them to the mapper", async () => {
+      const originalError = new Error("Something went wrong");
+      apiClientGetMock.mockRejectedValueOnce(originalError);
+
+      const mappedError = new Error("User friendly error translation");
+      mapAxiosErrorMock.mockReturnValueOnce(mappedError);
+
+      await expect(listTracks()).rejects.toBe(mappedError);
+      expect(mapAxiosErrorMock).toHaveBeenCalledExactlyOnceWith(originalError);
     });
   });
 });

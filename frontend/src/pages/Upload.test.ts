@@ -1,13 +1,13 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 
 import { renderRoute } from "@/test-utils/render";
+import { createTestFile } from "@/test-utils/testData";
 
 vi.mock("@/api/tracks", () => ({
   uploadTrack: vi.fn(() => Promise.resolve({ success: true })),
 }));
 
 import { uploadTrack } from "@/api/tracks";
-import { createTestFile } from "@/test-utils/testData";
 
 describe("Upload page integration tests", () => {
   beforeEach(() => {

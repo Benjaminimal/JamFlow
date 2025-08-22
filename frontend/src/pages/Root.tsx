@@ -23,7 +23,8 @@ function LayoutContent(): JSX.Element {
   return (
     <>
       <nav>
-        <Link to="/">Home</Link> | <Link to="/upload">Upload</Link>
+        <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
+        <Link to="/tracks">Tracks</Link>
       </nav>
 
       <h1>JamFlow</h1>
