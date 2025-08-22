@@ -50,12 +50,13 @@ describe("Tracks page", () => {
 
   describe("when tracks are loaded", () => {
     it("displays all tracks with correct information", async () => {
+      const recordedDate = new Date("2025-08-10");
       listTracksMock.mockResolvedValueOnce([
         createTestTrack({
           id: "1",
           title: "New Song 1",
           duration: 5661_000,
-          recordedDate: new Date("2025-08-10"),
+          recordedDate,
         }),
         createTestTrack({
           id: "2",
@@ -74,7 +75,7 @@ describe("Tracks page", () => {
       expect(screen.getByText("New Song 1")).toBeInTheDocument();
       expect(screen.getByText("New Song 2")).toBeInTheDocument();
       expect(screen.getByTestId("track-1-date")).toHaveTextContent(
-        "10/08/2025",
+        recordedDate.toLocaleDateString(),
       );
       expect(screen.queryByTestId("track-2-date")).not.toBeInTheDocument();
       expect(screen.getByTestId("track-1-duration")).toHaveTextContent(
@@ -102,12 +103,12 @@ describe("Tracks page", () => {
       listTracksMock
         .mockRejectedValueOnce(new Error("Server Error"))
         .mockResolvedValueOnce([
-          {
+          createTestTrack({
             id: "1",
             title: "New Song 1",
             recordedDate: new Date("2025-08-10"),
             duration: 5661,
-          },
+          }),
         ]);
 
       renderRoute("/tracks");
