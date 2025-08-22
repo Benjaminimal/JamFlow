@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
 import { renderRoute } from "@/test-utils/render";
+import { createTestTrack } from "@/test-utils/testData";
 
 vi.mock("@/api/tracks", () => ({
   listTracks: vi.fn(() => Promise.resolve()),
@@ -50,18 +51,18 @@ describe("Tracks page", () => {
   describe("when tracks are loaded", () => {
     it("displays all tracks with correct information", async () => {
       listTracksMock.mockResolvedValueOnce([
-        {
+        createTestTrack({
           id: "1",
           title: "New Song 1",
           duration: 5661_000,
           recordedDate: new Date("2025-08-10"),
-        },
-        {
+        }),
+        createTestTrack({
           id: "2",
           title: "New Song 2",
           duration: 1451_000,
           recordedDate: null,
-        },
+        }),
       ]);
 
       renderRoute("/tracks");
