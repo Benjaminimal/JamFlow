@@ -1,8 +1,7 @@
 import type { JSX } from "react";
 
+import TrackItem from "@/components/TrackItem";
 import { useTrackList } from "@/hooks/useTrackList";
-import { formatDuration } from "@/lib/time";
-import type { Track } from "@/types";
 
 export default function TrackList(): JSX.Element {
   const { tracks, loading, errorMessage, fetchData } = useTrackList();
@@ -18,20 +17,6 @@ export default function TrackList(): JSX.Element {
   );
 
   const EmptyState = () => <p>No tracks found</p>;
-
-  const TrackItem = ({ track }: { track: Track }) => (
-    <>
-      <p>{track.title}</p>
-      <p data-testid={`track-${track.id}-duration`}>
-        {formatDuration(track.duration)}
-      </p>
-      {track.recordedDate && (
-        <p data-testid={`track-${track.id}-date`}>
-          {track.recordedDate.toLocaleDateString()}
-        </p>
-      )}
-    </>
-  );
 
   const LoadedState = () => (
     <>
