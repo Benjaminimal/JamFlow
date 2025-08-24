@@ -126,4 +126,92 @@ describe("Tracks page", () => {
       });
     });
   });
+
+  describe("audio player integration", () => {
+    it("shows audio player when track is clicked", async () => {
+      listTracksMock.mockResolvedValueOnce([
+        createTestTrack({
+          title: "New Song 1",
+        }),
+      ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId("audio-player")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByText("New Song 1"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+    });
+
+    it("updates player content on track switch", async () => {
+      listTracksMock.mockResolvedValueOnce([
+        createTestTrack({
+          title: "New Song 1",
+        }),
+        createTestTrack({
+          title: "New Song 2",
+        }),
+      ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText("New Song 1"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("audio-player")).toHaveTextContent("Song 1");
+      expect(screen.getByTestId("audio-player")).not.toHaveTextContent(
+        "Song 2",
+      );
+
+      fireEvent.click(screen.getByText("New Song 2"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toHaveTextContent("Song 2");
+      });
+
+      expect(screen.getByTestId("audio-player")).not.toHaveTextContent(
+        "Song 1",
+      );
+    });
+
+    it("persists the player across page navigation", async () => {
+      listTracksMock.mockResolvedValueOnce([
+        createTestTrack({
+          title: "New Song 1",
+        }),
+      ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText("New Song 1"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+
+      renderRoute("/");
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+    });
+  });
 });
