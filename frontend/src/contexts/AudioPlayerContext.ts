@@ -1,9 +1,7 @@
 import { createContext } from "react";
 
 import { ApplicationError } from "@/errors";
-import type { Track } from "@/types";
-
-export type Playable = Track;
+import type { Playable } from "@/types";
 
 export type AudioPlayerContextType = {
   load: (v: Playable) => Promise<void>;
@@ -11,6 +9,6 @@ export type AudioPlayerContextType = {
 
 export const AudioPlayerContext = createContext<AudioPlayerContextType>({
   load: async () => {
-    throw new ApplicationError("load called outside of NotificationProvider");
+    throw new ApplicationError("load called outside of AudioPlayerProvider");
   },
 });

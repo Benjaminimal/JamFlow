@@ -1,24 +1,28 @@
 import type { JSX, ReactNode } from "react";
 
 import AudioPlayer from "@/components/AudioPlayer";
-import {
-  AudioPlayerContext,
-  type Playable,
-} from "@/contexts/AudioPlayerContext";
+import { AudioPlayerContext } from "@/contexts/AudioPlayerContext";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
-// TODO: use the context to select tracks
 export default function AudioPlayerProvider({
   children,
 }: {
   children: ReactNode;
 }): JSX.Element {
-  const { title, setTitle, active, setActive } = useAudioPlayer();
-
-  const load = async (playable: Playable) => {
-    setActive(true);
-    setTitle(playable.title);
-  };
+  const {
+    load,
+    title,
+    active,
+    duration,
+    position,
+    seek,
+    volume,
+    setVolume,
+    isPlaying,
+    togglePlay,
+    isMuted,
+    toggleMute,
+  } = useAudioPlayer();
 
   return (
     <AudioPlayerContext.Provider value={{ load }}>
@@ -30,7 +34,18 @@ export default function AudioPlayerProvider({
             borderTop: "2px solid #fff",
           }}
         >
-          <AudioPlayer title={title} />
+          <AudioPlayer
+            title={title}
+            duration={duration}
+            position={position}
+            onPositionChange={seek}
+            volume={volume}
+            onVolumeChange={setVolume}
+            isPlaying={isPlaying}
+            onPlayToggle={togglePlay}
+            isMuted={isMuted}
+            onMuteToggle={toggleMute}
+          />
         </div>
       )}
     </AudioPlayerContext.Provider>
