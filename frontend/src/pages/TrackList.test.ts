@@ -148,6 +148,21 @@ describe("Tracks page", () => {
       await waitFor(() => {
         expect(screen.getByTestId("audio-player")).toBeInTheDocument();
       });
+
+      expect(screen.getByTestId("audio-player-title")).toHaveTextContent(
+        "New Song 1",
+      );
+      expect(screen.getByTestId("audio-player-duration")).toBeInTheDocument();
+      expect(screen.getByTestId("audio-player-position")).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "play" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("slider", { name: "seek position" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("slider", { name: "change volume" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "mute" })).toBeInTheDocument();
     });
 
     it("updates player content on track switch", async () => {
