@@ -3,13 +3,17 @@ import type { JSX } from "react";
 import { formatDuration } from "@/lib/time";
 import type { Track } from "@/types";
 
-type TrackProps = {
+type TrackItemProps = {
   track: Track;
+  onPlay: () => void;
 };
 
-export default function TrackItem({ track }: TrackProps): JSX.Element {
+export default function TrackItem({
+  track,
+  onPlay,
+}: TrackItemProps): JSX.Element {
   return (
-    <>
+    <div onClick={onPlay}>
       <p>{track.title}</p>
       <p data-testid={`track-${track.id}-duration`}>
         {formatDuration(track.duration)}
@@ -19,6 +23,6 @@ export default function TrackItem({ track }: TrackProps): JSX.Element {
           {track.recordedDate.toLocaleDateString()}
         </p>
       )}
-    </>
+    </div>
   );
 }
