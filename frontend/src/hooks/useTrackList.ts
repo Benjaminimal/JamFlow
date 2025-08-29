@@ -13,6 +13,7 @@ type UseTrackListResult = {
 
 export function useTrackList(): UseTrackListResult {
   const [tracks, setTracks] = useState<Track[]>([]);
+  // TODO: consistent naming for states like this `isLoading, setIsLoading`
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

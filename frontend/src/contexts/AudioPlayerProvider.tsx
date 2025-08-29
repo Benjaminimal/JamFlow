@@ -22,8 +22,10 @@ export default function AudioPlayerProvider({
     togglePlay,
     isMuted,
     toggleMute,
+    isLoading,
   } = useAudioPlayer();
 
+  // TODO: pull this out into a separate smart component
   return (
     <AudioPlayerContext.Provider value={{ load }}>
       {children}
@@ -34,18 +36,22 @@ export default function AudioPlayerProvider({
             borderTop: "2px solid #fff",
           }}
         >
-          <AudioPlayer
-            title={title}
-            duration={duration}
-            position={position}
-            onPositionChange={seek}
-            volume={volume}
-            onVolumeChange={setVolume}
-            isPlaying={isPlaying}
-            onPlayToggle={togglePlay}
-            isMuted={isMuted}
-            onMuteToggle={toggleMute}
-          />
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <AudioPlayer
+              title={title}
+              duration={duration}
+              position={position}
+              onPositionChange={seek}
+              volume={volume}
+              onVolumeChange={setVolume}
+              isPlaying={isPlaying}
+              onPlayToggle={togglePlay}
+              isMuted={isMuted}
+              onMuteToggle={toggleMute}
+            />
+          )}
         </div>
       )}
     </AudioPlayerContext.Provider>

@@ -26,6 +26,7 @@ export function useUploadForm(): UseUploadFormResult {
 
   const [formErrors, setFormErrors] = useState<ValidationErrorDetails>({});
 
+  // TODO: return values and let the page handle using the notification context
   const { addNotification } = useContext(NotificationContext);
 
   const setFile = setField("file", _setFile, setFormErrors);

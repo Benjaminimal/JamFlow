@@ -16,6 +16,7 @@ type UseAudioPlayerResult = {
   togglePlay: () => void;
   isMuted: boolean;
   toggleMute: () => void;
+  isLoading: boolean;
 };
 
 export function useAudioPlayer(): UseAudioPlayerResult {
@@ -26,6 +27,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
   const [volume, _setVolume] = useState(75);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const howlRef = useRef<Howl | null>(null);
 
   useEffect(() => {
@@ -62,6 +64,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
 
   const load = (playable: Playable) => {
     setActive(true);
+    setIsLoading(true);
     setTitle(playable.title);
 
     if (howlRef.current) {
@@ -80,6 +83,8 @@ export function useAudioPlayer(): UseAudioPlayerResult {
         setDuration(_duration);
 
         setPosition(0);
+
+        setIsLoading(false);
 
         howlRef.current!.play();
       },
@@ -178,6 +183,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     togglePlay,
     isMuted,
     toggleMute,
+    isLoading,
   };
 }
 
