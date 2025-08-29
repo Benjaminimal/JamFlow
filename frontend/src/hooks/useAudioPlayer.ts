@@ -1,5 +1,5 @@
 import { Howl } from "howler";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Playable } from "@/types";
 
@@ -28,6 +28,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [playable, setPlayable] = useState<Playable | null>(null);
   const howlRef = useRef<Howl | null>(null);
 
   useEffect(() => {
@@ -63,15 +64,12 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     };
   }, [isPlaying]);
 
-  const load = (playable: Playable) => {
+  useEffect(() => {
+    if (!playable) return;
+
     setActive(true);
     setIsLoading(true);
     setTitle(playable.title);
-
-    if (howlRef.current) {
-      howlRef.current.unload();
-      howlRef.current = null;
-    }
 
     howlRef.current = new Howl({
       src: [playable.url],
@@ -135,7 +133,23 @@ export function useAudioPlayer(): UseAudioPlayerResult {
         _setVolume(factorToPercent(_volume));
       },
     });
-  };
+    return () => {
+      if (howlRef.current) {
+        howlRef.current.unload();
+        howlRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playable]); // volume and isMuted are only needed at init
+
+  const load = useCallback(
+    (p: Playable) => {
+      if (playable?.id === p.id) return;
+
+      setPlayable(p);
+    },
+    [playable],
+  );
 
   const togglePlay = () => {
     const howl = howlRef.current;

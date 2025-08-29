@@ -1,10 +1,13 @@
-import { type JSX, useContext } from "react";
+import { type JSX, useContext, useEffect } from "react";
 
 import AudioPlayer from "@/components/AudioPlayer";
-import { AudioPlayerContext } from "@/contexts/AudioPlayerContext";
+import { PlayableContext } from "@/contexts/PlayableContext";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
 export default function AudioPlayerController(): JSX.Element {
+  const { playable } = useContext(PlayableContext);
   const {
+    load,
     title,
     active,
     duration,
@@ -17,7 +20,13 @@ export default function AudioPlayerController(): JSX.Element {
     isMuted,
     toggleMute,
     isLoading,
-  } = useContext(AudioPlayerContext);
+  } = useAudioPlayer();
+
+  useEffect(() => {
+    if (playable) {
+      load(playable);
+    }
+  }, [playable, load]);
 
   return (
     <>

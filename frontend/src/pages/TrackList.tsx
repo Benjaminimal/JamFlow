@@ -1,12 +1,12 @@
 import { type JSX, useContext } from "react";
 
 import TrackItem from "@/components/TrackItem";
-import { AudioPlayerContext } from "@/contexts/AudioPlayerContext";
+import { PlayableContext } from "@/contexts/PlayableContext";
 import { useTrackList } from "@/hooks/useTrackList";
 
 export default function TrackList(): JSX.Element {
   const { tracks, loading, errorMessage, fetchData } = useTrackList();
-  const { load } = useContext(AudioPlayerContext);
+  const { setPlayable } = useContext(PlayableContext);
 
   // TODO: Add a skeleton loader for LoadingState when working on styling.
   const LoadingState = () => <p>Loading...</p>;
@@ -25,7 +25,7 @@ export default function TrackList(): JSX.Element {
       <ul data-testid="track-list">
         {tracks.map((track) => (
           <li key={track.id} data-testid="track-item">
-            <TrackItem track={track} onPlay={() => load(track)} />
+            <TrackItem track={track} onPlay={() => setPlayable(track)} />
           </li>
         ))}
       </ul>

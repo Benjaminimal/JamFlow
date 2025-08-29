@@ -15,8 +15,6 @@ export type NotificationContextType = {
 export const NotificationContext = createContext<NotificationContextType>({
   notifications: [],
   addNotification: () => {
-    throw new ApplicationError(
-      "addNotification called outside of NotificationProvider",
-    );
+    throw new ApplicationError("addNotification called outside of provider");
   },
 });
