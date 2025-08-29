@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { Playable } from "@/types";
 
-type UseAudioPlayerResult = {
+export type UseAudioPlayerResult = {
   load: (playable: Playable) => void;
   title: string;
   active: boolean;

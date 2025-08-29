@@ -3,6 +3,7 @@ import "@/pages/Root.css";
 import { type JSX, useContext } from "react";
 import { Link, Outlet } from "react-router-dom";
 
+import AudioPlayerController from "@/components/AudioPlayerController";
 import Notification from "@/components/Notification";
 import AudioPlayerProvider from "@/contexts/AudioPlayerProvider";
 import { NotificationContext } from "@/contexts/NotificationContext";
@@ -39,6 +40,8 @@ function LayoutContent(): JSX.Element {
       <div id="outlet">
         <Outlet />
       </div>
+
+      <AudioPlayerController />
     </>
   );
 }
