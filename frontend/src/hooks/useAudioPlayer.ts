@@ -38,26 +38,27 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     };
   }, []);
 
+  // TODO:
+  //  the setInterval approach in combination with useSate and this hook being provided as context
+  //  leads to a re-render of all context consumers every second while audio is playing
+  //  consider how to get rid of this.
   useEffect(() => {
     let animationFrameCallbackId: number | undefined;
 
     const syncPosition = () => {
       const howl = howlRef.current;
-      if (!howl) return;
-
-      if (!howl.playing()) return;
+      if (!howl || !howl.playing()) return;
 
       setPosition(secondsToMs(howl.seek()));
-      animationFrameCallbackId = requestAnimationFrame(syncPosition);
     };
 
     if (isPlaying) {
-      animationFrameCallbackId = requestAnimationFrame(syncPosition);
+      animationFrameCallbackId = setInterval(syncPosition, 1000);
     }
 
     return () => {
       if (animationFrameCallbackId) {
-        cancelAnimationFrame(animationFrameCallbackId);
+        clearInterval(animationFrameCallbackId);
       }
     };
   }, [isPlaying]);
