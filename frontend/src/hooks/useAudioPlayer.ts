@@ -3,10 +3,22 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Playable } from "@/types";
 
+const AudioPlayerStatus = {
+  Idle: "idle",
+  Loading: "loading",
+  Playing: "playing",
+  Paused: "paused",
+  Error: "error",
+} as const;
+
+type AudioPlayerStatus =
+  (typeof AudioPlayerStatus)[keyof typeof AudioPlayerStatus];
+
 export type UseAudioPlayerResult = {
   load: (playable: Playable) => void;
+  isActive: boolean;
+  isLoading: boolean;
   title: string;
-  active: boolean;
   duration: number;
   position: number;
   seek: (v: number) => void;
@@ -16,18 +28,17 @@ export type UseAudioPlayerResult = {
   togglePlay: () => void;
   isMuted: boolean;
   toggleMute: () => void;
-  isLoading: boolean;
 };
 
 export function useAudioPlayer(): UseAudioPlayerResult {
+  const [status, setStatus] = useState<AudioPlayerStatus>(
+    AudioPlayerStatus.Idle,
+  );
   const [title, setTitle] = useState("");
-  const [active, setActive] = useState(false);
   const [duration, setDuration] = useState(0);
   const [position, setPosition] = useState(0);
   const [volume, _setVolume] = useState(75);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [playable, setPlayable] = useState<Playable | null>(null);
   const howlRef = useRef<Howl | null>(null);
 
@@ -49,7 +60,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
       setPosition(secondsToMs(howl.seek()));
     };
 
-    if (isPlaying) {
+    if (status == AudioPlayerStatus.Playing) {
       intervalId = setInterval(syncPosition, 1000);
     }
 
@@ -58,13 +69,12 @@ export function useAudioPlayer(): UseAudioPlayerResult {
         clearInterval(intervalId);
       }
     };
-  }, [isPlaying]);
+  }, [status]);
 
   useEffect(() => {
     if (!playable) return;
 
-    setActive(true);
-    setIsLoading(true);
+    setStatus(AudioPlayerStatus.Loading);
     setTitle(playable.title);
 
     howlRef.current = new Howl({
@@ -82,37 +92,39 @@ export function useAudioPlayer(): UseAudioPlayerResult {
 
         setPosition(0);
 
-        setIsLoading(false);
-
         howl.play();
       },
       onloaderror: () => {
         console.error("Audio onloaderror");
+
+        setStatus(AudioPlayerStatus.Error);
         // TODO: handle error
       },
       onplay: () => {
         console.log("Audio onplay");
 
-        setIsPlaying(true);
+        setStatus(AudioPlayerStatus.Playing);
       },
       onplayerror: () => {
         console.error("Audio onplayerror");
+
+        setStatus(AudioPlayerStatus.Error);
         // TODO: handle error
       },
       onend: () => {
         console.log("Audio onend");
 
-        setIsPlaying(false);
+        setStatus(AudioPlayerStatus.Paused);
       },
       onpause: () => {
         console.log("Audio onpause");
 
-        setIsPlaying(false);
+        setStatus(AudioPlayerStatus.Paused);
       },
       onstop: () => {
         console.log("Audio onstop");
 
-        setIsPlaying(false);
+        setStatus(AudioPlayerStatus.Paused);
       },
       onseek: () => {
         console.log("Audio onseek");
@@ -191,10 +203,15 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     howl.seek(msToSeconds(nextPosition));
   };
 
+  const isActive = status !== AudioPlayerStatus.Idle;
+  const isPlaying = status === AudioPlayerStatus.Playing;
+  const isLoading = status === AudioPlayerStatus.Loading;
+
   return {
     load,
+    isActive,
+    isLoading,
     title,
-    active,
     duration,
     position,
     seek,
@@ -204,7 +221,6 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     togglePlay,
     isMuted,
     toggleMute,
-    isLoading,
   };
 }
 

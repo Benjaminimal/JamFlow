@@ -8,8 +8,9 @@ export default function AudioPlayerController(): JSX.Element {
   const { playable } = useContext(PlayableContext);
   const {
     load,
+    isActive,
+    isLoading,
     title,
-    active,
     duration,
     position,
     seek,
@@ -19,7 +20,6 @@ export default function AudioPlayerController(): JSX.Element {
     togglePlay,
     isMuted,
     toggleMute,
-    isLoading,
   } = useAudioPlayer();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function AudioPlayerController(): JSX.Element {
 
   return (
     <>
-      {active && (
+      {isActive && (
         //  TODO: remove debug styling
         <div
           style={{
