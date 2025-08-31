@@ -28,6 +28,7 @@ export type UseAudioPlayerResult = {
   togglePlay: () => void;
   isMuted: boolean;
   toggleMute: () => void;
+  errorMessage: string | null;
 };
 
 export function useAudioPlayer(): UseAudioPlayerResult {
@@ -40,6 +41,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
   const [volume, _setVolume] = useState(75);
   const [isMuted, setIsMuted] = useState(false);
   const [playable, setPlayable] = useState<Playable | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const howlRef = useRef<Howl | null>(null);
 
   useEffect(() => {
@@ -105,6 +107,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
 
           setStatus(AudioPlayerStatus.Error);
           // TODO: handle error
+          setErrorMessage("Failed to load audio");
         },
         onplay: () => {
           console.log("Audio onplay");
@@ -116,6 +119,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
 
           setStatus(AudioPlayerStatus.Error);
           // TODO: handle error
+          setErrorMessage("Failed playing audio");
         },
         onend: () => {
           console.log("Audio onend");
@@ -216,6 +220,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     togglePlay,
     isMuted,
     toggleMute,
+    errorMessage,
   };
 }
 

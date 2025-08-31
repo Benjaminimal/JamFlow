@@ -20,6 +20,7 @@ export default function AudioPlayerController(): JSX.Element | null {
     togglePlay,
     isMuted,
     toggleMute,
+    errorMessage,
   } = useAudioPlayer();
 
   useEffect(() => {
@@ -31,6 +32,13 @@ export default function AudioPlayerController(): JSX.Element | null {
   if (!isActive) return null;
 
   const renderPlayerState = () => {
+    if (errorMessage)
+      return (
+        <ErrorDisplay
+          message={errorMessage}
+          onRetry={() => playable && load(playable)}
+        />
+      );
     if (isLoading) return <Loader />;
     return (
       <AudioPlayer
@@ -60,8 +68,23 @@ export default function AudioPlayerController(): JSX.Element | null {
   );
 }
 
-function Loader() {
-  return <div>Loading...</div>;
+function ErrorDisplay({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}): JSX.Element {
+  return (
+    <>
+      <p>{message}</p>
+      <button onClick={onRetry}>Retry</button>
+    </>
+  );
+}
+
+function Loader(): JSX.Element {
+  return <p>Loading...</p>;
 }
 
 type AudioPlayerProps = {
