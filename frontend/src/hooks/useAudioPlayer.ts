@@ -78,14 +78,17 @@ export function useAudioPlayer(): UseAudioPlayerResult {
       onload: () => {
         console.log("Audio onload");
 
-        const _duration = secondsToMs(howlRef.current!.duration());
+        const howl = howlRef.current;
+        if (!howl) return;
+
+        const _duration = secondsToMs(howl.duration());
         setDuration(_duration);
 
         setPosition(0);
 
         setIsLoading(false);
 
-        howlRef.current!.play();
+        howl.play();
       },
       onloaderror: () => {
         console.error("Audio onloaderror");
@@ -118,19 +121,26 @@ export function useAudioPlayer(): UseAudioPlayerResult {
       onseek: () => {
         console.log("Audio onseek");
 
-        const _position = howlRef.current!.seek();
-        setPosition(secondsToMs(_position));
+        const howl = howlRef.current;
+        if (!howl) return;
+
+        setPosition(secondsToMs(howl.seek()));
       },
       onmute: () => {
         console.log("Audio onmute");
 
-        setIsMuted(howlRef.current!.mute());
+        const howl = howlRef.current;
+        if (!howl) return;
+
+        setIsMuted(howl.mute());
       },
       onvolume: () => {
         console.log("Audio onvolume");
 
-        const _volume = howlRef.current!.volume();
-        _setVolume(factorToPercent(_volume));
+        const howl = howlRef.current;
+        if (!howl) return;
+
+        _setVolume(factorToPercent(howl.volume()));
       },
     });
     return () => {
