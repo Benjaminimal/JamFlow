@@ -71,101 +71,96 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     };
   }, [status]);
 
-  useEffect(() => {
-    if (!playable) return;
+  const load = useCallback(
+    (nextPlayable: Playable) => {
+      setStatus(AudioPlayerStatus.Loading);
 
-    setStatus(AudioPlayerStatus.Loading);
-    setTitle(playable.title);
+      if (playable?.id === nextPlayable.id) return;
 
-    howlRef.current = new Howl({
-      src: [playable.url],
-      volume: percentToFactor(volume),
-      mute: isMuted,
-      onload: () => {
-        console.log("Audio onload");
-
-        const howl = howlRef.current;
-        if (!howl) return;
-
-        const _duration = secondsToMs(howl.duration());
-        setDuration(_duration);
-
-        setPosition(0);
-
-        howl.play();
-      },
-      onloaderror: () => {
-        console.error("Audio onloaderror");
-
-        setStatus(AudioPlayerStatus.Error);
-        // TODO: handle error
-      },
-      onplay: () => {
-        console.log("Audio onplay");
-
-        setStatus(AudioPlayerStatus.Playing);
-      },
-      onplayerror: () => {
-        console.error("Audio onplayerror");
-
-        setStatus(AudioPlayerStatus.Error);
-        // TODO: handle error
-      },
-      onend: () => {
-        console.log("Audio onend");
-
-        setStatus(AudioPlayerStatus.Paused);
-      },
-      onpause: () => {
-        console.log("Audio onpause");
-
-        setStatus(AudioPlayerStatus.Paused);
-      },
-      onstop: () => {
-        console.log("Audio onstop");
-
-        setStatus(AudioPlayerStatus.Paused);
-      },
-      onseek: () => {
-        console.log("Audio onseek");
-
-        const howl = howlRef.current;
-        if (!howl) return;
-
-        setPosition(secondsToMs(howl.seek()));
-      },
-      onmute: () => {
-        console.log("Audio onmute");
-
-        const howl = howlRef.current;
-        if (!howl) return;
-
-        setIsMuted(howl.mute());
-      },
-      onvolume: () => {
-        console.log("Audio onvolume");
-
-        const howl = howlRef.current;
-        if (!howl) return;
-
-        _setVolume(factorToPercent(howl.volume()));
-      },
-    });
-    return () => {
       if (howlRef.current) {
         howlRef.current.unload();
         howlRef.current = null;
       }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playable]); // volume and isMuted are only needed at init
 
-  const load = useCallback(
-    (p: Playable) => {
-      if (playable?.id === p.id) return;
+      setTitle(nextPlayable.title);
+      setPlayable(nextPlayable);
 
-      setPlayable(p);
+      howlRef.current = new Howl({
+        src: [nextPlayable.url],
+        volume: percentToFactor(volume),
+        mute: isMuted,
+        onload: () => {
+          console.log("Audio onload");
+
+          const howl = howlRef.current;
+          if (!howl) return;
+
+          setDuration(secondsToMs(howl.duration()));
+          setPosition(0);
+
+          howl.play();
+        },
+        onloaderror: () => {
+          console.error("Audio onloaderror");
+
+          setStatus(AudioPlayerStatus.Error);
+          // TODO: handle error
+        },
+        onplay: () => {
+          console.log("Audio onplay");
+
+          setStatus(AudioPlayerStatus.Playing);
+        },
+        onplayerror: () => {
+          console.error("Audio onplayerror");
+
+          setStatus(AudioPlayerStatus.Error);
+          // TODO: handle error
+        },
+        onend: () => {
+          console.log("Audio onend");
+
+          setStatus(AudioPlayerStatus.Paused);
+        },
+        onpause: () => {
+          console.log("Audio onpause");
+
+          setStatus(AudioPlayerStatus.Paused);
+        },
+        onstop: () => {
+          console.log("Audio onstop");
+
+          setStatus(AudioPlayerStatus.Paused);
+        },
+        onseek: () => {
+          console.log("Audio onseek");
+
+          const howl = howlRef.current;
+          if (!howl) return;
+
+          setPosition(secondsToMs(howl.seek()));
+        },
+        onmute: () => {
+          console.log("Audio onmute");
+
+          const howl = howlRef.current;
+          if (!howl) return;
+
+          setIsMuted(howl.mute());
+        },
+        onvolume: () => {
+          console.log("Audio onvolume");
+
+          const howl = howlRef.current;
+          if (!howl) return;
+
+          _setVolume(factorToPercent(howl.volume()));
+        },
+      });
     },
+    // NOTE: Uses volume/mute values from when this callback was created
+    // The onvolume/onmute handlers will sync state after load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [playable],
   );
 
