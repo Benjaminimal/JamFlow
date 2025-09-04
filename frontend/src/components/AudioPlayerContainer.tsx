@@ -1,17 +1,16 @@
-import { type JSX, useContext, useEffect } from "react";
+import { type JSX, useEffect } from "react";
 
-import { PlayableContext } from "@/contexts/PlayableContext";
+import { usePlaybackContext } from "@/contexts/PlaybackContext";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
-  const { playable } = useContext(PlayableContext);
+  const { currentPlayable } = usePlaybackContext();
   const { state, load, togglePlay, seek, setVolume, toggleMute } =
     useAudioPlayer();
   const {
     status,
-    // TODO: resolve the naming conflict
-    playable: hookPlayable,
+    playable,
     duration,
     position,
     volume,
@@ -25,10 +24,10 @@ export default function AudioPlayerContainer(): JSX.Element | null {
   const isPlaying = status === "playing";
 
   useEffect(() => {
-    if (playable) {
-      load(playable);
+    if (currentPlayable) {
+      load(currentPlayable);
     }
-  }, [playable, load]);
+  }, [currentPlayable, load]);
 
   if (!isActive) return null;
 
@@ -37,13 +36,13 @@ export default function AudioPlayerContainer(): JSX.Element | null {
       return (
         <ErrorDisplay
           message={errorMessage}
-          onRetry={() => playable && load(playable)}
+          onRetry={() => currentPlayable && load(currentPlayable)}
         />
       );
     if (isLoading) return <Loader />;
     return (
       <AudioPlayer
-        title={hookPlayable?.title || ""}
+        title={playable?.title || ""}
         duration={duration}
         position={position}
         onPositionChange={seek}

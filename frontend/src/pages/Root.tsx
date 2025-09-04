@@ -7,14 +7,14 @@ import AudioPlayerContainer from "@/components/AudioPlayerContainer";
 import Notification from "@/components/Notification";
 import { NotificationContext } from "@/contexts/NotificationContext";
 import NotificationProvider from "@/contexts/NotificationProvider";
-import PlayableProvider from "@/contexts/PlayableProvider";
+import PlaybackProvider from "@/contexts/PlaybackProvider";
 
 export default function Root(): JSX.Element {
   return (
     <NotificationProvider>
-      <PlayableProvider>
+      <PlaybackProvider>
         <LayoutContent />
-      </PlayableProvider>
+      </PlaybackProvider>
     </NotificationProvider>
   );
 }
