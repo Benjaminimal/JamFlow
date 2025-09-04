@@ -5,9 +5,12 @@ import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import type { Track } from "@/types";
 
+// TODO: pull the inner components out and pass props
 export default function TrackList(): JSX.Element {
-  const { tracks, loading, errorMessage, fetchData } = useTrackList();
+  const { tracks, isLoading, errorMessage, fetchData } = useTrackList();
   const { setCurrentPlayable } = usePlaybackContext();
+
+  const isError = errorMessage !== null;
 
   // TODO: Add a skeleton loader for LoadingState when working on styling.
   const LoadingState = () => <p>Loading...</p>;
@@ -33,8 +36,8 @@ export default function TrackList(): JSX.Element {
     </>
   );
 
-  if (loading) return <LoadingState />;
-  if (errorMessage) return <ErrorState />;
+  if (isLoading) return <LoadingState />;
+  if (isError) return <ErrorState />;
   if (tracks.length === 0) return <EmptyState />;
   return <LoadedState />;
 }
