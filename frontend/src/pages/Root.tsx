@@ -3,7 +3,7 @@ import "@/pages/Root.css";
 import { type JSX, useContext } from "react";
 import { Link, Outlet } from "react-router-dom";
 
-import AudioPlayerController from "@/components/AudioPlayerController";
+import AudioPlayerContainer from "@/components/AudioPlayerContainer";
 import Notification from "@/components/Notification";
 import { NotificationContext } from "@/contexts/NotificationContext";
 import NotificationProvider from "@/contexts/NotificationProvider";
@@ -37,7 +37,7 @@ function LayoutContent(): JSX.Element {
       <div id="outlet">
         <Outlet />
       </div>
-      <AudioPlayerController />
+      <AudioPlayerContainer />
     </>
   );
 }

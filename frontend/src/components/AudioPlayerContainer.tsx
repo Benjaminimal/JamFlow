@@ -4,7 +4,7 @@ import { PlayableContext } from "@/contexts/PlayableContext";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { formatDuration } from "@/lib/time";
 
-export default function AudioPlayerController(): JSX.Element | null {
+export default function AudioPlayerContainer(): JSX.Element | null {
   const { playable } = useContext(PlayableContext);
   const { state, load, togglePlay, seek, setVolume, toggleMute } =
     useAudioPlayer();
