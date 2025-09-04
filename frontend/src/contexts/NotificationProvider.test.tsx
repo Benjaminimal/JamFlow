@@ -1,14 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
-import { NotificationContext } from "@/contexts/NotificationContext";
+import { useNotificationContext } from "@/contexts/NotificationContext";
 import NotificationProvider from "@/contexts/NotificationProvider";
 
 describe("NotificationProvider", () => {
   describe("when context used outside of it", () => {
     it("throws an error", () => {
       function TestComponent() {
-        const { addNotification } = useContext(NotificationContext);
+        const { addNotification } = useNotificationContext();
         addNotification("Something happened");
         return null;
       }
@@ -21,8 +21,7 @@ describe("NotificationProvider", () => {
 
   describe("notification management", () => {
     function NotificationTestComponent() {
-      const { notifications, addNotification } =
-        useContext(NotificationContext);
+      const { notifications, addNotification } = useNotificationContext();
       const [counter, setCounter] = useState<number>(1);
 
       const handleAdd = () => {

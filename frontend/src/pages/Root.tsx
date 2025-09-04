@@ -1,11 +1,10 @@
 import "@/pages/Root.css";
 
-import { type JSX, useContext } from "react";
+import { type JSX } from "react";
 import { Link, Outlet } from "react-router-dom";
 
 import AudioPlayerContainer from "@/components/AudioPlayerContainer";
-import Notification from "@/components/Notification";
-import { NotificationContext } from "@/contexts/NotificationContext";
+import NotificationContainer from "@/components/NotificationContainer";
 import NotificationProvider from "@/contexts/NotificationProvider";
 import PlaybackProvider from "@/contexts/PlaybackProvider";
 
@@ -20,8 +19,6 @@ export default function Root(): JSX.Element {
 }
 
 function LayoutContent(): JSX.Element {
-  const { notifications } = useContext(NotificationContext);
-
   return (
     <>
       <nav>
@@ -30,10 +27,8 @@ function LayoutContent(): JSX.Element {
       </nav>
       <h1>JamFlow</h1>
 
-      {/* TODO: pull into a NotificationsController component */}
-      {notifications.map(({ id, message }) => (
-        <Notification key={id} message={message} />
-      ))}
+      <NotificationContainer />
+
       <div id="outlet">
         <Outlet />
       </div>

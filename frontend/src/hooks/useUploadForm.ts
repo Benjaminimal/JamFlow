@@ -1,8 +1,8 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { uploadTrack } from "@/api/tracks";
-import { NotificationContext } from "@/contexts/NotificationContext";
+import { useNotificationContext } from "@/contexts/NotificationContext";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
 type UseUploadFormResult = {
@@ -27,7 +27,7 @@ export function useUploadForm(): UseUploadFormResult {
   const [formErrors, setFormErrors] = useState<ValidationErrorDetails>({});
 
   // TODO: return values and let the page handle using the notification context
-  const { addNotification } = useContext(NotificationContext);
+  const { addNotification } = useNotificationContext();
 
   const setFile = setField("file", _setFile, setFormErrors);
   const setTitle = setField("title", _setTitle, setFormErrors);

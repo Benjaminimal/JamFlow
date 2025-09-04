@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 
 import { ApplicationError } from "@/errors";
 
@@ -18,3 +18,7 @@ export const NotificationContext = createContext<NotificationContextType>({
     throw new ApplicationError("addNotification called outside of provider");
   },
 });
+
+export function useNotificationContext(): NotificationContextType {
+  return useContext(NotificationContext);
+}
