@@ -6,22 +6,23 @@ import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerController(): JSX.Element | null {
   const { playable } = useContext(PlayableContext);
+  const { state, load, togglePlay, seek, setVolume, toggleMute } =
+    useAudioPlayer();
   const {
-    load,
-    isActive,
-    isLoading,
-    title,
+    status,
+    // TODO: resolve the naming conflict
+    playable: hookPlayable,
     duration,
     position,
-    seek,
     volume,
-    setVolume,
-    isPlaying,
-    togglePlay,
     isMuted,
-    toggleMute,
     errorMessage,
-  } = useAudioPlayer();
+  } = state;
+
+  const isActive = status !== "idle";
+  const isError = status === "error";
+  const isLoading = status === "loading";
+  const isPlaying = status === "playing";
 
   useEffect(() => {
     if (playable) {
@@ -32,7 +33,7 @@ export default function AudioPlayerController(): JSX.Element | null {
   if (!isActive) return null;
 
   const renderPlayerState = () => {
-    if (errorMessage)
+    if (isError)
       return (
         <ErrorDisplay
           message={errorMessage}
@@ -42,7 +43,7 @@ export default function AudioPlayerController(): JSX.Element | null {
     if (isLoading) return <Loader />;
     return (
       <AudioPlayer
-        title={title}
+        title={hookPlayable?.title || ""}
         duration={duration}
         position={position}
         onPositionChange={seek}
@@ -137,9 +138,7 @@ function AudioPlayer({
           min="0"
           max={duration}
           value={position}
-          onChange={(e) => {
-            onPositionChange(Number(e.target.value));
-          }}
+          onChange={(e) => onPositionChange(Number(e.target.value))}
           aria-label="seek position"
         />
         <button
