@@ -5,41 +5,58 @@ import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import type { Track } from "@/types";
 
-// TODO: pull the inner components out and pass props
 export default function TrackList(): JSX.Element {
   const { tracks, isLoading, errorMessage, fetchData } = useTrackList();
   const { setCurrentPlayable } = usePlaybackContext();
 
   const isError = errorMessage !== null;
 
-  // TODO: Add a skeleton loader for LoadingState when working on styling.
-  const LoadingState = () => <p>Loading...</p>;
+  if (isLoading) return <LoadingState />;
+  if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
+  if (tracks.length === 0) return <EmptyState />;
+  return <LoadedState tracks={tracks} playTrack={setCurrentPlayable} />;
+}
 
-  const ErrorState = () => (
+// TODO: Add a skeleton loader for LoadingState when working on styling.
+function LoadingState(): JSX.Element {
+  return <p>Loading...</p>;
+}
+
+type ErrorStateProps = {
+  message: string;
+  onRetry: () => void;
+};
+
+function ErrorState({ message, onRetry }: ErrorStateProps): JSX.Element {
+  return (
     <>
-      <p>{errorMessage}</p>
-      <button onClick={fetchData}>Retry</button>
+      <p>{message}</p>
+      <button onClick={onRetry}>Retry</button>
     </>
   );
+}
 
-  const EmptyState = () => <p>No tracks found</p>;
+function EmptyState(): JSX.Element {
+  return <p>No tracks found</p>;
+}
 
-  const LoadedState = () => (
+type LoadedStateProps = {
+  tracks: Track[];
+  playTrack: (v: Track) => void;
+};
+
+function LoadedState({ tracks, playTrack }: LoadedStateProps): JSX.Element {
+  return (
     <>
       <ul data-testid="track-list">
         {tracks.map((track) => (
           <li key={track.id} data-testid="track-item">
-            <TrackItem track={track} onPlay={() => setCurrentPlayable(track)} />
+            <TrackItem track={track} onPlay={() => playTrack(track)} />
           </li>
         ))}
       </ul>
     </>
   );
-
-  if (isLoading) return <LoadingState />;
-  if (isError) return <ErrorState />;
-  if (tracks.length === 0) return <EmptyState />;
-  return <LoadedState />;
 }
 
 type TrackItemProps = {
