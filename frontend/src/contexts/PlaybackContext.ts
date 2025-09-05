@@ -15,6 +15,6 @@ export const PlaybackContext = createContext<PlaybackContextType>({
   currentPlayable: null,
 });
 
-export function usePlaybackContext(): PlaybackContextType {
+export function usePlayback(): PlaybackContextType {
   return useContext(PlaybackContext);
 }

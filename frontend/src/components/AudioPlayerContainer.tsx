@@ -1,11 +1,11 @@
 import { type JSX, useEffect } from "react";
 
-import { usePlaybackContext } from "@/contexts/PlaybackContext";
+import { usePlayback } from "@/contexts/PlaybackContext";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
-  const { currentPlayable } = usePlaybackContext();
+  const { currentPlayable } = usePlayback();
   const { state, load, togglePlay, seek, setVolume, toggleMute } =
     useAudioPlayer();
   const {

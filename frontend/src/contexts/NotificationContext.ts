@@ -19,6 +19,6 @@ export const NotificationContext = createContext<NotificationContextType>({
   },
 });
 
-export function useNotificationContext(): NotificationContextType {
+export function useNotifications(): NotificationContextType {
   return useContext(NotificationContext);
 }
