@@ -3,6 +3,18 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 
 import type { Playable } from "@/types";
 
+// TODO: centralize logging
+const shouldLog = import.meta.env.MODE !== "production";
+
+export type UseAudioPlayerResult = {
+  state: AudioPlayerState;
+  load: (v: Playable) => void;
+  togglePlay: () => void;
+  seek: (v: number) => void;
+  setVolume: (v: number) => void;
+  toggleMute: () => void;
+};
+
 const AudioPlayerStatus = {
   Idle: "idle",
   Loading: "loading",
@@ -13,15 +25,6 @@ const AudioPlayerStatus = {
 
 type AudioPlayerStatus =
   (typeof AudioPlayerStatus)[keyof typeof AudioPlayerStatus];
-
-export type UseAudioPlayerResult = {
-  state: AudioPlayerState;
-  load: (v: Playable) => void;
-  togglePlay: () => void;
-  seek: (v: number) => void;
-  setVolume: (v: number) => void;
-  toggleMute: () => void;
-};
 
 type AudioPlayerState = {
   status: AudioPlayerStatus;
@@ -85,7 +88,6 @@ function audioPlayerReducer(
   state: AudioPlayerState,
   action: AudioPlayerAction,
 ): AudioPlayerState {
-  const shouldLog = import.meta.env.MODE !== "production";
   if (shouldLog) console.log("AudioPlayerAction", action);
   if (!allowAction(state.status, action.type)) {
     if (shouldLog) {
@@ -175,6 +177,38 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     dispatch({ type: "LOAD", playable });
   }, []);
 
+  const togglePlay = useCallback(() => {
+    switch (state.status) {
+      case AudioPlayerStatus.Playing: {
+        dispatch({ type: "PAUSE" });
+        return;
+      }
+      case AudioPlayerStatus.Paused: {
+        dispatch({ type: "PLAY" });
+        return;
+      }
+    }
+  }, [state.status]);
+
+  // TODO: get rid of seek scrub
+  const seek = useCallback(
+    (v: number) => {
+      const target = Math.max(0, Math.min(state.duration, v));
+      dispatch({ type: "SEEK", target });
+    },
+    [state.duration],
+  );
+
+  const toggleMute = useCallback(() => {
+    dispatch({ type: "TOGGLE_MUTE" });
+  }, []);
+
+  const setVolume = useCallback((v: number) => {
+    const nextVolume = Math.max(0, Math.min(100, v));
+    dispatch({ type: "VOLUME_CHANGE", volume: nextVolume });
+  }, []);
+
+  // Load new playable
   useEffect(() => {
     if (!state.playable) return;
 
@@ -204,27 +238,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     };
   }, [state.playable]);
 
-  useEffect(() => {
-    return () => {
-      if (howlRef.current) {
-        howlRef.current.unload();
-      }
-    };
-  }, []);
-
-  const togglePlay = () => {
-    switch (state.status) {
-      case AudioPlayerStatus.Playing: {
-        dispatch({ type: "PAUSE" });
-        return;
-      }
-      case AudioPlayerStatus.Paused: {
-        dispatch({ type: "PLAY" });
-        return;
-      }
-    }
-  };
-
+  // Play / Pause
   useEffect(() => {
     const howl = howlRef.current;
     if (!howl) return;
@@ -241,12 +255,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     }
   }, [state.status]);
 
-  // TODO: get rid of seek scrub
-  const seek = (v: number) => {
-    const target = Math.max(0, Math.min(state.duration, v));
-    dispatch({ type: "SEEK", target });
-  };
-
+  // Seek
   useEffect(() => {
     const howl = howlRef.current;
     if (!howl) return;
@@ -254,6 +263,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     howl.seek(msToSeconds(state.seekTarget));
   }, [state.seekTarget]);
 
+  // Sync position
   useEffect(() => {
     const howl = howlRef.current;
     if (!howl) return;
@@ -272,8 +282,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     };
   }, [state.status]);
 
-  const toggleMute = () => dispatch({ type: "TOGGLE_MUTE" });
-
+  // Mute
   useEffect(() => {
     const howl = howlRef.current;
     if (!howl) return;
@@ -281,11 +290,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     howl.mute(state.isMuted);
   }, [state.isMuted]);
 
-  const setVolume = (v: number) => {
-    const nextVolume = Math.max(0, Math.min(100, v));
-    dispatch({ type: "VOLUME_CHANGE", volume: nextVolume });
-  };
-
+  // Volume
   useEffect(() => {
     const howl = howlRef.current;
     if (!howl) return;
@@ -315,8 +320,7 @@ function percentToFactor(percent: number) {
 }
 
 function getAudioErrorMessage(error: unknown): string {
-  console.log("Audio error", error);
-  console.log(typeof error);
+  if (shouldLog) console.error("Audio playback error:", error);
   if (typeof error === "number") {
     switch (error) {
       case 1:
