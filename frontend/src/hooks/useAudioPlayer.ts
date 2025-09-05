@@ -148,6 +148,14 @@ export function useAudioPlayer(): UseAudioPlayerResult {
         dispatch({ type: "LOADED", duration });
         dispatch({ type: "PLAY" });
       },
+      onloaderror: (_, error: unknown) => {
+        const message = getAudioErrorMessage(error);
+        dispatch({ type: "SET_ERROR", message: message });
+      },
+      onplayerror: (_, error: unknown) => {
+        const message = getAudioErrorMessage(error);
+        dispatch({ type: "SET_ERROR", message: message });
+      },
     });
 
     return () => {
@@ -264,4 +272,21 @@ function secondsToMs(seconds: number) {
 
 function percentToFactor(percent: number) {
   return percent / 100;
+}
+
+function getAudioErrorMessage(error: unknown): string {
+  console.log("Audio error", error);
+  console.log(typeof error);
+  if (typeof error === "number") {
+    switch (error) {
+      case 1:
+        return "The audio stopped loading before it could play.";
+      case 2:
+        return "A network error occured. Please check your connection.";
+      case 3:
+      case 4:
+        return "The audio can't be played.";
+    }
+  }
+  return "The audio can’t be played right now.";
 }
