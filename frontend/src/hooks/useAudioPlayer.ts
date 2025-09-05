@@ -56,12 +56,45 @@ type AudioPlayerAction =
   | { type: "TOGGLE_MUTE" }
   | { type: "SET_ERROR"; message: string };
 
-// TODO: consider adding guards for invalid state transitions
+type AudioPlayerActionType = AudioPlayerAction["type"];
+
+const allowedActions: Record<AudioPlayerStatus, AudioPlayerActionType[]> = {
+  [AudioPlayerStatus.Idle]: ["LOAD"],
+  [AudioPlayerStatus.Loading]: ["LOAD", "LOADED", "SET_ERROR"],
+  [AudioPlayerStatus.Playing]: [
+    "LOAD",
+    "PAUSE",
+    "SYNC_POSITION",
+    "SEEK",
+    "VOLUME_CHANGE",
+    "TOGGLE_MUTE",
+    "SET_ERROR",
+  ],
+  [AudioPlayerStatus.Paused]: [
+    "LOAD",
+    "PLAY",
+    "SEEK",
+    "VOLUME_CHANGE",
+    "TOGGLE_MUTE",
+    "SET_ERROR",
+  ],
+  [AudioPlayerStatus.Error]: ["LOAD"],
+};
+
 function audioPlayerReducer(
   state: AudioPlayerState,
   action: AudioPlayerAction,
 ): AudioPlayerState {
-  console.log("AudioPlayerAction", action);
+  const shouldLog = import.meta.env.MODE !== "production";
+  if (shouldLog) console.log("AudioPlayerAction", action);
+  if (!allowAction(state.status, action.type)) {
+    if (shouldLog) {
+      console.warn(
+        `AudioPlayer: action ${action.type} not allowed in status ${state.status}`,
+      );
+    }
+    return state;
+  }
   switch (action.type) {
     case "LOAD": {
       if (state.playable?.id === action.playable.id) {
@@ -125,6 +158,13 @@ function audioPlayerReducer(
       };
     }
   }
+}
+
+function allowAction(
+  status: AudioPlayerStatus,
+  actionType: AudioPlayerActionType,
+): boolean {
+  return allowedActions[status].includes(actionType);
 }
 
 export function useAudioPlayer(): UseAudioPlayerResult {
