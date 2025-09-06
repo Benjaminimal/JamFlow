@@ -60,6 +60,12 @@ export default function AudioPlayerContainer(): JSX.Element | null {
     //  TODO: remove debug styling
     <div
       style={{
+        position: "fixed",
+        width: "100%",
+        left: 0,
+        bottom: 0,
+        zIndex: 1000,
+        backgroundColor: "#242424",
         borderTop: "2px solid #fff",
       }}
     >
