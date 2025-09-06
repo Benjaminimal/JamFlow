@@ -332,5 +332,5 @@ function getAudioErrorMessage(error: unknown): string {
         return "The audio can't be played.";
     }
   }
-  return "The audio can’t be played right now.";
+  return "The audio can't be played right now.";
 }

@@ -28,6 +28,9 @@ export class HowlMock {
         setTimeout(options.onload, 0);
         break;
       }
+      case "pending": {
+        break;
+      }
       case "error": {
         setTimeout(() => {
           options.onloaderror(
@@ -48,11 +51,24 @@ export class HowlMock {
     HowlMock.onLoadErrorArgs = defaultErrorArgs;
   }
 
-  static loadMode: "success" | "error" = "success";
+  static loadMode: "success" | "pending" | "error" = "success";
+
+  static setLoadPending() {
+    HowlMock.loadMode = "pending";
+  }
+
+  static resolveLoad() {
+    // TODO: why always 0?
+    // TODO: scream if instance not there
+    this.instances[0]?.options.onload();
+  }
+
   static onLoadErrorArgs: ErrorHandlerArgs = defaultErrorArgs;
-  static setLoadError(errorArgs: ErrorHandlerArgs) {
+  static setLoadError(errorArgs?: ErrorHandlerArgs) {
     HowlMock.loadMode = "error";
-    HowlMock.onLoadErrorArgs = errorArgs;
+    if (errorArgs) {
+      HowlMock.onLoadErrorArgs = errorArgs;
+    }
   }
 
   triggerPlayError(errorArgs: ErrorHandlerArgs) {
@@ -61,10 +77,17 @@ export class HowlMock {
     }, 0);
   }
 
+  position: number = 0;
+
   options: MockHowlOptions;
   play = vi.fn();
   pause = vi.fn();
-  seek = vi.fn(() => 0);
+  seek = vi.fn((target?: number) => {
+    if (target !== undefined) {
+      this.position = target;
+    }
+    return this.position;
+  });
   duration = vi.fn(() => 123);
   mute = vi.fn();
   volume = vi.fn();

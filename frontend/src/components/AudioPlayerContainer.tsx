@@ -84,7 +84,9 @@ function ErrorDisplay({
   return (
     <>
       <p>{message}</p>
-      <button onClick={onRetry}>Retry</button>
+      <button onClick={onRetry} aria-label="retry">
+        Retry
+      </button>
     </>
   );
 }

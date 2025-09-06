@@ -41,7 +41,7 @@ export function createTestTrackResponse(
 
 let nextTrackId = 1;
 
-export function createTestTrack(overrides: Partial<Track> = {}) {
+export function createTestTrack(overrides: Partial<Track> = {}): Track {
   return {
     id: (nextTrackId++).toString(),
     title: "New Song",
