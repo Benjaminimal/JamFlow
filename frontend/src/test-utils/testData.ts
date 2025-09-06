@@ -39,9 +39,11 @@ export function createTestTrackResponse(
   };
 }
 
+let nextTrackId = 1;
+
 export function createTestTrack(overrides: Partial<Track> = {}) {
   return {
-    id: "123",
+    id: (nextTrackId++).toString(),
     title: "New Song",
     duration: 180_000,
     format: "mp3",

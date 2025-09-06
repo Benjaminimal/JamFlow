@@ -1,11 +1,16 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
+import { HowlMock } from "@/test-utils/howlerMock";
 import { renderRoute } from "@/test-utils/render";
 import { createTestTrack } from "@/test-utils/testData";
 
 vi.mock("@/api/tracks", () => ({
   listTracks: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock("howler", () => ({
+  Howl: HowlMock,
 }));
 
 import { listTracks } from "@/api/tracks";
@@ -128,6 +133,10 @@ describe("Tracks page", () => {
   });
 
   describe("audio player integration", () => {
+    beforeEach(() => {
+      HowlMock.reset();
+    });
+
     it("shows audio player when track is clicked", async () => {
       listTracksMock.mockResolvedValueOnce([
         createTestTrack({
@@ -155,7 +164,7 @@ describe("Tracks page", () => {
       expect(screen.getByTestId("audio-player-duration")).toBeInTheDocument();
       expect(screen.getByTestId("audio-player-position")).toBeInTheDocument();
 
-      expect(screen.getByRole("button", { name: "play" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "pause" })).toBeInTheDocument();
       expect(
         screen.getByRole("slider", { name: "seek position" }),
       ).toBeInTheDocument();
