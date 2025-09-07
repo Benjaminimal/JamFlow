@@ -191,11 +191,11 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     }
   }, [state.status]);
 
-  // TODO: get rid of seek scrub
   const seek = useCallback(
     (v: number) => {
       const target = Math.max(0, Math.min(state.duration, v));
       dispatch({ type: "SEEK", target });
+      dispatch({ type: "SYNC_POSITION", position: target });
     },
     [state.duration],
   );
@@ -262,7 +262,6 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     if (!howl) return;
 
     howl.seek(msToSeconds(state.seekTarget));
-    dispatch({ type: "SYNC_POSITION", position: state.seekTarget });
   }, [state.seekTarget]);
 
   // Sync position

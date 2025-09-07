@@ -149,13 +149,14 @@ describe("AudioPlayerContainer", () => {
       await renderAudioPlayerLoaded();
 
       const seekSlider = screen.getByRole("slider", { name: "seek position" });
-      fireEvent.change(seekSlider, { target: { value: "30000" } });
+      clickRangeInput(seekSlider, 30_000);
 
       await waitFor(() => {
         expect(screen.getByText("00:30")).toBeInTheDocument();
         expect(seekSlider).toHaveValue("30000");
       });
     });
+
     it("handles seek while paused", async () => {
       await renderAudioPlayerLoaded();
       fireEvent.click(screen.getByRole("button", { name: /pause/i }));
@@ -167,7 +168,7 @@ describe("AudioPlayerContainer", () => {
       const howlInstance = HowlMock.getRecent();
 
       const seekSlider = screen.getByRole("slider", { name: "seek position" });
-      fireEvent.change(seekSlider, { target: { value: "45000" } });
+      clickRangeInput(seekSlider, 45_000);
       await waitFor(() => {
         expect(screen.getByText("00:45")).toBeInTheDocument();
         expect(seekSlider).toHaveValue("45000");
@@ -179,25 +180,19 @@ describe("AudioPlayerContainer", () => {
       await renderAudioPlayerLoaded();
       const seekSlider = screen.getByRole("slider", { name: "seek position" });
 
-      fireEvent.change(seekSlider, {
-        target: { value: "30000" },
-      });
+      clickRangeInput(seekSlider, 30_000);
       await waitFor(() => {
         expect(screen.getByText("00:30")).toBeInTheDocument();
         expect(seekSlider).toHaveValue("30000");
       });
 
-      fireEvent.change(seekSlider, {
-        target: { value: "60000" },
-      });
+      clickRangeInput(seekSlider, 60_000);
       await waitFor(() => {
         expect(screen.getByText("01:00")).toBeInTheDocument();
         expect(seekSlider).toHaveValue("60000");
       });
 
-      fireEvent.change(seekSlider, {
-        target: { value: "90000" },
-      });
+      clickRangeInput(seekSlider, 90_000);
       await waitFor(() => {
         expect(screen.getByText("01:30")).toBeInTheDocument();
         expect(seekSlider).toHaveValue("90000");
@@ -239,4 +234,10 @@ async function renderAudioPlayerLoaded(
   });
 
   return hookResult;
+}
+
+function clickRangeInput(element: HTMLElement, value: number): void {
+  fireEvent.pointerDown(element);
+  fireEvent.change(element, { target: { value: value.toString() } });
+  fireEvent.pointerUp(element);
 }

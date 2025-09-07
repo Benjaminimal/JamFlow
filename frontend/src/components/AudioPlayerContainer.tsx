@@ -1,4 +1,4 @@
-import { type JSX, useEffect } from "react";
+import { type JSX, useEffect, useState } from "react";
 
 import { usePlayback } from "@/contexts/PlaybackContext";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
@@ -122,39 +122,29 @@ function AudioPlayer({
 }: AudioPlayerProps): JSX.Element {
   return (
     <div data-testid="audio-player">
+      <div data-testid="audio-player-title">{title}</div>
       <div>
-        <span data-testid="audio-player-title">{title}</span>|
-        <span data-testid="audio-player-position">
-          {formatDuration(position)}
-        </span>
-        |
-        <span data-testid="audio-player-duration">
-          {formatDuration(duration)}
-        </span>
-      </div>
-      <div>
-        <button
-          type="button"
-          onClick={onPlayToggle}
-          aria-label={isPlaying ? "pause" : "play"}
-        >
-          {isPlaying ? "Pause" : "Play"}
-        </button>
-        <input
-          type="range"
-          min="0"
-          max={duration}
-          value={position}
-          onChange={(e) => onPositionChange(Number(e.target.value))}
-          aria-label="seek position"
+        <ProgressBar
+          duration={duration}
+          position={position}
+          onPositionChange={onPositionChange}
         />
-        <button
-          type="button"
-          onClick={onMuteToggle}
-          aria-label={isMuted ? "unmute" : "mute"}
-        >
-          {isMuted ? "Unmute" : "Mute"}
-        </button>
+        <div>
+          <button
+            type="button"
+            onClick={onPlayToggle}
+            aria-label={isPlaying ? "pause" : "play"}
+          >
+            {isPlaying ? "Pause" : "Play"}
+          </button>
+          <button
+            type="button"
+            onClick={onMuteToggle}
+            aria-label={isMuted ? "unmute" : "mute"}
+          >
+            {isMuted ? "Unmute" : "Mute"}
+          </button>
+        </div>
         <input
           type="range"
           min="0"
@@ -167,5 +157,48 @@ function AudioPlayer({
         />
       </div>
     </div>
+  );
+}
+
+type ProgressBarProps = {
+  duration: number;
+  position: number;
+  onPositionChange: (v: number) => void;
+};
+
+function ProgressBar({
+  duration,
+  position,
+  onPositionChange,
+}: ProgressBarProps): JSX.Element {
+  const [seekTarget, setSeekTarget] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+
+  return (
+    <>
+      <span data-testid="audio-player-position">
+        {formatDuration(isSeeking ? seekTarget : position)}
+      </span>
+      <input
+        type="range"
+        min="0"
+        max={duration}
+        value={isSeeking ? seekTarget : position}
+        onPointerDown={() => {
+          setIsSeeking(true);
+        }}
+        onPointerUp={() => {
+          setIsSeeking(false);
+          onPositionChange(seekTarget);
+        }}
+        onChange={(e) => {
+          setSeekTarget(Number(e.target.value));
+        }}
+        aria-label="seek position"
+      />
+      <span data-testid="audio-player-duration">
+        {formatDuration(duration)}
+      </span>
+    </>
   );
 }
