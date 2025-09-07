@@ -1,6 +1,6 @@
 import "@/pages/Root.css";
 
-import { type JSX } from "react";
+import { type JSX, memo } from "react";
 import { Link, Outlet } from "react-router-dom";
 
 import AudioPlayerContainer from "@/components/AudioPlayerContainer";
@@ -21,10 +21,7 @@ export default function Root(): JSX.Element {
 function LayoutContent(): JSX.Element {
   return (
     <>
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
-        <Link to="/tracks">Tracks</Link>
-      </nav>
+      <Navbar />
       <h1>JamFlow</h1>
 
       <NotificationContainer />
@@ -36,3 +33,12 @@ function LayoutContent(): JSX.Element {
     </>
   );
 }
+
+const Navbar = memo((): JSX.Element => {
+  return (
+    <nav>
+      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
+      <Link to="/tracks">Tracks</Link>
+    </nav>
+  );
+});
