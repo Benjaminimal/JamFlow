@@ -156,6 +156,24 @@ describe("AudioPlayerContainer", () => {
         expect(seekSlider).toHaveValue("30000");
       });
     });
+    it("handles seek while paused", async () => {
+      await renderAudioPlayerLoaded();
+      fireEvent.click(screen.getByRole("button", { name: /pause/i }));
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /play/i }),
+        ).toBeInTheDocument();
+      });
+      const howlInstance = HowlMock.getRecent();
+
+      const seekSlider = screen.getByRole("slider", { name: "seek position" });
+      fireEvent.change(seekSlider, { target: { value: "45000" } });
+      await waitFor(() => {
+        expect(screen.getByText("00:45")).toBeInTheDocument();
+        expect(seekSlider).toHaveValue("45000");
+      });
+      expect(howlInstance.seek).toHaveBeenCalledWith(45);
+    });
 
     it("handles rapid seek correctly", async () => {
       await renderAudioPlayerLoaded();

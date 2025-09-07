@@ -76,6 +76,7 @@ const allowedActions: Record<AudioPlayerStatus, AudioPlayerActionType[]> = {
   [AudioPlayerStatus.Paused]: [
     "LOAD",
     "PLAY",
+    "SYNC_POSITION",
     "SEEK",
     "VOLUME_CHANGE",
     "TOGGLE_MUTE",
@@ -261,6 +262,7 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     if (!howl) return;
 
     howl.seek(msToSeconds(state.seekTarget));
+    dispatch({ type: "SYNC_POSITION", position: state.seekTarget });
   }, [state.seekTarget]);
 
   // Sync position
