@@ -55,7 +55,7 @@ describe("AudioPlayerContainer", () => {
         expect(screen.getByText(/loading/i)).toBeInTheDocument();
       });
 
-      act(() => HowlMock.resolveLoad());
+      act(() => HowlMock.getRecent().resolveLoad());
 
       await waitFor(() => {
         expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();

@@ -43,7 +43,14 @@ export class HowlMock {
     }
   }
 
-  static instances: HowlMock[] = [];
+  private static instances: HowlMock[] = [];
+
+  static getRecent(): HowlMock {
+    if (this.instances.length === 0) {
+      throw new Error("No HowlMock instances exist");
+    }
+    return this.instances[this.instances.length - 1];
+  }
 
   static reset() {
     HowlMock.instances = [];
@@ -57,12 +64,6 @@ export class HowlMock {
     HowlMock.loadMode = "pending";
   }
 
-  static resolveLoad() {
-    // TODO: why always 0?
-    // TODO: scream if instance not there
-    this.instances[0]?.options.onload();
-  }
-
   static onLoadErrorArgs: ErrorHandlerArgs = defaultErrorArgs;
   static setLoadError(errorArgs?: ErrorHandlerArgs) {
     HowlMock.loadMode = "error";
@@ -71,13 +72,17 @@ export class HowlMock {
     }
   }
 
+  resolveLoad() {
+    this.options.onload();
+  }
+
   triggerPlayError(errorArgs: ErrorHandlerArgs) {
     setTimeout(() => {
       this.options.onplayerror(errorArgs.id, errorArgs.error);
     }, 0);
   }
 
-  position: number = 0;
+  private position: number = 0;
 
   options: MockHowlOptions;
   play = vi.fn();
