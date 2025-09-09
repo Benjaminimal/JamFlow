@@ -12,10 +12,10 @@ function validateRequired(): void {
   }
 }
 
-type LogLevel = "debug" | "info" | "warn" | "error";
+export type LogLevelName = "debug" | "info" | "warn" | "error";
 
-function getLogLevel(level?: string): LogLevel {
-  const allowedLogLevels: LogLevel[] = ["debug", "info", "warn", "error"];
+function getLogLevel(level?: string): LogLevelName {
+  const allowedLogLevels: LogLevelName[] = ["debug", "info", "warn", "error"];
 
   if (!level) {
     throw new ApplicationError(
@@ -23,7 +23,7 @@ function getLogLevel(level?: string): LogLevel {
     );
   }
 
-  const normalizedLevel = level.trim().toLowerCase() as LogLevel;
+  const normalizedLevel = level.trim().toLowerCase() as LogLevelName;
   if (!allowedLogLevels.includes(normalizedLevel)) {
     throw new ApplicationError(
       `Invalid VITE_LOG_LEVEL "${level}". Must be one of: ${allowedLogLevels.join(", ")}`,
