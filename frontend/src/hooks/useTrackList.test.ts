@@ -21,7 +21,7 @@ describe("useTrackList", () => {
   it("should initialize with loading state", async () => {
     const { result } = renderHook(useTrackList);
 
-    expect(result.current.loading).toBe(true);
+    expect(result.current.isLoading).toBe(true);
     expect(result.current.tracks).toEqual([]);
     expect(result.current.errorMessage).toBeNull();
   });
@@ -33,7 +33,7 @@ describe("useTrackList", () => {
     const { result } = renderHook(useTrackList);
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
     expect(result.current.errorMessage).toBe(null);
     expect(result.current.tracks).toEqual(tracks);
@@ -50,7 +50,7 @@ describe("useTrackList", () => {
     const { result } = renderHook(useTrackList);
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
     expect(result.current.errorMessage).toEqual("Oops!");
     expect(result.current.tracks).toEqual([]);
@@ -72,7 +72,7 @@ describe("useTrackList", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.isLoading).toBe(false);
     });
     expect(result.current.errorMessage).toBe(null);
     expect(result.current.tracks).toEqual(tracks);

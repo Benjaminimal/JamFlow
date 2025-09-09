@@ -1,11 +1,16 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
+import { HowlMock } from "@/test-utils/howlerMock";
 import { renderRoute } from "@/test-utils/render";
 import { createTestTrack } from "@/test-utils/testData";
 
 vi.mock("@/api/tracks", () => ({
   listTracks: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock("howler", () => ({
+  Howl: HowlMock,
 }));
 
 import { listTracks } from "@/api/tracks";
@@ -123,6 +128,113 @@ describe("Tracks page", () => {
 
       await waitFor(() => {
         expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("audio player integration", () => {
+    beforeEach(() => {
+      HowlMock.reset();
+    });
+
+    it("shows audio player when track is clicked", async () => {
+      listTracksMock.mockResolvedValueOnce([
+        createTestTrack({
+          title: "New Song 1",
+        }),
+      ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId("audio-player")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByText("New Song 1"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("audio-player-title")).toHaveTextContent(
+        "New Song 1",
+      );
+      expect(screen.getByTestId("audio-player-duration")).toBeInTheDocument();
+      expect(screen.getByTestId("audio-player-position")).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "pause" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("slider", { name: "seek position" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("slider", { name: "change volume" }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "mute" })).toBeInTheDocument();
+    });
+
+    it("updates player content on track switch", async () => {
+      listTracksMock.mockResolvedValueOnce([
+        createTestTrack({
+          title: "New Song 1",
+        }),
+        createTestTrack({
+          title: "New Song 2",
+        }),
+      ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText("New Song 1"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("audio-player")).toHaveTextContent("Song 1");
+      expect(screen.getByTestId("audio-player")).not.toHaveTextContent(
+        "Song 2",
+      );
+
+      fireEvent.click(screen.getByText("New Song 2"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toHaveTextContent("Song 2");
+      });
+
+      expect(screen.getByTestId("audio-player")).not.toHaveTextContent(
+        "Song 1",
+      );
+    });
+
+    it("persists the player across page navigation", async () => {
+      listTracksMock.mockResolvedValueOnce([
+        createTestTrack({
+          title: "New Song 1",
+        }),
+      ]);
+
+      renderRoute("/tracks");
+
+      await waitFor(() => {
+        expect(screen.getByText("New Song 1")).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText("New Song 1"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
+      });
+
+      renderRoute("/");
+
+      await waitFor(() => {
+        expect(screen.getByTestId("audio-player")).toBeInTheDocument();
       });
     });
   });

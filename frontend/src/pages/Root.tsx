@@ -1,41 +1,44 @@
 import "@/pages/Root.css";
 
-import { type JSX, useContext } from "react";
+import { type JSX, memo } from "react";
 import { Link, Outlet } from "react-router-dom";
 
-import Notification from "@/components/Notification";
-import { NotificationContext } from "@/contexts/NotificationContext";
+import AudioPlayerContainer from "@/components/AudioPlayerContainer";
+import NotificationContainer from "@/components/NotificationContainer";
 import NotificationProvider from "@/contexts/NotificationProvider";
+import PlaybackProvider from "@/contexts/PlaybackProvider";
 
 export default function Root(): JSX.Element {
   return (
-    <>
-      <NotificationProvider>
+    <NotificationProvider>
+      <PlaybackProvider>
         <LayoutContent />
-      </NotificationProvider>
-    </>
+      </PlaybackProvider>
+    </NotificationProvider>
   );
 }
 
 function LayoutContent(): JSX.Element {
-  const { notifications } = useContext(NotificationContext);
-
   return (
     <>
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
-        <Link to="/tracks">Tracks</Link>
-      </nav>
-
+      <Navbar />
       <h1>JamFlow</h1>
 
-      {notifications.map(({ id, message }) => (
-        <Notification key={id} message={message} />
-      ))}
+      <NotificationContainer />
 
       <div id="outlet">
         <Outlet />
       </div>
+      <AudioPlayerContainer />
     </>
   );
 }
+
+const Navbar = memo((): JSX.Element => {
+  return (
+    <nav>
+      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
+      <Link to="/tracks">Tracks</Link>
+    </nav>
+  );
+});
