@@ -14,6 +14,8 @@ function validateRequired(): void {
 export type LogLevelName = "debug" | "info" | "warn" | "error";
 
 function getLogLevel(level?: string): LogLevelName {
+  if (import.meta.env.MODE === "test") return "error";
+
   const allowedLogLevels: LogLevelName[] = ["debug", "info", "warn", "error"];
 
   if (!level) {
