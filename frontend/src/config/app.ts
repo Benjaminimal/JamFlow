@@ -1,12 +1,11 @@
-import { ApplicationError } from "@/errors";
+import { ConfigurationError } from "@/errors";
 
 const requiredEnvVars = ["VITE_API_BASE_URL", "VITE_LOG_LEVEL"] as const;
 
-// TODO: Consider introducing a ConfigurationError
 function validateRequired(): void {
   const missing = requiredEnvVars.filter((key) => !import.meta.env[key]);
   if (missing.length > 0) {
-    throw new ApplicationError(
+    throw new ConfigurationError(
       `Provide missing environment variables: ${missing.join(", ")}`,
     );
   }
@@ -18,14 +17,14 @@ function getLogLevel(level?: string): LogLevelName {
   const allowedLogLevels: LogLevelName[] = ["debug", "info", "warn", "error"];
 
   if (!level) {
-    throw new ApplicationError(
+    throw new ConfigurationError(
       `VITE_LOG_LEVEL is not set. Must be one of: ${allowedLogLevels.join(", ")}`,
     );
   }
 
   const normalizedLevel = level.trim().toLowerCase() as LogLevelName;
   if (!allowedLogLevels.includes(normalizedLevel)) {
-    throw new ApplicationError(
+    throw new ConfigurationError(
       `Invalid VITE_LOG_LEVEL "${level}". Must be one of: ${allowedLogLevels.join(", ")}`,
     );
   }

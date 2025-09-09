@@ -26,6 +26,7 @@ export class ValidationError extends ApplicationError {
   }
 }
 
+export class ConfigurationError extends ApplicationError {}
 export class NetworkError extends ApplicationError {}
 export class AuthenticationError extends ApplicationError {}
 export class PermissionError extends ApplicationError {}
