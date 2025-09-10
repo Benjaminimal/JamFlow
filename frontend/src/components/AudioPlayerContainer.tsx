@@ -1,22 +1,13 @@
 import { type JSX, useEffect, useState } from "react";
 
-import { usePlayback } from "@/contexts/PlaybackContext";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
+import { PlaybackStatus } from "@/contexts/playback/types";
 import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
-  const { currentPlayable } = usePlayback();
-  const { state, load, togglePlay, seek, setVolume, toggleMute } =
-    useAudioPlayer();
-  const {
-    status,
-    playable,
-    duration,
-    position,
-    volume,
-    isMuted,
-    errorMessage,
-  } = state;
+  const { state, actions } = usePlaybackContext();
+  const { status, playable, duration, volume, isMuted, errorMessage } = state;
+  const { load, play, pause, seek, setVolume, mute, unmute } = actions;
 
   const isActive = status !== "idle";
   const isError = status === "error";
@@ -24,10 +15,10 @@ export default function AudioPlayerContainer(): JSX.Element | null {
   const isPlaying = status === "playing";
 
   useEffect(() => {
-    if (currentPlayable) {
-      load(currentPlayable);
+    if (playable) {
+      load(playable);
     }
-  }, [currentPlayable, load]);
+  }, [playable, load]);
 
   if (!isActive) return null;
 
@@ -36,22 +27,25 @@ export default function AudioPlayerContainer(): JSX.Element | null {
       return (
         <ErrorDisplay
           message={errorMessage}
-          onRetry={() => currentPlayable && load(currentPlayable)}
+          onRetry={() => playable && load(playable)}
         />
       );
     if (isLoading) return <Loader />;
     return (
       <AudioPlayer
+        playbackStatus={status}
         title={playable?.title || ""}
         duration={duration}
-        position={position}
+        getCurrentPosition={actions.getPosition}
         onPositionChange={seek}
         volume={volume}
         onVolumeChange={setVolume}
         isPlaying={isPlaying}
-        onPlayToggle={togglePlay}
+        onPlay={play}
+        onPause={pause}
         isMuted={isMuted}
-        onMuteToggle={toggleMute}
+        onMute={mute}
+        onUnmute={unmute}
       />
     );
   };
@@ -96,50 +90,57 @@ function Loader(): JSX.Element {
 }
 
 type AudioPlayerProps = {
+  playbackStatus: PlaybackStatus;
   title: string;
   duration: number;
-  position: number;
+  getCurrentPosition: () => number;
   onPositionChange: (v: number) => void;
   volume: number;
   onVolumeChange: (v: number) => void;
   isPlaying: boolean;
-  onPlayToggle: () => void;
+  onPlay: () => void;
+  onPause: () => void;
   isMuted: boolean;
-  onMuteToggle: () => void;
+  onMute: () => void;
+  onUnmute: () => void;
 };
 
 function AudioPlayer({
+  playbackStatus,
   title,
   duration,
-  position,
+  getCurrentPosition,
   onPositionChange,
   volume,
   onVolumeChange,
   isPlaying,
-  onPlayToggle,
+  onPlay,
+  onPause,
   isMuted,
-  onMuteToggle,
+  onMute,
+  onUnmute,
 }: AudioPlayerProps): JSX.Element {
   return (
     <div data-testid="audio-player">
       <div data-testid="audio-player-title">{title}</div>
       <div>
         <ProgressBar
+          playbackStatus={playbackStatus}
           duration={duration}
-          position={position}
+          getCurrentPosition={getCurrentPosition}
           onPositionChange={onPositionChange}
         />
         <div>
           <button
             type="button"
-            onClick={onPlayToggle}
+            onClick={isPlaying ? onPause : onPlay}
             aria-label={isPlaying ? "pause" : "play"}
           >
             {isPlaying ? "Pause" : "Play"}
           </button>
           <button
             type="button"
-            onClick={onMuteToggle}
+            onClick={isMuted ? onUnmute : onMute}
             aria-label={isMuted ? "unmute" : "mute"}
           >
             {isMuted ? "Unmute" : "Mute"}
@@ -161,18 +162,36 @@ function AudioPlayer({
 }
 
 type ProgressBarProps = {
+  playbackStatus: PlaybackStatus;
   duration: number;
-  position: number;
   onPositionChange: (v: number) => void;
+  getCurrentPosition: () => number;
 };
 
 function ProgressBar({
+  playbackStatus,
   duration,
-  position,
   onPositionChange,
+  getCurrentPosition,
 }: ProgressBarProps): JSX.Element {
   const [seekTarget, setSeekTarget] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
+  const [position, setPosition] = useState(0);
+
+  useEffect(() => {
+    if (isSeeking || playbackStatus !== PlaybackStatus.Playing) return;
+
+    const syncPosition = () => {
+      const position = getCurrentPosition();
+      setPosition(position);
+    };
+
+    const intervalId = setInterval(syncPosition, 250);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [isSeeking, playbackStatus, getCurrentPosition]);
 
   return (
     <>
@@ -188,8 +207,8 @@ function ProgressBar({
           setIsSeeking(true);
         }}
         onPointerUp={() => {
-          setIsSeeking(false);
           onPositionChange(seekTarget);
+          setIsSeeking(false);
         }}
         onChange={(e) => {
           setSeekTarget(Number(e.target.value));

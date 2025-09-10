@@ -6,8 +6,8 @@ import { createTestTrack } from "@/test-utils/testData";
 vi.mock("howler", () => ({
   Howl: HowlMock,
 }));
+import type { Playable } from "@/contexts/playback/types";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import type { Playable } from "@/types";
 
 describe("useAudioPlayer", () => {
   beforeEach(() => {

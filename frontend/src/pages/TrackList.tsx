@@ -1,20 +1,22 @@
 import { type JSX } from "react";
 
-import { usePlayback } from "@/contexts/PlaybackContext";
+import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import type { Track } from "@/types";
 
 export default function TrackList(): JSX.Element {
   const { tracks, isLoading, errorMessage, fetchData } = useTrackList();
-  const { setCurrentPlayable } = usePlayback();
+  const {
+    actions: { load },
+  } = usePlaybackContext();
 
   const isError = errorMessage !== null;
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
   if (tracks.length === 0) return <EmptyState />;
-  return <LoadedState tracks={tracks} playTrack={setCurrentPlayable} />;
+  return <LoadedState tracks={tracks} playTrack={load} />;
 }
 
 // TODO: Add a skeleton loader for LoadingState when working on styling.
