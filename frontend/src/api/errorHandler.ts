@@ -5,6 +5,7 @@ import {
   ApplicationError,
   AuthenticationError,
   ClientError,
+  ConfigurationError,
   ConflictError,
   ExternalServiceError,
   NetworkError,
@@ -71,6 +72,8 @@ export function mapAxiosError(error: unknown): ApplicationError {
 export function getUserFriendlyErrorMessage(error: unknown): string {
   if (error instanceof ValidationError) {
     return "Please correct the errors in the form.";
+  } else if (error instanceof ConfigurationError) {
+    return "Something isn't set up correctly.";
   } else if (error instanceof NetworkError) {
     return "We're having trouble connecting. Please check your internet.";
   } else if (error instanceof AuthenticationError) {

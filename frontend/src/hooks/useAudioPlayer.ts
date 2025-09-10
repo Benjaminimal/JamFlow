@@ -1,10 +1,10 @@
 import { Howl } from "howler";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
+import { getLogger } from "@/lib/logging";
 import type { Playable } from "@/types";
 
-// TODO: centralize logging
-const shouldLog = import.meta.env.MODE !== "production";
+const logger = getLogger("useAudioPlayer");
 
 export type UseAudioPlayerResult = {
   state: AudioPlayerState;
@@ -89,13 +89,11 @@ function audioPlayerReducer(
   state: AudioPlayerState,
   action: AudioPlayerAction,
 ): AudioPlayerState {
-  if (shouldLog) console.log("AudioPlayerAction", action);
+  logger.info("AudioPlayerAction", action);
   if (!allowAction(state.status, action.type)) {
-    if (shouldLog) {
-      console.warn(
-        `AudioPlayer: action ${action.type} not allowed in status ${state.status}`,
-      );
-    }
+    logger.warn(
+      `AudioPlayer: action ${action.type} not allowed in status ${state.status}`,
+    );
     return state;
   }
   switch (action.type) {
@@ -224,10 +222,12 @@ export function useAudioPlayer(): UseAudioPlayerResult {
         dispatch({ type: "PLAY" });
       },
       onloaderror: (_, error: unknown) => {
+        logger.error("Audio load error:", error);
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
       onplayerror: (_, error: unknown) => {
+        logger.error("Audio play error:", error);
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
@@ -321,7 +321,6 @@ function percentToFactor(percent: number) {
 }
 
 function getAudioErrorMessage(error: unknown): string {
-  if (shouldLog) console.error("Audio playback error:", error);
   if (typeof error === "number") {
     switch (error) {
       case 1:

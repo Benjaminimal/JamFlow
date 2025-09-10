@@ -5,6 +5,7 @@ import {
   ApplicationError,
   AuthenticationError,
   ClientError,
+  ConfigurationError,
   ConflictError,
   ExternalServiceError,
   NetworkError,
@@ -122,6 +123,10 @@ describe("errorHandler", () => {
       {
         error: new ValidationError("", {}),
         expectedMessage: /correct the error/i,
+      },
+      {
+        error: new ConfigurationError(""),
+        expectedMessage: /something isn't set up correctly/i,
       },
       { error: new NetworkError(""), expectedMessage: /check your internet/i },
       { error: new AuthenticationError(""), expectedMessage: /log in/i },
