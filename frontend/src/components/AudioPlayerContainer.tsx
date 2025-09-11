@@ -6,8 +6,8 @@ import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
   const { state, actions } = usePlaybackContext();
-  const { status, playable, duration, volume, isMuted, errorMessage } = state;
-  const { load, play, pause, seek, setVolume, mute, unmute } = actions;
+  const { status, playable, volume, isMuted, errorMessage } = state;
+  const { load, play, pause, setVolume, mute, unmute } = actions;
 
   const isActive = status !== "idle";
   const isError = status === "error";
@@ -16,6 +16,7 @@ export default function AudioPlayerContainer(): JSX.Element | null {
 
   useEffect(() => {
     if (playable) {
+      // TODO: load seems to be triggering twice
       load(playable);
     }
   }, [playable, load]);
@@ -33,11 +34,7 @@ export default function AudioPlayerContainer(): JSX.Element | null {
     if (isLoading) return <Loader />;
     return (
       <AudioPlayer
-        playbackStatus={status}
         title={playable?.title || ""}
-        duration={duration}
-        getCurrentPosition={actions.getPosition}
-        onPositionChange={seek}
         volume={volume}
         onVolumeChange={setVolume}
         isPlaying={isPlaying}
@@ -90,11 +87,7 @@ function Loader(): JSX.Element {
 }
 
 type AudioPlayerProps = {
-  playbackStatus: PlaybackStatus;
   title: string;
-  duration: number;
-  getCurrentPosition: () => number;
-  onPositionChange: (v: number) => void;
   volume: number;
   onVolumeChange: (v: number) => void;
   isPlaying: boolean;
@@ -106,11 +99,7 @@ type AudioPlayerProps = {
 };
 
 function AudioPlayer({
-  playbackStatus,
   title,
-  duration,
-  getCurrentPosition,
-  onPositionChange,
   volume,
   onVolumeChange,
   isPlaying,
@@ -124,12 +113,7 @@ function AudioPlayer({
     <div data-testid="audio-player">
       <div data-testid="audio-player-title">{title}</div>
       <div>
-        <ProgressBar
-          playbackStatus={playbackStatus}
-          duration={duration}
-          getCurrentPosition={getCurrentPosition}
-          onPositionChange={onPositionChange}
-        />
+        <ProgressBar />
         <div>
           <button
             type="button"
@@ -161,28 +145,17 @@ function AudioPlayer({
   );
 }
 
-type ProgressBarProps = {
-  playbackStatus: PlaybackStatus;
-  duration: number;
-  onPositionChange: (v: number) => void;
-  getCurrentPosition: () => number;
-};
-
-function ProgressBar({
-  playbackStatus,
-  duration,
-  onPositionChange,
-  getCurrentPosition,
-}: ProgressBarProps): JSX.Element {
+function ProgressBar(): JSX.Element {
+  const playback = usePlaybackContext();
   const [seekTarget, setSeekTarget] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [position, setPosition] = useState(0);
 
   useEffect(() => {
-    if (isSeeking || playbackStatus !== PlaybackStatus.Playing) return;
+    if (isSeeking || playback.state.status !== PlaybackStatus.Playing) return;
 
     const syncPosition = () => {
-      const position = getCurrentPosition();
+      const position = playback.actions.getPosition();
       setPosition(position);
     };
 
@@ -191,7 +164,8 @@ function ProgressBar({
     return () => {
       clearInterval(intervalId);
     };
-  }, [isSeeking, playbackStatus, getCurrentPosition]);
+    // TODO: figure out why the linter wants playback.actions object instead of playback.actions.getPosition
+  }, [isSeeking, playback.state.status, playback.actions]);
 
   return (
     <>
@@ -201,13 +175,13 @@ function ProgressBar({
       <input
         type="range"
         min="0"
-        max={duration}
+        max={playback.state.duration}
         value={isSeeking ? seekTarget : position}
         onPointerDown={() => {
           setIsSeeking(true);
         }}
         onPointerUp={() => {
-          onPositionChange(seekTarget);
+          playback.actions.seek(seekTarget);
           setIsSeeking(false);
         }}
         onChange={(e) => {
@@ -216,7 +190,7 @@ function ProgressBar({
         aria-label="seek position"
       />
       <span data-testid="audio-player-duration">
-        {formatDuration(duration)}
+        {formatDuration(playback.state.duration)}
       </span>
     </>
   );
