@@ -16,7 +16,7 @@ vi.mock("howler", () => ({
 }));
 
 import AudioPlayerContainer from "@/components/playback";
-import PlaybackProvider from "@/contexts/playback/PlaybackProvider";
+import { PlaybackProvider } from "@/contexts/playback";
 import type { Playable } from "@/contexts/playback/types";
 
 describe("AudioPlayerContainer", () => {

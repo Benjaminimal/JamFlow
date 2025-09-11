@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 
-import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
+import { usePlaybackContext } from "@/contexts/playback";
 
 export default function PlayToggle(): JSX.Element {
   const {

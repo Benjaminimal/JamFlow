@@ -1,6 +1,6 @@
 import { type JSX, useEffect, useRef, useState } from "react";
 
-import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
+import { usePlaybackContext } from "@/contexts/playback";
 import { formatDuration } from "@/lib/time";
 
 export default function ProgressBar(): JSX.Element {

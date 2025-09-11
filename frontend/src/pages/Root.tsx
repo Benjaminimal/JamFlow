@@ -6,7 +6,7 @@ import { Link, Outlet } from "react-router-dom";
 import NotificationContainer from "@/components/NotificationContainer";
 import AudioPlayerContainer from "@/components/playback";
 import NotificationProvider from "@/contexts/NotificationProvider";
-import PlaybackProvider from "@/contexts/playback/PlaybackProvider";
+import { PlaybackProvider } from "@/contexts/playback";
 
 export default function Root(): JSX.Element {
   return (

@@ -1,6 +1,6 @@
 import { type JSX } from "react";
 
-import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
+import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import type { Track } from "@/types";

@@ -6,7 +6,7 @@ import {
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
-import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
+import { usePlaybackContext } from "@/contexts/playback";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
