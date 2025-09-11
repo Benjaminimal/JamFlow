@@ -1,4 +1,4 @@
-import { type JSX, useEffect, useState } from "react";
+import { type JSX, useEffect, useRef, useState } from "react";
 
 import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
 import { PlaybackStatus } from "@/contexts/playback/types";
@@ -147,46 +147,55 @@ function AudioPlayer({
 
 function ProgressBar(): JSX.Element {
   const playback = usePlaybackContext();
+  const { getPosition } = playback.actions;
+  // TODO: we could try to replace this with the sliderRef value directly
   const [seekTarget, setSeekTarget] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-  const [position, setPosition] = useState(0);
+
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const sliderRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isSeeking || playback.state.status !== PlaybackStatus.Playing) return;
+    if (playback.state.status !== PlaybackStatus.Playing) return;
 
-    const syncPosition = () => {
-      const position = playback.actions.getPosition();
-      setPosition(position);
+    let lastSpanUpdate = 0;
+    const spanThrottle = 250; // milliseconds
+
+    const syncProgress = () => {
+      const progress = isSeeking ? seekTarget : getPosition();
+      if (sliderRef.current) {
+        sliderRef.current.value = String(progress);
+      }
+      if (
+        spanRef.current &&
+        (isSeeking || Date.now() - lastSpanUpdate > spanThrottle)
+      ) {
+        spanRef.current.textContent = formatDuration(progress);
+        lastSpanUpdate = Date.now();
+      }
+      requestAnimationFrame(syncProgress);
     };
 
-    const intervalId = setInterval(syncPosition, 250);
+    const refid = requestAnimationFrame(syncProgress);
 
-    return () => {
-      clearInterval(intervalId);
-    };
-    // TODO: figure out why the linter wants playback.actions object instead of playback.actions.getPosition
-  }, [isSeeking, playback.state.status, playback.actions]);
+    return () => cancelAnimationFrame(refid);
+  }, [isSeeking, seekTarget, playback.state.status, getPosition]);
 
   return (
     <>
-      <span data-testid="audio-player-position">
-        {formatDuration(isSeeking ? seekTarget : position)}
-      </span>
+      <span ref={spanRef} data-testid="audio-player-position"></span>
       <input
+        ref={sliderRef}
         type="range"
         min="0"
         max={playback.state.duration}
-        value={isSeeking ? seekTarget : position}
-        onPointerDown={() => {
-          setIsSeeking(true);
-        }}
+        step={100}
+        onPointerDown={() => setIsSeeking(true)}
         onPointerUp={() => {
           playback.actions.seek(seekTarget);
           setIsSeeking(false);
         }}
-        onChange={(e) => {
-          setSeekTarget(Number(e.target.value));
-        }}
+        onChange={(e) => setSeekTarget(Number(e.target.value))}
         aria-label="seek position"
       />
       <span data-testid="audio-player-duration">
