@@ -276,6 +276,13 @@ function usePlayback(): PlaybackContextType {
       mute,
       unmute,
     },
+    derived: {
+      isIdle: state.status === PlaybackStatus.Idle,
+      isLoading: state.status === PlaybackStatus.Loading,
+      isPlaying: state.status === PlaybackStatus.Playing,
+      isPaused: state.status === PlaybackStatus.Paused,
+      isError: state.status === PlaybackStatus.Error,
+    },
   };
 }
 

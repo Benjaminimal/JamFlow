@@ -34,7 +34,16 @@ export type PlaybackActions = {
   unmute: () => void;
 };
 
+export type PlaybackDerived = {
+  isIdle: boolean;
+  isLoading: boolean;
+  isPlaying: boolean;
+  isPaused: boolean;
+  isError: boolean;
+};
+
 export type PlaybackContextType = {
   state: PlaybackState;
   actions: PlaybackActions;
+  derived: PlaybackDerived;
 };

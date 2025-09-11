@@ -1,26 +1,20 @@
-import { type JSX, useEffect, useRef, useState } from "react";
+import { type JSX, type ReactNode, useEffect, useRef, useState } from "react";
 
 import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
-import { PlaybackStatus } from "@/contexts/playback/types";
 import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
-  const {
-    state: { status },
-  } = usePlaybackContext();
+  const { derived } = usePlaybackContext();
 
-  const isActive = status !== PlaybackStatus.Idle;
-  const isError = status === PlaybackStatus.Error;
-  const isLoading = status === PlaybackStatus.Loading;
+  if (derived.isIdle) return null;
 
-  if (!isActive) return null;
-
-  const renderPlayerState = () => {
-    if (isError) return <ErrorDisplay />;
-    if (isLoading) return <Loader />;
-    return <AudioPlayer />;
-  };
-
+  return (
+    <AudioPlayerLayout>
+      <AudioPlayerStateSwitcher />
+    </AudioPlayerLayout>
+  );
+}
+function AudioPlayerLayout({ children }: { children: ReactNode }): JSX.Element {
   return (
     //  TODO: remove debug styling
     <div
@@ -34,9 +28,16 @@ export default function AudioPlayerContainer(): JSX.Element | null {
         borderTop: "2px solid #fff",
       }}
     >
-      {renderPlayerState()}
+      {children}
     </div>
   );
+}
+
+function AudioPlayerStateSwitcher() {
+  const { derived } = usePlaybackContext();
+  if (derived.isError) return <ErrorDisplay />;
+  if (derived.isLoading) return <Loader />;
+  return <AudioPlayer />;
 }
 
 function ErrorDisplay(): JSX.Element {
@@ -79,16 +80,17 @@ function AudioPlayer(): JSX.Element {
 
 function PlayToggle(): JSX.Element {
   const {
-    state: { status },
     actions: { play, pause },
+    derived,
   } = usePlaybackContext();
-  const isPlaying = status === PlaybackStatus.Playing;
   return (
     <button
       type="button"
-      onClick={isPlaying ? pause : play}
-      aria-label={isPlaying ? "pause" : "play"}
-    ></button>
+      onClick={derived.isPlaying ? pause : play}
+      aria-label={derived.isPlaying ? "pause" : "play"}
+    >
+      {derived.isPlaying ? "Pause" : "Play"}
+    </button>
   );
 }
 
@@ -102,8 +104,9 @@ function ProgressBar(): JSX.Element {
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
 
+  // FIXME: while playing click to seek will make the progress jump back and forth one second
   useEffect(() => {
-    if (playback.state.status !== PlaybackStatus.Playing) return;
+    if (!playback.derived.isPlaying) return;
 
     let lastSpanUpdate = 0;
     const spanThrottle = 250; // milliseconds
@@ -126,7 +129,7 @@ function ProgressBar(): JSX.Element {
     const refid = requestAnimationFrame(syncProgress);
 
     return () => cancelAnimationFrame(refid);
-  }, [isSeeking, seekTarget, playback.state.status, getPosition]);
+  }, [isSeeking, seekTarget, playback.derived.isPlaying, getPosition]);
 
   return (
     <>
