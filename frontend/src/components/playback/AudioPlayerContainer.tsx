@@ -1,9 +1,11 @@
 import { type JSX, type ReactNode } from "react";
 
-import MuteToggle from "@/components/MuteToggle";
-import PlayToggle from "@/components/PlayToggle";
-import ProgressBar from "@/components/ProgressBar";
-import VolumeSlider from "@/components/VolumeSlider";
+import {
+  MuteToggle,
+  PlayToggle,
+  ProgressBar,
+  VolumeSlider,
+} from "@/components/playback";
 import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
 
 export default function AudioPlayerContainer(): JSX.Element | null {

@@ -3,8 +3,8 @@ import "@/pages/Root.css";
 import { type JSX } from "react";
 import { Link, Outlet } from "react-router-dom";
 
-import AudioPlayerContainer from "@/components/AudioPlayerContainer";
 import NotificationContainer from "@/components/NotificationContainer";
+import AudioPlayerContainer from "@/components/playback";
 import NotificationProvider from "@/contexts/NotificationProvider";
 import PlaybackProvider from "@/contexts/playback/PlaybackProvider";
 
