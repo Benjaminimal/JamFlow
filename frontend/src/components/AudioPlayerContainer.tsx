@@ -1,7 +1,10 @@
-import { type JSX, type ReactNode, useEffect, useRef, useState } from "react";
+import { type JSX, type ReactNode } from "react";
 
+import MuteToggle from "@/components/MuteToggle";
+import PlayToggle from "@/components/PlayToggle";
+import ProgressBar from "@/components/ProgressBar";
+import VolumeSlider from "@/components/VolumeSlider";
 import { usePlaybackContext } from "@/contexts/playback/PlaybackContext";
-import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
@@ -75,117 +78,5 @@ function AudioPlayer(): JSX.Element {
         <VolumeSlider />
       </div>
     </div>
-  );
-}
-
-function PlayToggle(): JSX.Element {
-  const {
-    actions: { play, pause },
-    derived,
-  } = usePlaybackContext();
-  return (
-    <button
-      type="button"
-      onClick={derived.isPlaying ? pause : play}
-      aria-label={derived.isPlaying ? "pause" : "play"}
-    >
-      {derived.isPlaying ? "Pause" : "Play"}
-    </button>
-  );
-}
-
-function ProgressBar(): JSX.Element {
-  const playback = usePlaybackContext();
-  const { getPosition } = playback.actions;
-  // TODO: we could try to replace this with the sliderRef value directly
-  const [seekTarget, setSeekTarget] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
-
-  const spanRef = useRef<HTMLSpanElement>(null);
-  const sliderRef = useRef<HTMLInputElement>(null);
-
-  // FIXME: while playing click to seek will make the progress jump back and forth one second
-  useEffect(() => {
-    if (!playback.derived.isPlaying) return;
-
-    let lastSpanUpdate = 0;
-    const spanThrottle = 250; // milliseconds
-
-    const syncProgress = () => {
-      const progress = isSeeking ? seekTarget : getPosition();
-      if (sliderRef.current) {
-        sliderRef.current.value = String(progress);
-      }
-      if (
-        spanRef.current &&
-        (isSeeking || Date.now() - lastSpanUpdate > spanThrottle)
-      ) {
-        spanRef.current.textContent = formatDuration(progress);
-        lastSpanUpdate = Date.now();
-      }
-      requestAnimationFrame(syncProgress);
-    };
-
-    const refid = requestAnimationFrame(syncProgress);
-
-    return () => cancelAnimationFrame(refid);
-  }, [isSeeking, seekTarget, playback.derived.isPlaying, getPosition]);
-
-  return (
-    <>
-      <span ref={spanRef} data-testid="audio-player-position"></span>
-      <input
-        ref={sliderRef}
-        type="range"
-        min="0"
-        max={playback.state.duration}
-        step={100}
-        onPointerDown={() => setIsSeeking(true)}
-        onPointerUp={() => {
-          playback.actions.seek(seekTarget);
-          setIsSeeking(false);
-        }}
-        onChange={(e) => setSeekTarget(Number(e.target.value))}
-        aria-label="seek position"
-      />
-      <span data-testid="audio-player-duration">
-        {formatDuration(playback.state.duration)}
-      </span>
-    </>
-  );
-}
-
-function MuteToggle(): JSX.Element {
-  const {
-    state: { isMuted },
-    actions: { mute, unmute },
-  } = usePlaybackContext();
-  return (
-    <button
-      type="button"
-      onClick={isMuted ? mute : unmute}
-      aria-label={isMuted ? "unmute" : "mute"}
-    >
-      {isMuted ? "Unmute" : "Mute"}
-    </button>
-  );
-}
-
-function VolumeSlider(): JSX.Element {
-  const {
-    state: { volume },
-    actions: { setVolume },
-  } = usePlaybackContext();
-  return (
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value={volume}
-      onChange={(e) => {
-        setVolume(Number(e.target.value));
-      }}
-      aria-label="change volume"
-    />
   );
 }
