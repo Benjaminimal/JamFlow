@@ -14,13 +14,6 @@ export default function AudioPlayerContainer(): JSX.Element | null {
   const isLoading = status === "loading";
   const isPlaying = status === "playing";
 
-  useEffect(() => {
-    if (playable) {
-      // TODO: load seems to be triggering twice
-      load(playable);
-    }
-  }, [playable, load]);
-
   if (!isActive) return null;
 
   const renderPlayerState = () => {
