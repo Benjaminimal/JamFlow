@@ -5,39 +5,20 @@ import { PlaybackStatus } from "@/contexts/playback/types";
 import { formatDuration } from "@/lib/time";
 
 export default function AudioPlayerContainer(): JSX.Element | null {
-  const { state, actions } = usePlaybackContext();
-  const { status, playable, volume, isMuted, errorMessage } = state;
-  const { load, play, pause, setVolume, mute, unmute } = actions;
+  const {
+    state: { status },
+  } = usePlaybackContext();
 
-  const isActive = status !== "idle";
-  const isError = status === "error";
-  const isLoading = status === "loading";
-  const isPlaying = status === "playing";
+  const isActive = status !== PlaybackStatus.Idle;
+  const isError = status === PlaybackStatus.Error;
+  const isLoading = status === PlaybackStatus.Loading;
 
   if (!isActive) return null;
 
   const renderPlayerState = () => {
-    if (isError)
-      return (
-        <ErrorDisplay
-          message={errorMessage}
-          onRetry={() => playable && load(playable)}
-        />
-      );
+    if (isError) return <ErrorDisplay />;
     if (isLoading) return <Loader />;
-    return (
-      <AudioPlayer
-        title={playable?.title || ""}
-        volume={volume}
-        onVolumeChange={setVolume}
-        isPlaying={isPlaying}
-        onPlay={play}
-        onPause={pause}
-        isMuted={isMuted}
-        onMute={mute}
-        onUnmute={unmute}
-      />
-    );
+    return <AudioPlayer />;
   };
 
   return (
@@ -58,17 +39,15 @@ export default function AudioPlayerContainer(): JSX.Element | null {
   );
 }
 
-function ErrorDisplay({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}): JSX.Element {
+function ErrorDisplay(): JSX.Element {
+  const {
+    state: { errorMessage, playable },
+    actions: { load },
+  } = usePlaybackContext();
   return (
     <>
-      <p>{message}</p>
-      <button onClick={onRetry} aria-label="retry">
+      <p>{errorMessage}</p>
+      <button onClick={() => playable && load(playable)} aria-label="retry">
         Retry
       </button>
     </>
@@ -79,62 +58,37 @@ function Loader(): JSX.Element {
   return <p>Loading...</p>;
 }
 
-type AudioPlayerProps = {
-  title: string;
-  volume: number;
-  onVolumeChange: (v: number) => void;
-  isPlaying: boolean;
-  onPlay: () => void;
-  onPause: () => void;
-  isMuted: boolean;
-  onMute: () => void;
-  onUnmute: () => void;
-};
-
-function AudioPlayer({
-  title,
-  volume,
-  onVolumeChange,
-  isPlaying,
-  onPlay,
-  onPause,
-  isMuted,
-  onMute,
-  onUnmute,
-}: AudioPlayerProps): JSX.Element {
+function AudioPlayer(): JSX.Element {
+  const {
+    state: { playable },
+  } = usePlaybackContext();
   return (
     <div data-testid="audio-player">
-      <div data-testid="audio-player-title">{title}</div>
+      <div data-testid="audio-player-title">{playable?.title || ""}</div>
       <div>
         <ProgressBar />
         <div>
-          <button
-            type="button"
-            onClick={isPlaying ? onPause : onPlay}
-            aria-label={isPlaying ? "pause" : "play"}
-          >
-            {isPlaying ? "Pause" : "Play"}
-          </button>
-          <button
-            type="button"
-            onClick={isMuted ? onUnmute : onMute}
-            aria-label={isMuted ? "unmute" : "mute"}
-          >
-            {isMuted ? "Unmute" : "Mute"}
-          </button>
+          <PlayToggle />
+          <MuteToggle />
         </div>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={volume}
-          onChange={(e) => {
-            onVolumeChange(Number(e.target.value));
-          }}
-          aria-label="change volume"
-        />
+        <VolumeSlider />
       </div>
     </div>
+  );
+}
+
+function PlayToggle(): JSX.Element {
+  const {
+    state: { status },
+    actions: { play, pause },
+  } = usePlaybackContext();
+  const isPlaying = status === PlaybackStatus.Playing;
+  return (
+    <button
+      type="button"
+      onClick={isPlaying ? pause : play}
+      aria-label={isPlaying ? "pause" : "play"}
+    ></button>
   );
 }
 
@@ -195,5 +149,40 @@ function ProgressBar(): JSX.Element {
         {formatDuration(playback.state.duration)}
       </span>
     </>
+  );
+}
+
+function MuteToggle(): JSX.Element {
+  const {
+    state: { isMuted },
+    actions: { mute, unmute },
+  } = usePlaybackContext();
+  return (
+    <button
+      type="button"
+      onClick={isMuted ? mute : unmute}
+      aria-label={isMuted ? "unmute" : "mute"}
+    >
+      {isMuted ? "Unmute" : "Mute"}
+    </button>
+  );
+}
+
+function VolumeSlider(): JSX.Element {
+  const {
+    state: { volume },
+    actions: { setVolume },
+  } = usePlaybackContext();
+  return (
+    <input
+      type="range"
+      min="0"
+      max="100"
+      value={volume}
+      onChange={(e) => {
+        setVolume(Number(e.target.value));
+      }}
+      aria-label="change volume"
+    />
   );
 }
