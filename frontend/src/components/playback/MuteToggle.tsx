@@ -10,7 +10,7 @@ export default function MuteToggle(): JSX.Element {
   return (
     <button
       type="button"
-      onClick={isMuted ? mute : unmute}
+      onClick={isMuted ? unmute : mute}
       aria-label={isMuted ? "unmute" : "mute"}
     >
       {isMuted ? "Unmute" : "Mute"}
