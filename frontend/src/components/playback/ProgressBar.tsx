@@ -13,24 +13,16 @@ export default function ProgressBar(): JSX.Element {
   const spanRef = useRef<HTMLSpanElement>(null);
   const sliderRef = useRef<HTMLInputElement>(null);
 
-  // FIXME: while playing click to seek will make the progress jump back and forth one second
   useEffect(() => {
     if (!playback.derived.isPlaying) return;
-
-    let lastSpanUpdate = 0;
-    const spanThrottle = 250; // milliseconds
 
     const syncProgress = () => {
       const progress = isSeeking ? seekTarget : getPosition();
       if (sliderRef.current) {
         sliderRef.current.value = String(progress);
       }
-      if (
-        spanRef.current &&
-        (isSeeking || Date.now() - lastSpanUpdate > spanThrottle)
-      ) {
+      if (spanRef.current) {
         spanRef.current.textContent = formatDuration(progress);
-        lastSpanUpdate = Date.now();
       }
       requestAnimationFrame(syncProgress);
     };
