@@ -18,17 +18,21 @@ export default function Root(): JSX.Element {
 
 function LayoutContent(): JSX.Element {
   return (
-    <>
-      <Navbar />
-      <h1>JamFlow</h1>
+    <main>
+      <header>
+        <Navbar />
+      </header>
 
       <NotificationContainer />
 
       <div id="outlet">
         <Outlet />
       </div>
-      <AudioPlayerContainer />
-    </>
+
+      <footer>
+        <AudioPlayerContainer />
+      </footer>
+    </main>
   );
 }
 
