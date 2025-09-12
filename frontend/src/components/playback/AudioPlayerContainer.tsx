@@ -29,8 +29,7 @@ function AudioPlayerLayout({ children }: { children: ReactNode }): JSX.Element {
         left: 0,
         bottom: 0,
         zIndex: 1000,
-        backgroundColor: "#242424",
-        borderTop: "2px solid #fff",
+        borderTop: "2px solid #000",
       }}
     >
       {children}

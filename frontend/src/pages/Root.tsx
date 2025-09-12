@@ -1,5 +1,3 @@
-import "@/pages/Root.css";
-
 import { type JSX } from "react";
 import { Link, Outlet } from "react-router-dom";
 
