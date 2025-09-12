@@ -17,5 +17,3 @@ export type Track = {
   recordedDate: Date | null;
   url: string;
 };
-
-export type Playable = Track;

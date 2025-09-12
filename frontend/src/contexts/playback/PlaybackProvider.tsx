@@ -1,101 +1,79 @@
-/**
- * @deprecated This module is deprecated. Use `usePlaybackContext` from `@/contexts/playback` instead.
- */
 import { Howl } from "howler";
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import {
+  type JSX,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+} from "react";
 
-import type { Playable } from "@/contexts/playback/types";
+import { PlaybackContext } from "@/contexts/playback/PlaybackContext";
+import {
+  type Playable,
+  type PlaybackContextType,
+  type PlaybackState,
+  PlaybackStatus,
+} from "@/contexts/playback/types";
 import { getLogger } from "@/lib/logging";
 
-const logger = getLogger("useAudioPlayer");
+const logger = getLogger("PlaybackProvider");
 
-export type UseAudioPlayerResult = {
-  state: AudioPlayerState;
-  load: (v: Playable) => void;
-  togglePlay: () => void;
-  seek: (v: number) => void;
-  setVolume: (v: number) => void;
-  toggleMute: () => void;
-};
-
-const AudioPlayerStatus = {
-  Idle: "idle",
-  Loading: "loading",
-  Playing: "playing",
-  Paused: "paused",
-  Error: "error",
-} as const;
-
-type AudioPlayerStatus =
-  (typeof AudioPlayerStatus)[keyof typeof AudioPlayerStatus];
-
-type AudioPlayerState = {
-  status: AudioPlayerStatus;
-  playable: Playable | null;
-  duration: number;
-  position: number;
-  seekTarget: number;
-  volume: number;
-  isMuted: boolean;
-  errorMessage: string;
-};
-
-const initialState: AudioPlayerState = {
-  status: AudioPlayerStatus.Idle,
+const initialState: PlaybackState = {
+  status: PlaybackStatus.Idle,
   playable: null,
   duration: 0,
-  position: 0,
   seekTarget: 0,
   volume: 75,
   isMuted: false,
   errorMessage: "",
 };
 
-type AudioPlayerAction =
+type PlaybackAction =
   | { type: "LOADED"; duration: number }
   | { type: "LOAD"; playable: Playable }
   | { type: "PLAY" }
   | { type: "PAUSE" }
-  | { type: "SYNC_POSITION"; position: number }
   | { type: "SEEK"; target: number }
   | { type: "VOLUME_CHANGE"; volume: number }
-  | { type: "TOGGLE_MUTE" }
+  | { type: "MUTE" }
+  | { type: "UNMUTE" }
   | { type: "SET_ERROR"; message: string };
 
-type AudioPlayerActionType = AudioPlayerAction["type"];
+type PlaybackActionType = PlaybackAction["type"];
 
-const allowedActions: Record<AudioPlayerStatus, AudioPlayerActionType[]> = {
-  [AudioPlayerStatus.Idle]: ["LOAD"],
-  [AudioPlayerStatus.Loading]: ["LOAD", "LOADED", "SET_ERROR"],
-  [AudioPlayerStatus.Playing]: [
+const allowedActions: Record<PlaybackStatus, PlaybackActionType[]> = {
+  [PlaybackStatus.Idle]: ["LOAD"],
+  [PlaybackStatus.Loading]: ["LOAD", "LOADED", "SET_ERROR"],
+  [PlaybackStatus.Playing]: [
     "LOAD",
     "PAUSE",
-    "SYNC_POSITION",
     "SEEK",
     "VOLUME_CHANGE",
-    "TOGGLE_MUTE",
+    "MUTE",
+    "UNMUTE",
     "SET_ERROR",
   ],
-  [AudioPlayerStatus.Paused]: [
+  [PlaybackStatus.Paused]: [
     "LOAD",
     "PLAY",
-    "SYNC_POSITION",
     "SEEK",
     "VOLUME_CHANGE",
-    "TOGGLE_MUTE",
+    "MUTE",
+    "UNMUTE",
     "SET_ERROR",
   ],
-  [AudioPlayerStatus.Error]: ["LOAD"],
+  [PlaybackStatus.Error]: ["LOAD"],
 };
 
-function audioPlayerReducer(
-  state: AudioPlayerState,
-  action: AudioPlayerAction,
-): AudioPlayerState {
-  logger.info("AudioPlayerAction", action);
+function playbackReducer(
+  state: PlaybackState,
+  action: PlaybackAction,
+): PlaybackState {
+  logger.info("PlaybackAction", action);
   if (!allowAction(state.status, action.type)) {
     logger.warn(
-      `AudioPlayer: action ${action.type} not allowed in status ${state.status}`,
+      `Playback: action ${action.type} not allowed in status ${state.status}`,
     );
     return state;
   }
@@ -106,34 +84,27 @@ function audioPlayerReducer(
       }
       return {
         ...initialState,
-        status: AudioPlayerStatus.Loading,
+        status: PlaybackStatus.Loading,
         playable: action.playable,
       };
     }
     case "LOADED": {
       return {
         ...state,
-        status: AudioPlayerStatus.Paused,
-        position: 0,
+        status: PlaybackStatus.Paused,
         duration: action.duration,
       };
     }
     case "PLAY": {
       return {
         ...state,
-        status: AudioPlayerStatus.Playing,
+        status: PlaybackStatus.Playing,
       };
     }
     case "PAUSE": {
       return {
         ...state,
-        status: AudioPlayerStatus.Paused,
-      };
-    }
-    case "SYNC_POSITION": {
-      return {
-        ...state,
-        position: action.position,
+        status: PlaybackStatus.Paused,
       };
     }
     case "SEEK": {
@@ -148,16 +119,22 @@ function audioPlayerReducer(
         volume: action.volume,
       };
     }
-    case "TOGGLE_MUTE": {
+    case "MUTE": {
       return {
         ...state,
-        isMuted: !state.isMuted,
+        isMuted: true,
+      };
+    }
+    case "UNMUTE": {
+      return {
+        ...state,
+        isMuted: false,
       };
     }
     case "SET_ERROR": {
       return {
         ...state,
-        status: AudioPlayerStatus.Error,
+        status: PlaybackStatus.Error,
         errorMessage: action.message,
       };
     }
@@ -165,49 +142,53 @@ function audioPlayerReducer(
 }
 
 function allowAction(
-  status: AudioPlayerStatus,
-  actionType: AudioPlayerActionType,
+  status: PlaybackStatus,
+  actionType: PlaybackActionType,
 ): boolean {
   return allowedActions[status].includes(actionType);
 }
 
-export function useAudioPlayer(): UseAudioPlayerResult {
-  const [state, dispatch] = useReducer(audioPlayerReducer, initialState);
+function usePlayback(): PlaybackContextType {
+  const [state, dispatch] = useReducer(playbackReducer, initialState);
   const howlRef = useRef<Howl | null>(null);
 
   const load = useCallback((playable: Playable) => {
     dispatch({ type: "LOAD", playable });
   }, []);
 
-  const togglePlay = useCallback(() => {
-    switch (state.status) {
-      case AudioPlayerStatus.Playing: {
-        dispatch({ type: "PAUSE" });
-        return;
-      }
-      case AudioPlayerStatus.Paused: {
-        dispatch({ type: "PLAY" });
-        return;
-      }
-    }
-  }, [state.status]);
+  const play = useCallback(() => {
+    dispatch({ type: "PLAY" });
+  }, []);
+
+  const pause = useCallback(() => {
+    dispatch({ type: "PAUSE" });
+  }, []);
+
+  const getPosition = useCallback((): number => {
+    const howl = howlRef.current;
+    if (!howl) return 0;
+    return secondsToMs(howl.seek());
+  }, []);
 
   const seek = useCallback(
     (v: number) => {
       const target = Math.max(0, Math.min(state.duration, v));
       dispatch({ type: "SEEK", target });
-      dispatch({ type: "SYNC_POSITION", position: target });
     },
     [state.duration],
   );
 
-  const toggleMute = useCallback(() => {
-    dispatch({ type: "TOGGLE_MUTE" });
-  }, []);
-
   const setVolume = useCallback((v: number) => {
     const nextVolume = Math.max(0, Math.min(100, v));
     dispatch({ type: "VOLUME_CHANGE", volume: nextVolume });
+  }, []);
+
+  const mute = useCallback(() => {
+    dispatch({ type: "MUTE" });
+  }, []);
+
+  const unmute = useCallback(() => {
+    dispatch({ type: "UNMUTE" });
   }, []);
 
   // Load new playable
@@ -248,11 +229,11 @@ export function useAudioPlayer(): UseAudioPlayerResult {
     if (!howl) return;
 
     switch (state.status) {
-      case AudioPlayerStatus.Playing: {
+      case PlaybackStatus.Playing: {
         howl.play();
         return;
       }
-      case AudioPlayerStatus.Paused: {
+      case PlaybackStatus.Paused: {
         howl.pause();
         return;
       }
@@ -266,25 +247,6 @@ export function useAudioPlayer(): UseAudioPlayerResult {
 
     howl.seek(msToSeconds(state.seekTarget));
   }, [state.seekTarget]);
-
-  // Sync position
-  useEffect(() => {
-    const howl = howlRef.current;
-    if (!howl) return;
-
-    if (state.status !== AudioPlayerStatus.Playing) return;
-
-    const syncPosition = () => {
-      const position = secondsToMs(howl.seek());
-      dispatch({ type: "SYNC_POSITION", position });
-    };
-
-    const intervalId = setInterval(syncPosition, 250);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [state.status]);
 
   // Mute
   useEffect(() => {
@@ -304,12 +266,38 @@ export function useAudioPlayer(): UseAudioPlayerResult {
 
   return {
     state,
-    load,
-    togglePlay,
-    seek,
-    setVolume,
-    toggleMute,
+    actions: {
+      load,
+      play,
+      pause,
+      getPosition,
+      seek,
+      setVolume,
+      mute,
+      unmute,
+    },
+    derived: {
+      isIdle: state.status === PlaybackStatus.Idle,
+      isLoading: state.status === PlaybackStatus.Loading,
+      isPlaying: state.status === PlaybackStatus.Playing,
+      isPaused: state.status === PlaybackStatus.Paused,
+      isError: state.status === PlaybackStatus.Error,
+    },
   };
+}
+
+export default function PlaybackProvider({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element {
+  const value = usePlayback();
+
+  return (
+    <PlaybackContext.Provider value={value}>
+      {children}
+    </PlaybackContext.Provider>
+  );
 }
 
 function msToSeconds(ms: number) {
