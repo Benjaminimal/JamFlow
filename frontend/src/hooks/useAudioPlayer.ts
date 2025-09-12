@@ -1,3 +1,6 @@
+/**
+ * @deprecated This module is deprecated. Use `usePlaybackContext` from `@/contexts/playback` instead.
+ */
 import { Howl } from "howler";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
