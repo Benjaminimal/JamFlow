@@ -23,6 +23,15 @@ function AppProviders({ children }: { children: ReactNode }) {
   );
 }
 
+function Navbar(): JSX.Element {
+  return (
+    <nav>
+      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
+      <Link to="/tracks">Tracks</Link>
+    </nav>
+  );
+}
+
 function Layout(): JSX.Element {
   const { derived } = usePlaybackContext();
 
@@ -63,14 +72,5 @@ function Layout(): JSX.Element {
         </footer>
       )}
     </div>
-  );
-}
-
-function Navbar(): JSX.Element {
-  return (
-    <nav>
-      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
-      <Link to="/tracks">Tracks</Link>
-    </nav>
   );
 }
