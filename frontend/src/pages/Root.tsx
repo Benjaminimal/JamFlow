@@ -16,6 +16,16 @@ export default function Root(): JSX.Element {
   );
 }
 
+function Layout(): JSX.Element {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <Main />
+      <Footer />
+    </div>
+  );
+}
+
 function AppProviders({ children }: { children: ReactNode }) {
   return (
     <NotificationProvider>
@@ -89,15 +99,5 @@ function Footer(): JSX.Element | null {
         <AudioPlayerContainer />
       </PageContainer>
     </footer>
-  );
-}
-
-function Layout(): JSX.Element {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <Main />
-      <Footer />
-    </div>
   );
 }
