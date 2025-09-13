@@ -46,7 +46,7 @@ function Layout(): JSX.Element {
   return (
     <div className={cn("mx-auto flex min-h-screen max-w-screen-lg flex-col")}>
       <header className={stickyHeader}>
-        <h1>JamFlow</h1>
+        <h1 className={cn("text-lg lg:text-2xl", "font-bold")}>JamFlow</h1>
         <Navbar />
       </header>
 
