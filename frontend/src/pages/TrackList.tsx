@@ -52,8 +52,7 @@ function LoadedState({ tracks, playTrack }: LoadedStateProps): JSX.Element {
     <>
       <ul data-testid="track-list">
         {tracks.map((track) => (
-          // TODO: remove debug styling
-          <li className="my-16" key={track.id} data-testid="track-item">
+          <li key={track.id} data-testid="track-item">
             <TrackItem track={track} onPlay={() => playTrack(track)} />
           </li>
         ))}

@@ -32,45 +32,71 @@ function Navbar(): JSX.Element {
   );
 }
 
-function Layout(): JSX.Element {
-  const { derived } = usePlaybackContext();
-
-  const stickyHeader = cn(
-    "sticky top-0",
-    "border-b-accent-foreground",
-    "border-b",
-    "bg-background",
-    "px-4 sm:px-6 lg:px-8",
-    "py-2 sm:py-3 lg:py-4",
-  );
-  const stickyFooter = cn(
-    "sticky bottom-0",
-    "border-t-accent-foreground",
-    "border-t",
-    "bg-background",
-    "px-4 sm:px-6 lg:px-8",
-    "py-2 sm:py-3 lg:py-4",
-  );
-
+function PageContainer({ children }: { children: ReactNode }): JSX.Element {
   return (
-    <div className={cn("mx-auto flex min-h-screen max-w-screen-lg flex-col")}>
-      <header className={stickyHeader}>
-        <h1 className={cn("text-lg lg:text-2xl", "font-bold")}>JamFlow</h1>
-        <Navbar />
-      </header>
+    <div className={cn("max-w-4xl", "mx-auto", "px-4 sm:px-6 lg:px-8")}>
+      {children}
+    </div>
+  );
+}
 
-      <main
-        className={cn("grow overflow-y-auto", "px-4", "sm:px-6", "lg:px-8")}
-      >
+function Main(): JSX.Element {
+  return (
+    <main className="grow overflow-y-auto">
+      <PageContainer>
         <NotificationContainer />
         <Outlet />
-      </main>
+      </PageContainer>
+    </main>
+  );
+}
 
-      {!derived.isIdle && (
-        <footer className={stickyFooter}>
-          <AudioPlayerContainer />
-        </footer>
+function Header(): JSX.Element {
+  return (
+    <header
+      className={cn(
+        "sticky top-0",
+        "border-b-accent-foreground",
+        "border-b",
+        "bg-background",
+        "py-2 sm:py-3 lg:py-4",
       )}
+    >
+      <PageContainer>
+        <h1 className="text-lg font-bold lg:text-2xl">JamFlow</h1>
+        <Navbar />
+      </PageContainer>
+    </header>
+  );
+}
+
+function Footer(): JSX.Element | null {
+  const { derived } = usePlaybackContext();
+
+  if (derived.isIdle) return null;
+  return (
+    <footer
+      className={cn(
+        "sticky bottom-0",
+        "border-t-accent-foreground",
+        "border-t",
+        "bg-background",
+        "py-2 sm:py-3 lg:py-4",
+      )}
+    >
+      <PageContainer>
+        <AudioPlayerContainer />
+      </PageContainer>
+    </footer>
+  );
+}
+
+function Layout(): JSX.Element {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <Main />
+      <Footer />
     </div>
   );
 }
