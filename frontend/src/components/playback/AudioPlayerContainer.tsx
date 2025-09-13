@@ -1,4 +1,4 @@
-import { type JSX, type ReactNode } from "react";
+import { type JSX } from "react";
 
 import {
   MuteToggle,
@@ -12,33 +12,6 @@ export default function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
 
   if (derived.isIdle) return null;
-
-  return (
-    <AudioPlayerLayout>
-      <AudioPlayerStateSwitcher />
-    </AudioPlayerLayout>
-  );
-}
-function AudioPlayerLayout({ children }: { children: ReactNode }): JSX.Element {
-  return (
-    //  TODO: remove debug styling
-    <div
-      style={{
-        position: "fixed",
-        width: "100%",
-        left: 0,
-        bottom: 0,
-        zIndex: 1000,
-        borderTop: "2px solid #000",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function AudioPlayerStateSwitcher() {
-  const { derived } = usePlaybackContext();
   if (derived.isError) return <ErrorDisplay />;
   if (derived.isLoading) return <Loader />;
   return <AudioPlayer />;
