@@ -3,6 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 
 import NotificationContainer from "@/components/NotificationContainer";
 import AudioPlayerContainer from "@/components/playback";
+import { H1 } from "@/components/primitives";
 import NotificationProvider from "@/contexts/NotificationProvider";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
@@ -63,7 +64,7 @@ function Header(): JSX.Element {
       )}
     >
       <PageContainer>
-        <h1 className="text-lg font-bold lg:text-2xl">JamFlow</h1>
+        <H1>JamFlow</H1>
         <Navbar />
       </PageContainer>
     </header>
