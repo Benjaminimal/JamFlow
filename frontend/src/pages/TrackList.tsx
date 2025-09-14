@@ -1,12 +1,12 @@
-import { Play } from "lucide-react";
 import { type JSX } from "react";
 
+import PlaybackToggle from "@/components/playback/PlayToggle";
+import { PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import type { Track } from "@/types";
-import { Button } from "@/ui-lib";
 
 export default function TrackList(): JSX.Element {
   const { tracks, isLoading, errorMessage, fetchData } = useTrackList();
@@ -119,14 +119,11 @@ function TrackItem({
       </div>
 
       <div>
-        <Button
-          onClick={onPlay}
-          className={cn("rounded-full p-2", currentTrackClasses)}
-          variant="ghost"
-          aria-label="Play track {track.title}"
-        >
-          <Play className="h-4 w-4" />
-        </Button>
+        {isCurrent ? (
+          <PlaybackToggle className={cn(currentTrackClasses)} />
+        ) : (
+          <PlayButton onPlay={onPlay} />
+        )}
       </div>
     </div>
   );
