@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 
+import { PauseButton, PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
 export default function PlayToggle(): JSX.Element {
@@ -7,13 +8,10 @@ export default function PlayToggle(): JSX.Element {
     actions: { play, pause },
     derived,
   } = usePlaybackContext();
-  return (
-    <button
-      type="button"
-      onClick={derived.isPlaying ? pause : play}
-      aria-label={derived.isPlaying ? "pause" : "play"}
-    >
-      {derived.isPlaying ? "Pause" : "Play"}
-    </button>
+
+  return derived.isPlaying ? (
+    <PauseButton onPause={pause} />
+  ) : (
+    <PlayButton onPlay={play} />
   );
 }
