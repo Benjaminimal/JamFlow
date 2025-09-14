@@ -11,6 +11,7 @@ import type { Track } from "@/types";
 export default function TrackList(): JSX.Element {
   const { tracks, isLoading, errorMessage, fetchData } = useTrackList();
   const {
+    state: { playable },
     actions: { load },
   } = usePlaybackContext();
 
@@ -19,7 +20,9 @@ export default function TrackList(): JSX.Element {
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
   if (tracks.length === 0) return <EmptyState />;
-  return <LoadedState tracks={tracks} playTrack={load} />;
+  return (
+    <LoadedState tracks={tracks} currentTrack={playable} playTrack={load} />
+  );
 }
 
 // TODO: Add a skeleton loader for LoadingState when working on styling.
@@ -47,10 +50,15 @@ function EmptyState(): JSX.Element {
 
 type LoadedStateProps = {
   tracks: Track[];
+  currentTrack: Track | null;
   playTrack: (v: Track) => void;
 };
 
-function LoadedState({ tracks, playTrack }: LoadedStateProps): JSX.Element {
+function LoadedState({
+  tracks,
+  currentTrack,
+  playTrack,
+}: LoadedStateProps): JSX.Element {
   return (
     <>
       <ul data-testid="track-list">
@@ -59,6 +67,9 @@ function LoadedState({ tracks, playTrack }: LoadedStateProps): JSX.Element {
             <TrackItem
               track={track}
               number={index + 1}
+              // NOTE: this check is not future proof for playing clips
+              // we could make the playback context expose a predicate
+              isCurrent={track.id === currentTrack?.id}
               onPlay={() => playTrack(track)}
             />
           </li>
@@ -71,10 +82,18 @@ function LoadedState({ tracks, playTrack }: LoadedStateProps): JSX.Element {
 type TrackItemProps = {
   track: Track;
   number: number;
+  isCurrent?: boolean;
   onPlay: () => void;
 };
 
-function TrackItem({ track, number, onPlay }: TrackItemProps): JSX.Element {
+function TrackItem({
+  track,
+  number,
+  isCurrent,
+  onPlay,
+}: TrackItemProps): JSX.Element {
+  const currentTrackClasses = isCurrent && "text-primary font-semibold";
+
   return (
     <div
       className={cn(
@@ -88,7 +107,9 @@ function TrackItem({ track, number, onPlay }: TrackItemProps): JSX.Element {
       </div>
 
       <div className="mx-2 flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-medium">{track.title}</span>
+        <span className={cn("truncate font-medium", currentTrackClasses)}>
+          {track.title}
+        </span>
         <span className="text-muted-foreground text-sm">
           {formatDuration(track.duration)}
           {track.recordedDate && (
@@ -100,7 +121,7 @@ function TrackItem({ track, number, onPlay }: TrackItemProps): JSX.Element {
       <div>
         <Button
           onClick={onPlay}
-          className="rounded-full p-2"
+          className={cn("rounded-full p-2", currentTrackClasses)}
           variant="ghost"
           aria-label="Play track {track.title}"
         >

@@ -1,5 +1,7 @@
 import type { Track } from "@/types";
 
+// TODO: explicitly declare only what is strictly needed here
+// Track has too many fields that are not necessary for playback
 export type Playable = Track;
 
 export const PlaybackStatus = {
