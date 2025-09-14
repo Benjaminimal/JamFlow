@@ -2,7 +2,7 @@ import { type JSX } from "react";
 
 import {
   MuteToggle,
-  PlayToggle,
+  PlaybackToggle,
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
@@ -46,7 +46,7 @@ function AudioPlayer(): JSX.Element {
       <div>
         <ProgressBar />
         <div>
-          <PlayToggle />
+          <PlaybackToggle />
           <MuteToggle />
         </div>
         <VolumeSlider />

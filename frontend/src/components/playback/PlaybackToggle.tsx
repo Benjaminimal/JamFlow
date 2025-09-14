@@ -3,8 +3,7 @@ import type { JSX } from "react";
 import { PauseButton, PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
-// TODO: pass variants through to buttons?
-export default function PlaybackToggle({
+export function PlaybackToggle({
   className,
 }: {
   className?: string;
@@ -15,8 +14,8 @@ export default function PlaybackToggle({
   } = usePlaybackContext();
 
   return derived.isPlaying ? (
-    <PauseButton onPause={pause} className={className} />
+    <PauseButton onClick={pause} className={className} />
   ) : (
-    <PlayButton onPlay={play} className={className} />
+    <PlayButton onClick={play} className={className} />
   );
 }

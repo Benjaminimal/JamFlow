@@ -1,19 +1,17 @@
 import type { JSX } from "react";
 
+import { MuteButton, UnmuteButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
-export default function MuteToggle(): JSX.Element {
+export function MuteToggle({ className }: { className?: string }): JSX.Element {
   const {
     state: { isMuted },
     actions: { mute, unmute },
   } = usePlaybackContext();
-  return (
-    <button
-      type="button"
-      onClick={isMuted ? unmute : mute}
-      aria-label={isMuted ? "unmute" : "mute"}
-    >
-      {isMuted ? "Unmute" : "Mute"}
-    </button>
+
+  return isMuted ? (
+    <UnmuteButton onClick={unmute} className={className} />
+  ) : (
+    <MuteButton onClick={mute} className={className} />
   );
 }

@@ -1,6 +1,6 @@
 import { type JSX } from "react";
 
-import PlaybackToggle from "@/components/playback/PlayToggle";
+import { PlaybackToggle } from "@/components/playback/PlaybackToggle";
 import { PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
@@ -122,7 +122,7 @@ function TrackItem({
         {isCurrent ? (
           <PlaybackToggle className={cn(currentTrackClasses)} />
         ) : (
-          <PlayButton onPlay={onPlay} />
+          <PlayButton onClick={onPlay} />
         )}
       </div>
     </div>

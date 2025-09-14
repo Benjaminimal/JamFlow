@@ -1,2 +1,4 @@
-export { default as PauseButton } from "./PauseButton";
-export { default as PlayButton } from "./PlayButton";
+export * from "./MuteButton";
+export * from "./PauseButton";
+export * from "./PlayButton";
+export * from "./UnmuteButton";
