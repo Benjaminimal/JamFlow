@@ -1,12 +1,12 @@
 import { Play } from "lucide-react";
 import { type JSX } from "react";
 
-import { Button } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import type { Track } from "@/types";
+import { Button } from "@/ui-lib";
 
 export default function TrackList(): JSX.Element {
   const { tracks, isLoading, errorMessage, fetchData } = useTrackList();

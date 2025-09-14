@@ -35,7 +35,7 @@ const buttonVariants = cva(
   },
 );
 
-export default function Button({
+function Button({
   className,
   variant,
   size,
@@ -55,3 +55,5 @@ export default function Button({
     />
   );
 }
+
+export { Button, buttonVariants };
