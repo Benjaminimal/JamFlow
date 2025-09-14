@@ -92,7 +92,7 @@ function TrackItem({
   isCurrent,
   onPlay,
 }: TrackItemProps): JSX.Element {
-  const currentTrackClasses = isCurrent && "text-primary font-semibold";
+  const currentTrackClasses = isCurrent && "text-accent font-semibold";
 
   return (
     <div
