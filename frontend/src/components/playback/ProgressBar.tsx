@@ -4,7 +4,7 @@ import { usePlaybackContext } from "@/contexts/playback";
 import { formatDuration } from "@/lib/time";
 import { Slider } from "@/ui-lib";
 
-export default function ProgressBar(): JSX.Element {
+export function ProgressBar(): JSX.Element {
   const playback = usePlaybackContext();
   const { getPosition } = playback.actions;
   // TODO: we could try to replace this with the sliderRef value directly
