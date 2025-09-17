@@ -2,6 +2,7 @@ import { type JSX, useEffect, useRef, useState } from "react";
 
 import { usePlaybackContext } from "@/contexts/playback";
 import { formatDuration } from "@/lib/time";
+import { Slider } from "@/ui-lib";
 
 export default function ProgressBar(): JSX.Element {
   const playback = usePlaybackContext();
@@ -33,12 +34,16 @@ export default function ProgressBar(): JSX.Element {
   }, [isSeeking, seekTarget, playback.derived.isPlaying, getPosition]);
 
   return (
-    <>
-      <span ref={spanRef} data-testid="audio-player-position"></span>
-      <input
+    <div className="flex flex-col space-y-2">
+      <div className="text-muted-foreground flex flex-row justify-between">
+        <span ref={spanRef} data-testid="audio-player-position"></span>
+        <span data-testid="audio-player-duration">
+          {formatDuration(playback.state.duration)}
+        </span>
+      </div>
+      <Slider
         ref={sliderRef}
-        type="range"
-        min="0"
+        min={0}
         max={playback.state.duration}
         step={100}
         onPointerDown={() => setIsSeeking(true)}
@@ -46,12 +51,9 @@ export default function ProgressBar(): JSX.Element {
           playback.actions.seek(seekTarget);
           setIsSeeking(false);
         }}
-        onChange={(e) => setSeekTarget(Number(e.target.value))}
+        onValueChange={(values: number[]) => setSeekTarget(Number(values[0]))}
         aria-label="seek position"
       />
-      <span data-testid="audio-player-duration">
-        {formatDuration(playback.state.duration)}
-      </span>
-    </>
+    </div>
   );
 }

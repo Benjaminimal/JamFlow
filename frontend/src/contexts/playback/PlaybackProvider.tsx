@@ -215,6 +215,7 @@ function usePlayback(): PlaybackContextType {
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
+      // TODO: implement onend to correct the state
     });
 
     return () => {
