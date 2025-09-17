@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 
 import { useNotifications } from "@/contexts/NotificationContext";
-import NotificationProvider from "@/contexts/NotificationProvider";
+import { NotificationProvider } from "@/contexts/NotificationProvider";
 
 describe("NotificationProvider", () => {
   describe("when context used outside of it", () => {
