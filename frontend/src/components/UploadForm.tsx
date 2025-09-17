@@ -13,7 +13,7 @@ type UploadFormProps = {
   disabled: boolean;
 };
 
-export default function UploadForm({
+export function UploadForm({
   title,
   onTitleChange,
   recordedDate,

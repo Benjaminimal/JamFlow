@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 
-import UploadForm from "@/components/UploadForm";
+import { UploadForm } from "@/components/UploadForm";
 import { useUploadForm } from "@/hooks/useUploadForm";
 
 export default function Upload(): JSX.Element {
