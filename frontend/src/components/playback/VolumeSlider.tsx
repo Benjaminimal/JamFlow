@@ -3,7 +3,7 @@ import type { JSX } from "react";
 import { usePlaybackContext } from "@/contexts/playback";
 import { Slider } from "@/ui-lib";
 
-export default function VolumeSlider(): JSX.Element {
+export function VolumeSlider(): JSX.Element {
   const {
     state: { volume },
     actions: { setVolume },
