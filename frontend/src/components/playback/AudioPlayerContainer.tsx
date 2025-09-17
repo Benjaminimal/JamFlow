@@ -8,7 +8,7 @@ import {
 } from "@/components/playback";
 import { usePlaybackContext } from "@/contexts/playback";
 
-export default function AudioPlayerContainer(): JSX.Element | null {
+export function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
 
   if (derived.isIdle) return null;
