@@ -6,5 +6,5 @@ import { IconButton } from "@/components/primitives";
 export function PauseButton(
   props: Omit<ComponentProps<typeof IconButton>, "icon" | "ariaLabel">,
 ): JSX.Element {
-  return <IconButton icon={Pause} ariaLabel="pause" {...props} />;
+  return <IconButton icon={Pause} aria-label="pause" {...props} />;
 }

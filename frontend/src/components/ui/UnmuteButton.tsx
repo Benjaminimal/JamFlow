@@ -6,5 +6,5 @@ import { IconButton } from "@/components/primitives";
 export function UnmuteButton(
   props: Omit<ComponentProps<typeof IconButton>, "icon" | "ariaLabel">,
 ): JSX.Element {
-  return <IconButton icon={VolumeX} ariaLabel="unmute" {...props} />;
+  return <IconButton icon={VolumeX} aria-label="unmute" {...props} />;
 }

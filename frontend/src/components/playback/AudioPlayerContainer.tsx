@@ -48,10 +48,14 @@ function AudioPlayer(): JSX.Element {
       <ProgressBar />
       <div className="my-2 flex flex-row items-center justify-between">
         <div className="ml-1 flex flex-row items-center space-x-2">
-          <VolumeSlider className="!min-h-12" orientation="vertical" />
+          <VolumeSlider className="!min-h-9" orientation="vertical" />
           <MuteToggle />
         </div>
-        <PlaybackToggle />
+        <PlaybackToggle
+          className="rounded-full border-2 !border-current"
+          size="icon-lg"
+          variant="outline"
+        />
         <div className="mr-1 flex flex-row items-center space-x-2">
           {/* TODO: replace with clipper icon */}
           <MuteToggle />
