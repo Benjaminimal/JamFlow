@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 
 import { usePlaybackContext } from "@/contexts/playback";
+import { Slider } from "@/ui-lib";
 
 export default function VolumeSlider(): JSX.Element {
   const {
@@ -8,14 +9,13 @@ export default function VolumeSlider(): JSX.Element {
     actions: { setVolume },
   } = usePlaybackContext();
   return (
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value={volume}
-      onChange={(e) => {
-        setVolume(Number(e.target.value));
-      }}
+    <Slider
+      className="!min-h-12"
+      orientation="vertical"
+      min={0}
+      max={100}
+      value={[volume]}
+      onValueChange={(values: number[]) => setVolume(Number(values[0]))}
       aria-label="change volume"
     />
   );
