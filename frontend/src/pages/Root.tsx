@@ -9,6 +9,13 @@ import { NotificationProvider } from "@/contexts/NotificationProvider";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
 
+// TODO:
+// - the upload dialog needs some love regarding auto close and reset state
+// - uploading a new track should be visible in the track list without a full reload
+// - replace notifications with toasts (shadcn Sonner component)
+// - clean up outdated components
+// - port test from old components to new ones
+// - look at test failures due to heavy refactoring
 export function Root(): JSX.Element {
   return (
     <AppProviders>
