@@ -8,7 +8,7 @@ import NotificationProvider from "@/contexts/NotificationProvider";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
 
-export default function Root(): JSX.Element {
+export function Root(): JSX.Element {
   return (
     <AppProviders>
       <Layout />

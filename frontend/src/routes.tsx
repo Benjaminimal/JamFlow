@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import { ErrorPage } from "@/pages/Error";
-import Root from "@/pages/Root";
+import { Root } from "@/pages/Root";
 import TrackList from "@/pages/TrackList";
 import Upload from "@/pages/Upload";
 
