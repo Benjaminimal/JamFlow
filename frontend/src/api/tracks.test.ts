@@ -18,7 +18,7 @@ vi.mock("@/api/errorHandler", () => ({
   mapAxiosError: vi.fn(),
 }));
 
-import apiClient from "@/api/client";
+import { apiClient } from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
 
 describe("track api", () => {

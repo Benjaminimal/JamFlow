@@ -1,4 +1,4 @@
-import apiClient from "@/api/client";
+import { apiClient } from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
 import { mapTrackToInternal } from "@/api/mappers";
 import type { TrackResponse } from "@/api/types";
