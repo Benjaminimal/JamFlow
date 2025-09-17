@@ -1,7 +1,7 @@
 import { type JSX, type ReactNode } from "react";
 import { Link, Outlet } from "react-router-dom";
 
-import NotificationContainer from "@/components/NotificationContainer";
+import { NotificationContainer } from "@/components/NotificationContainer";
 import AudioPlayerContainer from "@/components/playback";
 import { H1 } from "@/components/primitives";
 import NotificationProvider from "@/contexts/NotificationProvider";

@@ -2,7 +2,7 @@ import type { JSX } from "react";
 
 import { useNotifications as useNotifications } from "@/contexts/NotificationContext";
 
-export default function NotificationContainer(): JSX.Element {
+export function NotificationContainer(): JSX.Element {
   const { notifications } = useNotifications();
 
   //
