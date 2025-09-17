@@ -287,7 +287,7 @@ function usePlayback(): PlaybackContextType {
   };
 }
 
-export default function PlaybackProvider({
+export function PlaybackProvider({
   children,
 }: {
   children: ReactNode;
