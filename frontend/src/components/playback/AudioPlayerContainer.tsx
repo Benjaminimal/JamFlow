@@ -46,13 +46,17 @@ function AudioPlayer(): JSX.Element {
         {playable?.title || ""}
       </div>
       <ProgressBar />
-      <div className="flex flex-row items-center justify-center space-x-8 py-4">
-        <div className="flex flex-row items-center space-x-4">
-          <VolumeSlider />
+      <div className="my-2 flex flex-row items-center justify-between">
+        <div className="ml-1 flex flex-row items-center space-x-2">
+          <VolumeSlider className="!min-h-12" orientation="vertical" />
           <MuteToggle />
         </div>
         <PlaybackToggle />
-        <div>PLACEHOLDER</div>
+        <div className="mr-1 flex flex-row items-center space-x-2">
+          {/* TODO: replace with clipper icon */}
+          <MuteToggle />
+          <span className="w-[6px]"></span>
+        </div>
       </div>
     </div>
   );
