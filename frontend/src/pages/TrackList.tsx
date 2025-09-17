@@ -1,6 +1,6 @@
 import { type JSX } from "react";
 
-import { PlaybackToggle } from "@/components/playback/PlaybackToggle";
+import { PlaybackToggle } from "@/components/playback";
 import { PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";

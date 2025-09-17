@@ -42,14 +42,17 @@ function AudioPlayer(): JSX.Element {
   } = usePlaybackContext();
   return (
     <div data-testid="audio-player">
-      <div data-testid="audio-player-title">{playable?.title || ""}</div>
-      <div>
-        <ProgressBar />
-        <div>
-          <PlaybackToggle />
+      <div className="text-center font-medium" data-testid="audio-player-title">
+        {playable?.title || ""}
+      </div>
+      <ProgressBar />
+      <div className="flex flex-row items-center justify-center space-x-8 py-4">
+        <div className="flex flex-row items-center space-x-4">
+          <VolumeSlider />
           <MuteToggle />
         </div>
-        <VolumeSlider />
+        <PlaybackToggle />
+        <div>PLACEHOLDER</div>
       </div>
     </div>
   );
