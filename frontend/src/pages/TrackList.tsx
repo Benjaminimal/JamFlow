@@ -8,7 +8,7 @@ import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import type { Track } from "@/types";
 
-export default function TrackList(): JSX.Element {
+export function TrackList(): JSX.Element {
   const { tracks, isLoading, errorMessage, fetchData } = useTrackList();
   const {
     state: { playable },
