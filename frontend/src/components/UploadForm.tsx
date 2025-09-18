@@ -1,6 +1,9 @@
 import { type JSX, useRef } from "react";
 
 import type { ValidationErrorDetails } from "@/errors";
+import { Button } from "@/ui-lib";
+import { Input } from "@/ui-lib/input";
+import { Label } from "@/ui-lib/label";
 
 type UploadFormProps = {
   title: string;
@@ -13,6 +16,8 @@ type UploadFormProps = {
   disabled: boolean;
 };
 
+// TODO: rework errors
+// TODO: add a date picker
 export function UploadForm({
   title,
   onTitleChange,
@@ -36,41 +41,45 @@ export function UploadForm({
         }
       }}
     >
-      {renderErrors(formErrors.nonField)}
-      <div>
-        <label htmlFor="title">Title</label>
-        <input
-          id="title"
-          type="text"
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-        />
-        {renderErrors(formErrors.title)}
+      <div className="my-4 flex flex-col gap-4">
+        {renderErrors(formErrors.nonField)}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+          />
+          {renderErrors(formErrors.title)}
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="recordedDate">Recorded on</Label>
+          <Input
+            id="recordedDate"
+            type="date"
+            value={recordedDate || ""}
+            onChange={(e) => onRecordedDateChange(e.target.value)}
+            placeholder="Recorded Date"
+          />
+          {renderErrors(formErrors.recordedDate)}
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="file">File</Label>
+          <Input
+            id="file"
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+          />
+          {renderErrors(formErrors.file)}
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={disabled} variant="default">
+            Upload
+          </Button>
+        </div>
       </div>
-      <div>
-        <label htmlFor="recordedDate">Recorded on</label>
-        <input
-          id="recordedDate"
-          type="date"
-          value={recordedDate || ""}
-          onChange={(e) => onRecordedDateChange(e.target.value)}
-          placeholder="Recorded Date"
-        />
-        {renderErrors(formErrors.recordedDate)}
-      </div>
-      <div>
-        <label htmlFor="file">File</label>
-        <input
-          id="file"
-          type="file"
-          ref={fileInputRef}
-          onChange={(e) => onFileChange(e.target.files?.[0] || null)}
-        />
-        {renderErrors(formErrors.file)}
-      </div>
-      <button type="submit" disabled={disabled}>
-        Upload
-      </button>
     </form>
   );
 }
@@ -80,9 +89,12 @@ function renderErrors(errors: string[] | undefined): JSX.Element | null {
     return null;
   }
   return (
+    // TODO: add aria-describedby to form fields
     <div role="alert">
       {errors.map((message, idx) => (
-        <p key={idx}>{message}</p>
+        <p key={idx} className="text-destructive text-sm">
+          {message}
+        </p>
       ))}
     </div>
   );
