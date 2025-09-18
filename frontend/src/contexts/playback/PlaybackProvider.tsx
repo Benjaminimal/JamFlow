@@ -196,6 +196,7 @@ function usePlayback(): PlaybackContextType {
     if (!state.playable) return;
 
     howlRef.current = new Howl({
+      html5: true,
       src: [state.playable.url],
       onload: () => {
         const howl = howlRef.current;
