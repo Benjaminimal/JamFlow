@@ -1,5 +1,6 @@
 import { type ComponentProps, type JSX, useRef } from "react";
 
+import { DatePicker } from "@/components/ui/DatePicker";
 import type { ValidationErrorDetails } from "@/errors";
 import { Button, Input, Label } from "@/ui-lib";
 
@@ -14,7 +15,6 @@ type UploadFormProps = {
   disabled: boolean;
 };
 
-// TODO: add a date picker
 export function UploadForm({
   title,
   onTitleChange,
@@ -61,12 +61,10 @@ export function UploadForm({
           label="Recorded on"
           errors={formErrors.recordedDate}
         >
-          <Input
+          <DatePicker
+            value={recordedDate}
+            onChange={onRecordedDateChange}
             id="recordedDate"
-            type="date"
-            value={recordedDate || ""}
-            onChange={(e) => onRecordedDateChange(e.target.value)}
-            placeholder="Recorded Date"
             aria-describedby={
               formErrors.recordedDate ? "recordedDate-errors" : undefined
             }
