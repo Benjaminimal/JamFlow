@@ -1,9 +1,10 @@
 import { type JSX, type ReactNode } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import { NotificationContainer } from "@/components/NotificationContainer";
 import { AudioPlayerContainer } from "@/components/playback";
 import { H1 } from "@/components/primitives";
+import { UploadDialogContainer } from "@/components/upload";
 import { NotificationProvider } from "@/contexts/NotificationProvider";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
@@ -31,15 +32,6 @@ function AppProviders({ children }: { children: ReactNode }) {
     <NotificationProvider>
       <PlaybackProvider>{children}</PlaybackProvider>
     </NotificationProvider>
-  );
-}
-
-function Navbar(): JSX.Element {
-  return (
-    <nav>
-      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
-      <Link to="/tracks">Tracks</Link>
-    </nav>
   );
 }
 
@@ -74,8 +66,10 @@ function Header(): JSX.Element {
       )}
     >
       <PageContainer>
-        <H1>JamFlow</H1>
-        <Navbar />
+        <div className="flex items-center justify-between">
+          <H1>JamFlow</H1>
+          <UploadDialogContainer />
+        </div>
       </PageContainer>
     </header>
   );
