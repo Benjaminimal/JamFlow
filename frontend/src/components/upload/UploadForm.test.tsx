@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { UploadForm } from "@/components/UploadForm";
+import { UploadForm } from "@/components/upload";
 import { createTestFile } from "@/test-utils/testData";
 
 describe("UploadForm", () => {
