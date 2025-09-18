@@ -1,9 +1,7 @@
 import { type ComponentProps, type JSX, useRef } from "react";
 
 import type { ValidationErrorDetails } from "@/errors";
-import { Button } from "@/ui-lib";
-import { Input } from "@/ui-lib/input";
-import { Label } from "@/ui-lib/label";
+import { Button, Input, Label } from "@/ui-lib";
 
 type UploadFormProps = {
   title: string;
