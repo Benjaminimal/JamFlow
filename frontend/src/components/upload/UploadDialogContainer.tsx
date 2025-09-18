@@ -1,10 +1,9 @@
 import type { JSX } from "react";
 
-import { UploadForm } from "@/components/upload";
+import { UploadDialogForm } from "@/components/upload";
 import { useUploadForm } from "@/hooks/useUploadForm";
 
-// TODO: remove me and port test to UploadDialogContainer
-export function Upload(): JSX.Element {
+export function UploadDialogContainer(): JSX.Element {
   const {
     title,
     setTitle,
@@ -17,7 +16,7 @@ export function Upload(): JSX.Element {
   } = useUploadForm();
 
   return (
-    <UploadForm
+    <UploadDialogForm
       title={title}
       onTitleChange={setTitle}
       recordedDate={recordedDate}

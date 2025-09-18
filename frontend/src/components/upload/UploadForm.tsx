@@ -15,6 +15,7 @@ type UploadFormProps = {
   disabled: boolean;
 };
 
+// TODO: remove me and port test to UploadDialogForm
 export function UploadForm({
   title,
   onTitleChange,
