@@ -1,9 +1,10 @@
 import type { JSX } from "react";
 
-import UploadForm from "@/components/UploadForm";
+import { UploadForm } from "@/components/upload";
 import { useUploadForm } from "@/hooks/useUploadForm";
 
-export default function Upload(): JSX.Element {
+// TODO: remove me and port test to UploadDialogContainer
+export function Upload(): JSX.Element {
   const {
     title,
     setTitle,

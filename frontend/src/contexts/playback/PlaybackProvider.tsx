@@ -196,6 +196,7 @@ function usePlayback(): PlaybackContextType {
     if (!state.playable) return;
 
     howlRef.current = new Howl({
+      html5: true,
       src: [state.playable.url],
       onload: () => {
         const howl = howlRef.current;
@@ -215,6 +216,7 @@ function usePlayback(): PlaybackContextType {
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
+      // TODO: implement onend to correct the state
     });
 
     return () => {
@@ -286,7 +288,7 @@ function usePlayback(): PlaybackContextType {
   };
 }
 
-export default function PlaybackProvider({
+export function PlaybackProvider({
   children,
 }: {
   children: ReactNode;

@@ -5,7 +5,7 @@ import {
   NotificationContext,
 } from "@/contexts/NotificationContext";
 
-export default function NotificationProvider({
+export function NotificationProvider({
   children,
 }: {
   children: ReactNode;

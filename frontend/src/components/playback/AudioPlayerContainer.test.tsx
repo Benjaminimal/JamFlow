@@ -15,7 +15,7 @@ vi.mock("howler", () => ({
   Howl: HowlMock,
 }));
 
-import AudioPlayerContainer from "@/components/playback";
+import { AudioPlayerContainer } from "@/components/playback";
 import { PlaybackProvider } from "@/contexts/playback";
 import type { Playable } from "@/contexts/playback/types";
 
@@ -55,13 +55,17 @@ describe("AudioPlayerContainer", () => {
       load(createTestTrack());
 
       await waitFor(() => {
-        expect(screen.getByText(/loading/i)).toBeInTheDocument();
+        expect(
+          screen.getByRole("status", { name: /loading/i }),
+        ).toBeInTheDocument();
       });
 
       act(() => HowlMock.getRecent().resolveLoad());
 
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("status", { name: /loading/i }),
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -77,7 +81,9 @@ describe("AudioPlayerContainer", () => {
           screen.getByText(/audio can't be played right now/i),
         ).toBeInTheDocument();
       });
-      expect(screen.getByRole("button", { name: "retry" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /retry/i }),
+      ).toBeInTheDocument();
     });
   });
 

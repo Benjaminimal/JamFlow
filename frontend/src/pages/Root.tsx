@@ -1,44 +1,104 @@
-import "@/pages/Root.css";
+import { type JSX, type ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 
-import { type JSX } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { NotificationContainer } from "@/components/NotificationContainer";
+import { AudioPlayerContainer } from "@/components/playback";
+import { H1 } from "@/components/primitives";
+import { UploadDialogContainer } from "@/components/upload";
+import { NotificationProvider } from "@/contexts/NotificationProvider";
+import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
+import { cn } from "@/lib/utils";
 
-import NotificationContainer from "@/components/NotificationContainer";
-import AudioPlayerContainer from "@/components/playback";
-import NotificationProvider from "@/contexts/NotificationProvider";
-import { PlaybackProvider } from "@/contexts/playback";
+// TODO:
+// - the upload dialog needs some love regarding auto close and reset state
+// - uploading a new track should be visible in the track list without a full reload
+// - replace notifications with toasts (shadcn Sonner component)
+// - clean up outdated components
+// - port test from old components to new ones
+// - look at test failures due to heavy refactoring
+export function Root(): JSX.Element {
+  return (
+    <AppProviders>
+      <Layout />
+    </AppProviders>
+  );
+}
 
-export default function Root(): JSX.Element {
+function Layout(): JSX.Element {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <Main />
+      <Footer />
+    </div>
+  );
+}
+
+function AppProviders({ children }: { children: ReactNode }) {
   return (
     <NotificationProvider>
-      <PlaybackProvider>
-        <LayoutContent />
-      </PlaybackProvider>
+      <PlaybackProvider>{children}</PlaybackProvider>
     </NotificationProvider>
   );
 }
 
-function LayoutContent(): JSX.Element {
+function PageContainer({ children }: { children: ReactNode }): JSX.Element {
   return (
-    <>
-      <Navbar />
-      <h1>JamFlow</h1>
-
-      <NotificationContainer />
-
-      <div id="outlet">
-        <Outlet />
-      </div>
-      <AudioPlayerContainer />
-    </>
+    <div className={cn("max-w-4xl", "mx-auto", "px-4 sm:px-6 lg:px-8")}>
+      {children}
+    </div>
   );
 }
 
-function Navbar(): JSX.Element {
+function Main(): JSX.Element {
   return (
-    <nav>
-      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
-      <Link to="/tracks">Tracks</Link>
-    </nav>
+    <main className="grow overflow-y-auto">
+      <PageContainer>
+        <NotificationContainer />
+        <Outlet />
+      </PageContainer>
+    </main>
+  );
+}
+
+function Header(): JSX.Element {
+  return (
+    <header
+      className={cn(
+        "sticky top-0",
+        "border-b-accent-foreground",
+        "border-b",
+        "bg-background",
+        "py-2 sm:py-3 lg:py-4",
+      )}
+    >
+      <PageContainer>
+        <div className="flex items-center justify-between">
+          <H1>JamFlow</H1>
+          <UploadDialogContainer />
+        </div>
+      </PageContainer>
+    </header>
+  );
+}
+
+function Footer(): JSX.Element | null {
+  const { derived } = usePlaybackContext();
+
+  if (derived.isIdle) return null;
+  return (
+    <footer
+      className={cn(
+        "sticky bottom-0",
+        "border-t-accent-foreground",
+        "border-t",
+        "bg-background",
+        "py-2 sm:py-3 lg:py-4",
+      )}
+    >
+      <PageContainer>
+        <AudioPlayerContainer />
+      </PageContainer>
+    </footer>
   );
 }

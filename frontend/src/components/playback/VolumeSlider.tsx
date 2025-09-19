@@ -1,22 +1,35 @@
 import type { JSX } from "react";
 
+import { SliderFlat } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
-export default function VolumeSlider(): JSX.Element {
+type VolumeSliderProps = Omit<
+  React.ComponentProps<typeof SliderFlat>,
+  "min" | "max" | "value" | "onValueChange"
+>;
+
+export function VolumeSlider(props: VolumeSliderProps): JSX.Element {
   const {
-    state: { volume },
-    actions: { setVolume },
+    state: { volume, isMuted },
+    actions: { setVolume, unmute },
   } = usePlaybackContext();
+
+  const displayVolume = isMuted ? 0 : volume;
+
   return (
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value={volume}
-      onChange={(e) => {
-        setVolume(Number(e.target.value));
+    <SliderFlat
+      min={0}
+      max={100}
+      value={[displayVolume]}
+      onValueChange={(values: number[]) => {
+        if (isMuted) {
+          unmute();
+        }
+        setVolume(values[0]);
       }}
+      role="slider"
       aria-label="change volume"
+      {...props}
     />
   );
 }

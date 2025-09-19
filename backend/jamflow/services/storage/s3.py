@@ -103,6 +103,7 @@ class S3StorageService:
             } | _get_error_context(exc)
             raise StorageError("Failed to purge bucket", context=context) from exc
 
+    # TODO: consider caching the generated URL as it will be requested multiple times
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         try:
             url = await self._client.generate_presigned_url(

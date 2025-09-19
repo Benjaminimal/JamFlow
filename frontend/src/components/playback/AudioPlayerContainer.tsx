@@ -1,47 +1,22 @@
-import { type JSX, type ReactNode } from "react";
+import { Scissors } from "lucide-react";
+import { type JSX } from "react";
 
 import {
   MuteToggle,
-  PlayToggle,
+  PlaybackToggle,
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
+import { IconButton } from "@/components/primitives";
+import { ErrorState, LoadingState } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
-export default function AudioPlayerContainer(): JSX.Element | null {
+export function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
 
   if (derived.isIdle) return null;
-
-  return (
-    <AudioPlayerLayout>
-      <AudioPlayerStateSwitcher />
-    </AudioPlayerLayout>
-  );
-}
-function AudioPlayerLayout({ children }: { children: ReactNode }): JSX.Element {
-  return (
-    //  TODO: remove debug styling
-    <div
-      style={{
-        position: "fixed",
-        width: "100%",
-        left: 0,
-        bottom: 0,
-        zIndex: 1000,
-        backgroundColor: "#242424",
-        borderTop: "2px solid #fff",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function AudioPlayerStateSwitcher() {
-  const { derived } = usePlaybackContext();
   if (derived.isError) return <ErrorDisplay />;
-  if (derived.isLoading) return <Loader />;
+  if (derived.isLoading) return <LoadingState />;
   return <AudioPlayer />;
 }
 
@@ -51,17 +26,11 @@ function ErrorDisplay(): JSX.Element {
     actions: { load },
   } = usePlaybackContext();
   return (
-    <>
-      <p>{errorMessage}</p>
-      <button onClick={() => playable && load(playable)} aria-label="retry">
-        Retry
-      </button>
-    </>
+    <ErrorState
+      message={errorMessage}
+      onRetry={() => playable && load(playable)}
+    />
   );
-}
-
-function Loader(): JSX.Element {
-  return <p>Loading...</p>;
 }
 
 function AudioPlayer(): JSX.Element {
@@ -70,14 +39,24 @@ function AudioPlayer(): JSX.Element {
   } = usePlaybackContext();
   return (
     <div data-testid="audio-player">
-      <div data-testid="audio-player-title">{playable?.title || ""}</div>
-      <div>
-        <ProgressBar />
-        <div>
-          <PlayToggle />
+      <div className="text-center font-medium" data-testid="audio-player-title">
+        {playable?.title || ""}
+      </div>
+      <ProgressBar />
+      <div className="my-2 flex flex-row items-center justify-between">
+        <div className="ml-1 flex flex-row items-center space-x-2">
+          <VolumeSlider className="!min-h-9" orientation="vertical" />
           <MuteToggle />
         </div>
-        <VolumeSlider />
+        <PlaybackToggle
+          className="rounded-full border-2 !border-current"
+          size="icon-lg"
+          variant="outline"
+        />
+        <div className="mr-1 flex flex-row items-center space-x-2">
+          <IconButton icon={Scissors} />
+          <span className="w-[6px]"></span>
+        </div>
       </div>
     </div>
   );
