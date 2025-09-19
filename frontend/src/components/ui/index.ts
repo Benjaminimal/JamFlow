@@ -1,3 +1,4 @@
+export * from "./ErrorState";
 export * from "./LoadingState";
 export * from "./MuteButton";
 export * from "./PauseButton";
