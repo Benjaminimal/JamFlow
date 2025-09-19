@@ -55,13 +55,17 @@ describe("AudioPlayerContainer", () => {
       load(createTestTrack());
 
       await waitFor(() => {
-        expect(screen.getByText(/loading/i)).toBeInTheDocument();
+        expect(
+          screen.getByRole("status", { name: /loading/i }),
+        ).toBeInTheDocument();
       });
 
       act(() => HowlMock.getRecent().resolveLoad());
 
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("status", { name: /loading/i }),
+        ).not.toBeInTheDocument();
       });
     });
 

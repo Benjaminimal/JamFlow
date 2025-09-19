@@ -6,6 +6,7 @@ import {
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
+import { Loader } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
 export function AudioPlayerContainer(): JSX.Element | null {
@@ -30,10 +31,6 @@ function ErrorDisplay(): JSX.Element {
       </button>
     </>
   );
-}
-
-function Loader(): JSX.Element {
-  return <p>Loading...</p>;
 }
 
 function AudioPlayer(): JSX.Element {

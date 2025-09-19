@@ -1,7 +1,7 @@
 import { type JSX } from "react";
 
 import { PlaybackToggle } from "@/components/playback";
-import { PlayButton } from "@/components/ui";
+import { Loader, PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
@@ -17,17 +17,12 @@ export function TrackList(): JSX.Element {
 
   const isError = errorMessage !== null;
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading) return <Loader />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
   if (tracks.length === 0) return <EmptyState />;
   return (
     <LoadedState tracks={tracks} currentTrack={playable} playTrack={load} />
   );
-}
-
-// TODO: Add a skeleton loader for LoadingState when working on styling.
-function LoadingState(): JSX.Element {
-  return <p>Loading...</p>;
 }
 
 type ErrorStateProps = {

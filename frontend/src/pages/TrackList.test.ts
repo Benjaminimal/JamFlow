@@ -44,11 +44,15 @@ describe("Tracks page", () => {
 
       renderRoute("/tracks");
 
-      expect(screen.getByText(/loading/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("status", { name: /loading/i }),
+      ).toBeInTheDocument();
 
       resolveList!([]);
       await waitFor(() => {
-        expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("status", { name: /loading/i }),
+        ).not.toBeInTheDocument();
       });
     });
   });
