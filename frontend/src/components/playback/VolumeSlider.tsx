@@ -1,10 +1,10 @@
 import type { JSX } from "react";
 
+import { SliderFlat } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
-import { Slider } from "@/ui-lib";
 
 type VolumeSliderProps = Omit<
-  React.ComponentProps<typeof Slider>,
+  React.ComponentProps<typeof SliderFlat>,
   "min" | "max" | "value" | "onValueChange"
 >;
 
@@ -14,7 +14,7 @@ export function VolumeSlider(props: VolumeSliderProps): JSX.Element {
     actions: { setVolume },
   } = usePlaybackContext();
   return (
-    <Slider
+    <SliderFlat
       min={0}
       max={100}
       value={[volume]}

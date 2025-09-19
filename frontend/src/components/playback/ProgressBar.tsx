@@ -1,8 +1,8 @@
 import { type JSX, useEffect, useRef, useState } from "react";
 
+import { SliderFlat } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { formatDuration } from "@/lib/time";
-import { Slider } from "@/ui-lib";
 
 export function ProgressBar(): JSX.Element {
   const playback = usePlaybackContext();
@@ -42,7 +42,7 @@ export function ProgressBar(): JSX.Element {
           {formatDuration(playback.state.duration)}
         </span>
       </div>
-      <Slider
+      <SliderFlat
         value={[playbackPosition]}
         min={0}
         max={playback.state.duration}
