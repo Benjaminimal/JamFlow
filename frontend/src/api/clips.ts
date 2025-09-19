@@ -22,3 +22,12 @@ export async function postClip({
     throw mapAxiosError(error);
   }
 }
+
+export async function listClips(): Promise<Clip[]> {
+  try {
+    const response = await apiClient.get<ClipResponse[]>("/clips");
+    return response.data.map(mapClipToInternal);
+  } catch (error) {
+    throw mapAxiosError(error);
+  }
+}
