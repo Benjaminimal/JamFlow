@@ -10,15 +10,23 @@ type VolumeSliderProps = Omit<
 
 export function VolumeSlider(props: VolumeSliderProps): JSX.Element {
   const {
-    state: { volume },
-    actions: { setVolume },
+    state: { volume, isMuted },
+    actions: { setVolume, unmute },
   } = usePlaybackContext();
+
+  const displayVolume = isMuted ? 0 : volume;
+
   return (
     <SliderFlat
       min={0}
       max={100}
-      value={[volume]}
-      onValueChange={(values: number[]) => setVolume(Number(values[0]))}
+      value={[displayVolume]}
+      onValueChange={(values: number[]) => {
+        if (isMuted) {
+          unmute();
+        }
+        setVolume(values[0]);
+      }}
       aria-label="change volume"
       {...props}
     />
