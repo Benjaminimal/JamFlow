@@ -22,6 +22,7 @@ export type PlaybackState = {
   seekTarget: number;
   volume: number;
   isMuted: boolean;
+  isLooping: boolean;
   errorMessage: string;
 };
 
@@ -34,6 +35,8 @@ export type PlaybackActions = {
   setVolume: (v: number) => void;
   mute: () => void;
   unmute: () => void;
+  loop: () => void;
+  unloop: () => void;
 };
 
 export type PlaybackDerived = {

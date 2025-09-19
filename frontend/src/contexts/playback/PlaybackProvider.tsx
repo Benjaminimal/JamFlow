@@ -26,6 +26,7 @@ const initialState: PlaybackState = {
   seekTarget: 0,
   volume: 75,
   isMuted: false,
+  isLooping: false,
   errorMessage: "",
 };
 
@@ -38,6 +39,8 @@ type PlaybackAction =
   | { type: "VOLUME_CHANGE"; volume: number }
   | { type: "MUTE" }
   | { type: "UNMUTE" }
+  | { type: "LOOP" }
+  | { type: "UNLOOP" }
   | { type: "SET_ERROR"; message: string };
 
 type PlaybackActionType = PlaybackAction["type"];
@@ -52,6 +55,8 @@ const allowedActions: Record<PlaybackStatus, PlaybackActionType[]> = {
     "VOLUME_CHANGE",
     "MUTE",
     "UNMUTE",
+    "LOOP",
+    "UNLOOP",
     "SET_ERROR",
   ],
   [PlaybackStatus.Paused]: [
@@ -61,6 +66,8 @@ const allowedActions: Record<PlaybackStatus, PlaybackActionType[]> = {
     "VOLUME_CHANGE",
     "MUTE",
     "UNMUTE",
+    "LOOP",
+    "UNLOOP",
     "SET_ERROR",
   ],
   [PlaybackStatus.Error]: ["LOAD"],
@@ -131,6 +138,18 @@ function playbackReducer(
         isMuted: false,
       };
     }
+    case "LOOP": {
+      return {
+        ...state,
+        isLooping: true,
+      };
+    }
+    case "UNLOOP": {
+      return {
+        ...state,
+        isLooping: false,
+      };
+    }
     case "SET_ERROR": {
       return {
         ...state,
@@ -189,6 +208,14 @@ function usePlayback(): PlaybackContextType {
 
   const unmute = useCallback(() => {
     dispatch({ type: "UNMUTE" });
+  }, []);
+
+  const loop = useCallback(() => {
+    dispatch({ type: "LOOP" });
+  }, []);
+
+  const unloop = useCallback(() => {
+    dispatch({ type: "UNLOOP" });
   }, []);
 
   // Load new playable
@@ -250,6 +277,14 @@ function usePlayback(): PlaybackContextType {
     howl.seek(msToSeconds(state.seekTarget));
   }, [state.seekTarget]);
 
+  // Volume
+  useEffect(() => {
+    const howl = howlRef.current;
+    if (!howl) return;
+
+    howl.volume(percentToFactor(state.volume));
+  }, [state.volume]);
+
   // Mute
   useEffect(() => {
     const howl = howlRef.current;
@@ -258,13 +293,13 @@ function usePlayback(): PlaybackContextType {
     howl.mute(state.isMuted);
   }, [state.isMuted]);
 
-  // Volume
+  // Mute
   useEffect(() => {
     const howl = howlRef.current;
     if (!howl) return;
 
-    howl.volume(percentToFactor(state.volume));
-  }, [state.volume]);
+    howl.loop(state.isLooping);
+  }, [state.isLooping]);
 
   return {
     state,
@@ -277,6 +312,8 @@ function usePlayback(): PlaybackContextType {
       setVolume,
       mute,
       unmute,
+      loop,
+      unloop,
     },
     derived: {
       isIdle: state.status === PlaybackStatus.Idle,
