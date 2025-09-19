@@ -6,7 +6,7 @@ import {
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
-import { Loader } from "@/components/ui";
+import { LoadingState } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
 export function AudioPlayerContainer(): JSX.Element | null {
@@ -14,7 +14,7 @@ export function AudioPlayerContainer(): JSX.Element | null {
 
   if (derived.isIdle) return null;
   if (derived.isError) return <ErrorDisplay />;
-  if (derived.isLoading) return <Loader />;
+  if (derived.isLoading) return <LoadingState />;
   return <AudioPlayer />;
 }
 

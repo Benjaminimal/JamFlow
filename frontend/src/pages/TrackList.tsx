@@ -1,7 +1,7 @@
 import { type JSX } from "react";
 
 import { PlaybackToggle } from "@/components/playback";
-import { Loader, PlayButton } from "@/components/ui";
+import { LoadingState, PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
@@ -17,7 +17,7 @@ export function TrackList(): JSX.Element {
 
   const isError = errorMessage !== null;
 
-  if (isLoading) return <Loader />;
+  if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
   if (tracks.length === 0) return <EmptyState />;
   return (

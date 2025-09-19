@@ -3,15 +3,15 @@ import type { ComponentProps, JSX } from "react";
 import { Spinner } from "@/components/primitives";
 import { cn } from "@/lib/utils";
 
-type LoaderProps = ComponentProps<"div"> & {
+type LoadingStateProps = ComponentProps<"div"> & {
   spinnerProps?: ComponentProps<typeof Spinner>;
 };
 
-export function Loader({
+export function LoadingState({
   className,
   spinnerProps,
   ...props
-}: LoaderProps): JSX.Element {
+}: LoadingStateProps): JSX.Element {
   return (
     <div
       role="status"
