@@ -18,6 +18,27 @@ export type TrackResponse = {
   url: string;
 };
 
+export type ClipCreateRequest = {
+  track_id: string;
+  title: string;
+  start: number; // milliseconds
+  end: number; // milliseconds
+};
+
+export type ClipResponse = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  duration: number; // milliseconds
+  format: AudioFormat;
+  size: number; // bytes
+  url: string;
+  track_id: string;
+  start: number; // milliseconds
+  end: number; // milliseconds
+};
+
 // NOTE: these error types are currently not used
 export type ErrorCode =
   | "VALIDATION_ERROR"
