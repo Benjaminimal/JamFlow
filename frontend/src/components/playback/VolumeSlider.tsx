@@ -27,6 +27,7 @@ export function VolumeSlider(props: VolumeSliderProps): JSX.Element {
         }
         setVolume(values[0]);
       }}
+      role="slider"
       aria-label="change volume"
       {...props}
     />

@@ -81,7 +81,9 @@ describe("AudioPlayerContainer", () => {
           screen.getByText(/audio can't be played right now/i),
         ).toBeInTheDocument();
       });
-      expect(screen.getByRole("button", { name: "retry" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /retry/i }),
+      ).toBeInTheDocument();
     });
   });
 

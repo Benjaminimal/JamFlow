@@ -53,6 +53,7 @@ export function ProgressBar(): JSX.Element {
           setIsSeeking(false);
         }}
         onValueChange={(values: number[]) => setSeekTarget(values[0])}
+        role="slider"
         aria-label="seek position"
       />
     </div>

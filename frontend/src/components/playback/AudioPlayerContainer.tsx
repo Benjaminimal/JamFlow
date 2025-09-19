@@ -1,3 +1,4 @@
+import { Scissors } from "lucide-react";
 import { type JSX } from "react";
 
 import {
@@ -6,6 +7,7 @@ import {
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
+import { IconButton } from "@/components/primitives";
 import { ErrorState, LoadingState } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
@@ -52,8 +54,7 @@ function AudioPlayer(): JSX.Element {
           variant="outline"
         />
         <div className="mr-1 flex flex-row items-center space-x-2">
-          {/* TODO: replace with clipper icon */}
-          <MuteToggle />
+          <IconButton icon={Scissors} />
           <span className="w-[6px]"></span>
         </div>
       </div>
