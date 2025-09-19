@@ -7,22 +7,23 @@ import { Slider } from "@/ui-lib";
 export function ProgressBar(): JSX.Element {
   const playback = usePlaybackContext();
   const { getPosition } = playback.actions;
-  // TODO: we could try to replace this with the sliderRef value directly
+  const [playbackPosition, setPlaybackPosition] = useState(0);
   const [seekTarget, setSeekTarget] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
   const spanRef = useRef<HTMLSpanElement>(null);
-  const sliderRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!playback.derived.isPlaying) return;
 
     const syncProgress = () => {
       const progress = isSeeking ? seekTarget : getPosition();
-      if (sliderRef.current) {
-        sliderRef.current.value = String(progress);
-      }
-      if (spanRef.current) {
+      setPlaybackPosition(progress);
+      const formattedDuration = formatDuration(progress);
+      if (
+        spanRef.current &&
+        spanRef.current.textContent !== formattedDuration
+      ) {
         spanRef.current.textContent = formatDuration(progress);
       }
       requestAnimationFrame(syncProgress);
@@ -42,7 +43,7 @@ export function ProgressBar(): JSX.Element {
         </span>
       </div>
       <Slider
-        ref={sliderRef}
+        value={[playbackPosition]}
         min={0}
         max={playback.state.duration}
         step={100}
@@ -51,7 +52,7 @@ export function ProgressBar(): JSX.Element {
           playback.actions.seek(seekTarget);
           setIsSeeking(false);
         }}
-        onValueChange={(values: number[]) => setSeekTarget(Number(values[0]))}
+        onValueChange={(values: number[]) => setSeekTarget(values[0])}
         aria-label="seek position"
       />
     </div>
