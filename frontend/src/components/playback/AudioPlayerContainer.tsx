@@ -6,7 +6,7 @@ import {
   ProgressBar,
   VolumeSlider,
 } from "@/components/playback";
-import { LoadingState } from "@/components/ui";
+import { ErrorState, LoadingState } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 
 export function AudioPlayerContainer(): JSX.Element | null {
@@ -24,12 +24,10 @@ function ErrorDisplay(): JSX.Element {
     actions: { load },
   } = usePlaybackContext();
   return (
-    <>
-      <p>{errorMessage}</p>
-      <button onClick={() => playable && load(playable)} aria-label="retry">
-        Retry
-      </button>
-    </>
+    <ErrorState
+      message={errorMessage}
+      onRetry={() => playable && load(playable)}
+    />
   );
 }
 

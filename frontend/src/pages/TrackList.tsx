@@ -1,7 +1,7 @@
 import { type JSX } from "react";
 
 import { PlaybackToggle } from "@/components/playback";
-import { LoadingState, PlayButton } from "@/components/ui";
+import { ErrorState, LoadingState, PlayButton } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
@@ -22,20 +22,6 @@ export function TrackList(): JSX.Element {
   if (tracks.length === 0) return <EmptyState />;
   return (
     <LoadedState tracks={tracks} currentTrack={playable} playTrack={load} />
-  );
-}
-
-type ErrorStateProps = {
-  message: string;
-  onRetry: () => void;
-};
-
-function ErrorState({ message, onRetry }: ErrorStateProps): JSX.Element {
-  return (
-    <>
-      <p>{message}</p>
-      <button onClick={onRetry}>Retry</button>
-    </>
   );
 }
 
