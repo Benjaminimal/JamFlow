@@ -52,6 +52,10 @@ export class HowlMock {
     return this.instances[this.instances.length - 1];
   }
 
+  static count(): number {
+    return this.instances.length;
+  }
+
   static reset() {
     HowlMock.instances = [];
     HowlMock.loadMode = "success";
@@ -95,6 +99,7 @@ export class HowlMock {
   });
   duration = vi.fn(() => 123);
   mute = vi.fn();
+  loop = vi.fn();
   volume = vi.fn();
   unload = vi.fn();
 }
