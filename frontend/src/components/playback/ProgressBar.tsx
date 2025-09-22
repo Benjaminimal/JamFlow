@@ -1,55 +1,50 @@
-import { type JSX, useEffect, useRef, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 
 import { SliderFlat } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
+import type { PlaybackEvent } from "@/contexts/playback/types";
 import { formatDuration } from "@/lib/time";
 
 export function ProgressBar(): JSX.Element {
-  const playback = usePlaybackContext();
-  const { getPosition } = playback.actions;
+  const {
+    state: { duration },
+    actions: { seek, subscribe },
+  } = usePlaybackContext();
   const [playbackPosition, setPlaybackPosition] = useState(0);
   const [seekTarget, setSeekTarget] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
-  const spanRef = useRef<HTMLSpanElement>(null);
-
   useEffect(() => {
-    if (!playback.derived.isPlaying) return;
+    const syncPosition = (event: PlaybackEvent) => {
+      if (event.type !== "progress") return;
+      const position = isSeeking ? seekTarget : event.position;
 
-    const syncProgress = () => {
-      const progress = isSeeking ? seekTarget : getPosition();
-      setPlaybackPosition(progress);
-      const formattedDuration = formatDuration(progress);
-      if (
-        spanRef.current &&
-        spanRef.current.textContent !== formattedDuration
-      ) {
-        spanRef.current.textContent = formatDuration(progress);
-      }
-      requestAnimationFrame(syncProgress);
+      setPlaybackPosition(position);
     };
 
-    const refid = requestAnimationFrame(syncProgress);
+    const unsubscribe = subscribe(syncPosition);
 
-    return () => cancelAnimationFrame(refid);
-  }, [isSeeking, seekTarget, playback.derived.isPlaying, getPosition]);
+    return () => unsubscribe();
+  }, [isSeeking, seekTarget, subscribe]);
 
   return (
     <div className="flex flex-col space-y-2">
       <div className="text-muted-foreground flex flex-row justify-between">
-        <span ref={spanRef} data-testid="audio-player-position"></span>
+        <span data-testid="audio-player-position">
+          {formatDuration(playbackPosition)}
+        </span>
         <span data-testid="audio-player-duration">
-          {formatDuration(playback.state.duration)}
+          {formatDuration(duration)}
         </span>
       </div>
       <SliderFlat
         value={[playbackPosition]}
         min={0}
-        max={playback.state.duration}
+        max={duration}
         step={100}
         onPointerDown={() => setIsSeeking(true)}
         onPointerUp={() => {
-          playback.actions.seek(seekTarget);
+          seek(seekTarget);
           setIsSeeking(false);
         }}
         onValueChange={(values: number[]) => setSeekTarget(values[0])}
