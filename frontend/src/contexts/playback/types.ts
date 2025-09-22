@@ -37,6 +37,7 @@ export type PlaybackActions = {
   unmute: () => void;
   loop: () => void;
   unloop: () => void;
+  subscribe: (cb: PlaybackEventCallback) => PlaybackEventUnsubscribe;
 };
 
 export type PlaybackDerived = {
@@ -52,3 +53,11 @@ export type PlaybackContextType = {
   actions: PlaybackActions;
   derived: PlaybackDerived;
 };
+
+export type PlaybackEventCallback = (e: PlaybackEvent) => void;
+
+export type PlaybackEventUnsubscribe = () => void;
+
+export type PlaybackEvent =
+  | { type: "seek"; target: number }
+  | { type: "progress"; position: number };

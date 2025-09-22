@@ -4,6 +4,8 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 import {
   type Playable,
   type PlaybackContextType,
+  type PlaybackEvent,
+  type PlaybackEventCallback,
   type PlaybackState,
   PlaybackStatus,
 } from "@/contexts/playback/types";
@@ -161,7 +163,15 @@ function allowAction(
 
 export function usePlayback(): PlaybackContextType {
   const [state, dispatch] = useReducer(playbackReducer, initialState);
+
   const howlRef = useRef<Howl | null>(null);
+  const subscribersRef = useRef<Set<PlaybackEventCallback>>(new Set());
+
+  const isIdle = state.status === PlaybackStatus.Idle;
+  const isLoading = state.status === PlaybackStatus.Loading;
+  const isPlaying = state.status === PlaybackStatus.Playing;
+  const isPaused = state.status === PlaybackStatus.Paused;
+  const isError = state.status === PlaybackStatus.Error;
 
   const load = useCallback((playable: Playable) => {
     dispatch({ type: "LOAD", playable });
@@ -182,15 +192,15 @@ export function usePlayback(): PlaybackContextType {
   }, []);
 
   const seek = useCallback(
-    (v: number) => {
-      const target = Math.max(0, Math.min(state.duration, v));
+    (rawTarget: number) => {
+      const target = Math.max(0, Math.min(state.duration, rawTarget));
       dispatch({ type: "SEEK", target });
     },
     [state.duration],
   );
 
-  const setVolume = useCallback((v: number) => {
-    const nextVolume = Math.max(0, Math.min(100, v));
+  const setVolume = useCallback((rawVolume: number) => {
+    const nextVolume = Math.max(0, Math.min(100, rawVolume));
     dispatch({ type: "VOLUME_CHANGE", volume: nextVolume });
   }, []);
 
@@ -208,6 +218,15 @@ export function usePlayback(): PlaybackContextType {
 
   const unloop = useCallback(() => {
     dispatch({ type: "UNLOOP" });
+  }, []);
+
+  const subscribe = useCallback((callback: PlaybackEventCallback) => {
+    subscribersRef.current.add(callback);
+    return () => subscribersRef.current.delete(callback);
+  }, []);
+
+  const emit = useCallback((event: PlaybackEvent) => {
+    subscribersRef.current.forEach((callback) => callback(event));
   }, []);
 
   // Load new playable
@@ -244,6 +263,20 @@ export function usePlayback(): PlaybackContextType {
     };
   }, [state.playable]);
 
+  // Progress
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const tick = () => {
+      emit({ type: "progress", position: getPosition() });
+      requestAnimationFrame(tick);
+    };
+
+    const rafId = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(rafId);
+  }, [isPlaying, emit, getPosition]);
+
   // Play / Pause
   useEffect(() => {
     const howl = howlRef.current;
@@ -267,7 +300,8 @@ export function usePlayback(): PlaybackContextType {
     if (!howl) return;
 
     howl.seek(msToSeconds(state.seekTarget));
-  }, [state.seekTarget]);
+    emit({ type: "seek", target: state.seekTarget });
+  }, [state.seekTarget, emit]);
 
   // Volume
   useEffect(() => {
@@ -306,13 +340,14 @@ export function usePlayback(): PlaybackContextType {
       unmute,
       loop,
       unloop,
+      subscribe,
     },
     derived: {
-      isIdle: state.status === PlaybackStatus.Idle,
-      isLoading: state.status === PlaybackStatus.Loading,
-      isPlaying: state.status === PlaybackStatus.Playing,
-      isPaused: state.status === PlaybackStatus.Paused,
-      isError: state.status === PlaybackStatus.Error,
+      isIdle,
+      isLoading,
+      isPlaying,
+      isPaused,
+      isError,
     },
   };
 }
