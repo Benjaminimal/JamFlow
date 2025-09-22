@@ -18,6 +18,7 @@ const initialState: PlaybackState = {
   playable: null,
   duration: 0,
   seekTarget: 0,
+  seekRequestId: 0,
   volume: 75,
   isMuted: false,
   isLooping: false,
@@ -112,6 +113,7 @@ function playbackReducer(
       return {
         ...state,
         seekTarget: action.target,
+        seekRequestId: state.seekRequestId + 1,
       };
     }
     case "VOLUME_CHANGE": {
@@ -173,6 +175,15 @@ export function usePlayback(): PlaybackContextType {
   const isPaused = state.status === PlaybackStatus.Paused;
   const isError = state.status === PlaybackStatus.Error;
 
+  const subscribe = useCallback((callback: PlaybackEventCallback) => {
+    subscribersRef.current.add(callback);
+    return () => subscribersRef.current.delete(callback);
+  }, []);
+
+  const emit = useCallback((event: PlaybackEvent) => {
+    subscribersRef.current.forEach((callback) => callback(event));
+  }, []);
+
   const load = useCallback((playable: Playable) => {
     dispatch({ type: "LOAD", playable });
   }, []);
@@ -218,15 +229,6 @@ export function usePlayback(): PlaybackContextType {
 
   const unloop = useCallback(() => {
     dispatch({ type: "UNLOOP" });
-  }, []);
-
-  const subscribe = useCallback((callback: PlaybackEventCallback) => {
-    subscribersRef.current.add(callback);
-    return () => subscribersRef.current.delete(callback);
-  }, []);
-
-  const emit = useCallback((event: PlaybackEvent) => {
-    subscribersRef.current.forEach((callback) => callback(event));
   }, []);
 
   // Load new playable
@@ -301,7 +303,7 @@ export function usePlayback(): PlaybackContextType {
 
     howl.seek(msToSeconds(state.seekTarget));
     emit({ type: "seek", target: state.seekTarget });
-  }, [state.seekTarget, emit]);
+  }, [state.seekTarget, state.seekRequestId, emit]);
 
   // Volume
   useEffect(() => {

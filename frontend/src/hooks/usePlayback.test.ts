@@ -136,6 +136,17 @@ describe("usePlayback", () => {
       expect(howlMock.seek).toHaveBeenCalledTimes(1);
     });
 
+    it("handles double seek to the same position", async () => {
+      const { result } = await renderHookPlaying();
+      const howlMock = HowlMock.getRecent();
+      howlMock.seek.mockReset();
+
+      act(() => result.current.actions.seek(5000));
+      act(() => result.current.actions.seek(5000));
+
+      expect(howlMock.seek).toHaveBeenCalledTimes(2);
+    });
+
     it("mutes on mute action", async () => {
       const { result } = await renderHookPlaying();
       const howlMock = HowlMock.getRecent();

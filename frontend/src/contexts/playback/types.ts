@@ -20,6 +20,7 @@ export type PlaybackState = {
   playable: Playable | null;
   duration: number;
   seekTarget: number;
+  seekRequestId: number;
   volume: number;
   isMuted: boolean;
   isLooping: boolean;
