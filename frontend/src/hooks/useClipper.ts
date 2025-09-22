@@ -17,7 +17,6 @@ const logger = getLogger("useClipper");
 //   * introduce max clip duration
 //   * introduce min clip duration
 // - Add unit tests for useClipper
-// - Handle external changes to playback
 // - UI/UX improvements
 // - Implement submitClip
 // - Implement SET_TITLE
@@ -101,11 +100,7 @@ function clipperReducer(
   }
   switch (action.type) {
     case "START_CLIPPING": {
-      const { start, end } = getBounds(
-        action.position - START_OFFSET,
-        action.position + END_OFFSET,
-        action.duration,
-      );
+      const { start, end } = getInitialBounds(action.position, action.duration);
 
       return {
         ...state,
@@ -201,6 +196,23 @@ export function useClipper(): UseClipperResult {
     return () => unsubscribe();
   }, [isIdle, subscribe, seek, state.start, state.end]);
 
+  // Move clip window on out of bounds seek
+  useEffect(() => {
+    const moveClipWindow = (event: PlaybackEvent) => {
+      if (isIdle) return;
+      if (event.type !== "seek") return;
+
+      const position = event.target;
+      if (state.start <= position && position <= state.end) return;
+
+      const { start, end } = getInitialBounds(position, duration);
+      dispatch({ type: "SET_BOUNDS", start, end });
+    };
+
+    const unsubscribe = subscribe(moveClipWindow);
+    return () => unsubscribe();
+  }, [isIdle, state.start, state.end, duration, subscribe]);
+
   return {
     state,
     actions: {
@@ -240,6 +252,13 @@ function getBounds(
   }
 
   return { start, end };
+}
+
+function getInitialBounds(
+  position: number,
+  duration: number,
+): { start: number; end: number } {
+  return getBounds(position - START_OFFSET, position + END_OFFSET, duration);
 }
 
 function clamp(value: number, min: number, max: number): number {
