@@ -1,6 +1,7 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 
 import { usePlaybackContext } from "@/contexts/playback";
+import type { PlaybackEvent } from "@/contexts/playback/types";
 import { getLogger } from "@/lib/logging";
 
 export const ClipperStatus = {
@@ -17,7 +18,6 @@ const logger = getLogger("useClipper");
 //   * introduce min clip duration
 // - Add unit tests for useClipper
 // - Handle external changes to playback
-// - Loop clip window
 // - UI/UX improvements
 // - Implement submitClip
 // - Implement SET_TITLE
@@ -147,9 +147,14 @@ export function useClipper(): UseClipperResult {
 
   const {
     state: { duration },
-    actions: { getPosition, seek },
+    actions: { seek, getPosition, subscribe },
     derived: { isPlaying, isPaused },
   } = usePlaybackContext();
+
+  const isIdle = state.status === ClipperStatus.Idle;
+  const isActive = state.status === ClipperStatus.Active;
+  const isSubmitting = state.status === ClipperStatus.Submitting;
+  const isClippable = isPlaying || isPaused;
 
   const startClipping = () => {
     dispatch({
@@ -181,6 +186,21 @@ export function useClipper(): UseClipperResult {
     dispatch({ type: "SET_TITLE", title });
   };
 
+  // Loop clip window
+  useEffect(() => {
+    const loopClipWindow = (event: PlaybackEvent) => {
+      if (isIdle) return;
+      if (event.type !== "progress") return;
+
+      if (event.position > state.end) {
+        seek(state.start);
+      }
+    };
+
+    const unsubscribe = subscribe(loopClipWindow);
+    return () => unsubscribe();
+  }, [isIdle, subscribe, seek, state.start, state.end]);
+
   return {
     state,
     actions: {
@@ -192,10 +212,10 @@ export function useClipper(): UseClipperResult {
       setTitle,
     },
     derived: {
-      isIdle: state.status === ClipperStatus.Idle,
-      isActive: state.status === ClipperStatus.Active,
-      isSubmitting: state.status === ClipperStatus.Submitting,
-      isClippable: isPlaying || isPaused,
+      isIdle,
+      isActive,
+      isSubmitting,
+      isClippable,
     },
   };
 }
