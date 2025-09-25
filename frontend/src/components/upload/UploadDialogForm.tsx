@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { type ComponentProps, type JSX, useRef } from "react";
+import { type ComponentProps, type JSX, type RefObject } from "react";
 
 import { IconButton } from "@/components/primitives";
 import { DatePicker } from "@/components/ui/DatePicker";
@@ -19,31 +19,45 @@ import {
 } from "@/ui-lib";
 
 type UploadDialogFormProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   title: string;
   onTitleChange: (v: string) => void;
   recordedDate: string | null;
   onRecordedDateChange: (v: string | null) => void;
   onFileChange: (file: File | null) => void;
+  fileInputRef: RefObject<HTMLInputElement | null>;
   formErrors: ValidationErrorDetails;
-  onSubmit: () => Promise<{ success: boolean }>;
+  onReset: () => void;
+  onSubmit: () => Promise<void>;
   disabled: boolean;
 };
 
 // TODO: make the DiaglogTrigger button look nicer
 export function UploadDialogForm({
+  open,
+  onOpenChange,
   title,
   onTitleChange,
   recordedDate,
   onRecordedDateChange,
   onFileChange,
+  fileInputRef,
   formErrors,
+  onReset,
   onSubmit,
   disabled,
 }: UploadDialogFormProps): JSX.Element {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        onOpenChange(nextOpen);
+        if (!nextOpen) {
+          onReset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <IconButton icon={Plus} aria-label="Upload" />
       </DialogTrigger>
@@ -53,10 +67,7 @@ export function UploadDialogForm({
           data-testid="upload-form"
           onSubmit={async (e) => {
             e.preventDefault();
-            const { success } = await onSubmit();
-            if (success && fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
+            await onSubmit();
           }}
         >
           <DialogHeader>

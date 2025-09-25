@@ -1,7 +1,7 @@
 import { type JSX, type ReactNode } from "react";
 import { Outlet } from "react-router-dom";
+import { Toaster } from "sonner";
 
-import { NotificationContainer } from "@/components/NotificationContainer";
 import { AudioPlayerContainer } from "@/components/playback";
 import { H1 } from "@/components/primitives";
 import { UploadDialogContainer } from "@/components/upload";
@@ -10,7 +10,6 @@ import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
 
 // TODO:
-// - the upload dialog needs some love regarding auto close and reset state
 // - uploading a new track should be visible in the track list without a full reload
 // - replace notifications with toasts (shadcn Sonner component)
 // - clean up outdated components
@@ -54,7 +53,7 @@ function Main(): JSX.Element {
   return (
     <main className="grow overflow-y-auto">
       <PageContainer>
-        <NotificationContainer />
+        <Toaster position="top-center" theme="system" richColors />
         <Outlet />
       </PageContainer>
     </main>
