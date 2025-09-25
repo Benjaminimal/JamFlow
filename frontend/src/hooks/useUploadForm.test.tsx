@@ -1,7 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
-import { NotificationContext } from "@/contexts/NotificationContext";
 import { ValidationError } from "@/errors";
 import { useUploadForm } from "@/hooks/useUploadForm";
 import type { TrackCreateForm } from "@/types";
@@ -22,17 +21,7 @@ describe("useUploadForm", () => {
     uploadTrackMock.mockReset();
   });
 
-  function setup() {
-    return renderHook(() => useUploadForm(), {
-      wrapper: ({ children }) => (
-        <NotificationContext.Provider
-          value={{ notifications: [], addNotification: addNotificationMock }}
-        >
-          {children}
-        </NotificationContext.Provider>
-      ),
-    });
-  }
+  const setup = () => renderHook(() => useUploadForm());
 
   const submitForm = async (
     result: ReturnType<typeof setup>["result"],

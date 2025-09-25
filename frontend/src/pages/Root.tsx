@@ -5,13 +5,11 @@ import { Toaster } from "sonner";
 import { AudioPlayerContainer } from "@/components/playback";
 import { H1 } from "@/components/primitives";
 import { UploadDialogContainer } from "@/components/upload";
-import { NotificationProvider } from "@/contexts/NotificationProvider";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
 
 // TODO:
 // - uploading a new track should be visible in the track list without a full reload
-// - replace notifications with toasts (shadcn Sonner component)
 // - clean up outdated components
 // - port test from old components to new ones
 // - look at test failures due to heavy refactoring
@@ -34,11 +32,7 @@ function Layout(): JSX.Element {
 }
 
 function AppProviders({ children }: { children: ReactNode }) {
-  return (
-    <NotificationProvider>
-      <PlaybackProvider>{children}</PlaybackProvider>
-    </NotificationProvider>
-  );
+  return <PlaybackProvider>{children}</PlaybackProvider>;
 }
 
 function PageContainer({ children }: { children: ReactNode }): JSX.Element {
