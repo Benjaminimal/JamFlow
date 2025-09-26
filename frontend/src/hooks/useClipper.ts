@@ -16,17 +16,12 @@ export const ClipperStatus = {
 
 const logger = getLogger("useClipper");
 
-// TODO:
-// - Refine getBounds to enforce all invariants
-//   * introduce max clip duration
-//   * introduce min clip duration
-// - Fine tune the constants
-// - Add unit tests for useClipper
-
 // TODO: when clips are playable as well we need to reconsider how we handle playable as the type will broaden
-const START_OFFSET = 5_000;
-const END_OFFSET = 60_000;
-const SEEK_END_OFFSET = 1_000;
+const START_OFFSET = 5 * 1_000;
+const END_OFFSET = 60 * 1_000;
+const SEEK_END_OFFSET = 1 * 1_000;
+const MIN_CLIP_DURATION = 15 * 1_000;
+const MAX_CLIP_DURATION = 3 * 60 * 1_000;
 const MAX_TITLE_LENGTH = 255;
 
 type ClipperStatus = (typeof ClipperStatus)[keyof typeof ClipperStatus];
@@ -57,10 +52,16 @@ type ClipperDerived = {
   isClippable: boolean;
 };
 
+type ClipperUtils = {
+  clampStart: (rawStart: number, end: number) => number;
+  clampEnd: (rawEnd: number, start: number, duration: number) => number;
+};
+
 type UseClipperResult = {
   state: ClipperState;
   actions: ClipperActions;
   derived: ClipperDerived;
+  utils: ClipperUtils;
 };
 
 const initialState: ClipperState = {
@@ -187,15 +188,14 @@ export function useClipper(): UseClipperResult {
   const isIdle = state.status === ClipperStatus.Idle;
   const isActive = state.status === ClipperStatus.Active;
   const isSubmitting = state.status === ClipperStatus.Submitting;
-  const isClippable = !!playable && (isPlaying || isPaused);
+  const isClippable =
+    !!playable &&
+    playable.duration > MAX_CLIP_DURATION &&
+    (isPlaying || isPaused);
 
   const startClipping = () => {
+    if (!isClippable) return;
     if (!allowAction(state.status, "START_CLIPPING")) return;
-
-    if (!playable) {
-      logger.warn("No playable track available for clipping");
-      return;
-    }
 
     dispatch({
       type: "START_CLIPPING",
@@ -237,13 +237,15 @@ export function useClipper(): UseClipperResult {
   };
 
   const setStart = (rawStart: number) => {
-    const { start, end } = getBounds(rawStart, state.end, duration);
+    const end = state.end;
+    const start = clampStart(rawStart, end);
     dispatch({ type: "SET_BOUNDS", start, end });
     seek(start);
   };
 
   const setEnd = (rawEnd: number) => {
-    const { start, end } = getBounds(state.start, rawEnd, duration);
+    const start = state.start;
+    const end = clampEnd(rawEnd, start, duration);
     dispatch({ type: "SET_BOUNDS", start, end });
     seek(end - SEEK_END_OFFSET);
   };
@@ -313,6 +315,10 @@ export function useClipper(): UseClipperResult {
       isSubmitting,
       isClippable,
     },
+    utils: {
+      clampStart,
+      clampEnd,
+    },
   };
 }
 
@@ -322,27 +328,30 @@ export function useClipper(): UseClipperResult {
  * 0 <= START
  * END <= DURATION
  * START < END
+ * MIN_CLIP_DURATION <= END - START
+ * END - START <= MAX_CLIP_DURATION
  */
-function getBounds(
-  rawStart: number,
-  rawEnd: number,
-  duration: number,
-): { start: number; end: number } {
-  const start = Math.max(0, rawStart);
-  const end = Math.min(duration, rawEnd);
+function clampStart(rawStart: number, end: number): number {
+  const lowerBound = Math.max(0, end - MAX_CLIP_DURATION);
+  const upperBound = end - MIN_CLIP_DURATION;
+  return clamp(rawStart, lowerBound, upperBound);
+}
 
-  if (start >= end) {
-    // TODO: implement heuristics to determine which side to adjust
-  }
-
-  return { start, end };
+function clampEnd(rawEnd: number, start: number, duration: number): number {
+  const lowerBound = start + MIN_CLIP_DURATION;
+  const upperBound = Math.min(duration, start + MAX_CLIP_DURATION);
+  return clamp(rawEnd, lowerBound, upperBound);
 }
 
 function getInitialBounds(
   position: number,
   duration: number,
 ): { start: number; end: number } {
-  return getBounds(position - START_OFFSET, position + END_OFFSET, duration);
+  const rawStart = position - START_OFFSET;
+  const rawEnd = position + END_OFFSET;
+  const start = Math.max(0, rawStart);
+  const end = clampEnd(rawEnd, start, duration);
+  return { start, end };
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -358,5 +367,3 @@ function validateTitle(v: string): string | null {
   if (v.length > MAX_TITLE_LENGTH) return "Title is too long";
   return null;
 }
-
-export const __test = { getBounds, clamp };
