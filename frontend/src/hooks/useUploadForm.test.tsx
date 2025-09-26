@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
 import { ValidationError } from "@/errors";
-import { useUploadForm } from "@/hooks/useUploadForm";
+import { type UploadSubmitResult, useUploadForm } from "@/hooks/useUploadForm";
 import type { TrackCreateForm } from "@/types";
 
 vi.mock("@/api/tracks", () => ({
@@ -13,11 +13,9 @@ import { uploadTrack } from "@/api/tracks";
 import { createTestFile, createTestTrackForm } from "@/test-utils/testData";
 
 describe("useUploadForm", () => {
-  let addNotificationMock: Mock;
   const uploadTrackMock = uploadTrack as Mock;
 
   beforeEach(() => {
-    addNotificationMock = vi.fn();
     uploadTrackMock.mockReset();
   });
 
@@ -37,14 +35,17 @@ describe("useUploadForm", () => {
       result.current.setRecordedDate(recordedDate);
     });
 
-    await act(async () => {
-      await result.current.handleSubmit();
+    return await act(async () => {
+      result.current.validate();
+      return await result.current.submit();
     });
   };
 
-  const triggerErrors = async (result: ReturnType<typeof setup>["result"]) => {
+  const triggerClientValidation = async (
+    result: ReturnType<typeof setup>["result"],
+  ) => {
     await act(async () => {
-      await result.current.handleSubmit();
+      result.current.validate();
     });
   };
 
@@ -67,7 +68,7 @@ describe("useUploadForm", () => {
       const { result } = setup();
       const { setTitle } = result.current;
 
-      await triggerErrors(result);
+      await triggerClientValidation(result);
       expect(result.current.formErrors.title).toBeDefined();
 
       const title = "Title Set";
@@ -95,7 +96,7 @@ describe("useUploadForm", () => {
       const { result } = setup();
       const { setFile } = result.current;
 
-      await triggerErrors(result);
+      await triggerClientValidation(result);
       expect(result.current.formErrors.file).toBeDefined();
 
       act(() => {
@@ -109,7 +110,7 @@ describe("useUploadForm", () => {
       const { result } = setup();
       const { setRecordedDate } = result.current;
 
-      await triggerErrors(result);
+      await triggerClientValidation(result);
       expect(result.current.formErrors.title).toBeDefined();
 
       act(() => {
@@ -120,13 +121,13 @@ describe("useUploadForm", () => {
     });
   });
 
-  describe("handleSubmit validation", () => {
+  describe("validate", () => {
     it("should set validation errors if required fields missing and not call uploadTrack", async () => {
       const { result } = setup();
-      const { handleSubmit } = result.current;
+      const { validate } = result.current;
 
       await act(async () => {
-        await handleSubmit();
+        validate();
       });
 
       expect(result.current.formErrors.title).toBeDefined();
@@ -137,6 +138,15 @@ describe("useUploadForm", () => {
   });
 
   describe("handleSubmit success", () => {
+    it("should return success and no error on successful submission", async () => {
+      const { result } = setup();
+
+      const { success, error } = await submitForm(result);
+
+      expect(success).toBe(true);
+      expect(error).toBeUndefined();
+    });
+
     it("should call uploadTrack with correct data", async () => {
       const { result } = setup();
 
@@ -150,7 +160,7 @@ describe("useUploadForm", () => {
     it("should clear formErrors on success", async () => {
       const { result } = setup();
 
-      await triggerErrors(result);
+      await triggerClientValidation(result);
 
       await submitForm(result);
 
@@ -177,7 +187,7 @@ describe("useUploadForm", () => {
       });
 
       act(() => {
-        result.current.handleSubmit();
+        result.current.submit();
       });
 
       await waitFor(() => {
@@ -189,16 +199,6 @@ describe("useUploadForm", () => {
       await waitFor(() => {
         expect(result.current.isSubmitting).toBe(false);
       });
-    });
-
-    it("should call addNotification with success message", async () => {
-      const { result } = setup();
-
-      await submitForm(result);
-
-      expect(addNotificationMock).toHaveBeenCalledExactlyOnceWith(
-        "Upload successful",
-      );
     });
 
     it("should reset form fields after successful submission", async () => {
@@ -265,16 +265,29 @@ describe("useUploadForm", () => {
       expect(result.current.formErrors).toEqual(errorDetails);
     });
 
-    it("should call addNotification with failure message on other errors", async () => {
+    it("should return success false and no error on ValidationError", async () => {
       const { result } = setup();
 
-      uploadTrackMock.mockRejectedValueOnce(new Error("Invalid data", {}));
-
-      await submitForm(result);
-
-      expect(addNotificationMock).toHaveBeenCalledExactlyOnceWith(
-        "Sorry, something went wrong.",
+      uploadTrackMock.mockRejectedValueOnce(
+        new ValidationError("Invalid data", {}),
       );
+
+      const { success, error } = await submitForm(result);
+
+      expect(success).toBe(false);
+      expect(error).toBeUndefined();
+    });
+
+    it("should return an error on server errors", async () => {
+      const { result } = setup();
+
+      const serverError = new Error("Internal server error");
+      uploadTrackMock.mockRejectedValueOnce(serverError);
+
+      const { success, error } = await submitForm(result);
+
+      expect(success).toBe(false);
+      expect(error).toBe(error);
     });
 
     it("should toggle isSubmitting correctly even on errors", async () => {
@@ -295,7 +308,7 @@ describe("useUploadForm", () => {
       });
 
       act(() => {
-        result.current.handleSubmit();
+        result.current.submit();
       });
 
       await waitFor(() => {
@@ -324,15 +337,22 @@ describe("useUploadForm", () => {
         result.current.setRecordedDate(formData.recordedDate);
       });
 
-      let firstSubmissionPromise: Promise<{ success: boolean }>;
+      let resolveUpload: () => void;
+      const uploadPromise = new Promise<UploadSubmitResult>((resolve) => {
+        resolveUpload = () => resolve({ success: true });
+      });
+      uploadTrackMock.mockReturnValue(uploadPromise);
+
+      let firstSubmissionPromise: Promise<UploadSubmitResult>;
       await act(async () => {
-        firstSubmissionPromise = result.current.handleSubmit();
+        firstSubmissionPromise = result.current.submit();
       });
 
       await act(async () => {
-        await result.current.handleSubmit();
+        await result.current.submit();
       });
 
+      resolveUpload!();
       await act(async () => {
         await firstSubmissionPromise!;
       });
@@ -343,7 +363,7 @@ describe("useUploadForm", () => {
     it("should clear only specific field errors when setting a field", async () => {
       const { result } = setup();
 
-      await triggerErrors(result);
+      await triggerClientValidation(result);
 
       expect(result.current.formErrors.title).toBeDefined();
       expect(result.current.formErrors.file).toBeDefined();

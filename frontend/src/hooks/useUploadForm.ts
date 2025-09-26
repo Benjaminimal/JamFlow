@@ -3,12 +3,12 @@ import { useState } from "react";
 import { uploadTrack } from "@/api/tracks";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
 
-type SubmitResult = {
+export type UploadSubmitResult = {
   success: boolean;
   error?: unknown;
 };
 
-type UseUploadFormResult = {
+export type UseUploadFormResult = {
   title: string;
   setTitle: (v: string) => void;
   recordedDate: string | null;
@@ -18,7 +18,7 @@ type UseUploadFormResult = {
   formErrors: ValidationErrorDetails;
   validate: () => boolean;
   reset: () => void;
-  submit: () => Promise<SubmitResult>;
+  submit: () => Promise<UploadSubmitResult>;
   isSubmitting: boolean;
 };
 
@@ -57,7 +57,7 @@ export function useUploadForm(): UseUploadFormResult {
     return true;
   };
 
-  const submit = async (): Promise<SubmitResult> => {
+  const submit = async (): Promise<UploadSubmitResult> => {
     if (isSubmitting) return { success: false };
 
     setIsSubmitting(true);
