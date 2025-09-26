@@ -1,9 +1,9 @@
 import { type JSX, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { UploadDialogForm } from "@/components/upload";
 import { useUploadForm } from "@/hooks/useUploadForm";
+import { getErrorMessage } from "@/lib/errorUtils";
 
 export function UploadDialogContainer(): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -38,7 +38,8 @@ export function UploadDialogContainer(): JSX.Element {
       toast.success("Track uploaded successfully");
       setOpen(false);
     } else if (error) {
-      toast.error(getUserFriendlyErrorMessage(error));
+      // TODO: move this out of state. return the error from submit()
+      toast.error(getErrorMessage(error));
     }
     toast.dismiss(loadingToastId);
   };

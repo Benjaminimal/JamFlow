@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { getUserFriendlyErrorMessage, mapAxiosError } from "@/api/errorHandler";
+import { getApplicationErrorMessage, mapAxiosError } from "@/api/errorHandler";
 import {
   ApplicationError,
   AuthenticationError,
@@ -113,7 +113,7 @@ describe("errorHandler", () => {
     );
   });
 
-  describe("getUserFriendlyErrorMessage", () => {
+  describe("getApiErrorMessage", () => {
     it.each([
       { error: new Error(""), expectedMessage: /something went wrong/i },
       {
@@ -147,7 +147,7 @@ describe("errorHandler", () => {
     ])(
       "matches $expectedMessage for $error.constructor.name",
       ({ error, expectedMessage }) => {
-        const message = getUserFriendlyErrorMessage(error);
+        const message = getApplicationErrorMessage(error);
         expect(message).toMatch(expectedMessage);
       },
     );

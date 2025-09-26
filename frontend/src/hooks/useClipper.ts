@@ -1,10 +1,10 @@
 import { useEffect, useReducer } from "react";
 
 import { postClip } from "@/api/clips";
-import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import { ValidationError } from "@/errors";
+import { getErrorMessage } from "@/lib/errorUtils";
 import { getLogger } from "@/lib/logging";
 import type { Clip, Track } from "@/types";
 
@@ -230,7 +230,7 @@ export function useClipper(): UseClipperResult {
         const message = Object.values(error.details).join(", ");
         dispatch({ type: "SUBMIT_ERROR", message });
       } else {
-        const message = getUserFriendlyErrorMessage(error);
+        const message = getErrorMessage(error);
         dispatch({ type: "SUBMIT_ERROR", message });
       }
     }
