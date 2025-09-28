@@ -20,8 +20,8 @@ const logger = getLogger("useClipper");
 const START_OFFSET = 5 * 1_000;
 const END_OFFSET = 60 * 1_000;
 const SEEK_END_OFFSET = 1 * 1_000;
-const MIN_CLIP_DURATION = 15 * 1_000;
-const MAX_CLIP_DURATION = 3 * 60 * 1_000;
+export const MIN_CLIP_DURATION = 15 * 1_000;
+export const MAX_CLIP_DURATION = 3 * 60 * 1_000;
 const MAX_TITLE_LENGTH = 255;
 
 type ClipperStatus = (typeof ClipperStatus)[keyof typeof ClipperStatus];
@@ -39,8 +39,8 @@ type ClipperState = {
 type ClipperActions = {
   startClipping: () => void;
   cancelClipping: () => void;
-  submitClip: () => Promise<void>;
   setStart: (v: number) => void;
+  submitClip: () => Promise<void>;
   setEnd: (v: number) => void;
   setTitle: (v: string) => void;
 };
@@ -57,7 +57,7 @@ type ClipperUtils = {
   clampEnd: (rawEnd: number, start: number, duration: number) => number;
 };
 
-type UseClipperResult = {
+export type UseClipperResult = {
   state: ClipperState;
   actions: ClipperActions;
   derived: ClipperDerived;
