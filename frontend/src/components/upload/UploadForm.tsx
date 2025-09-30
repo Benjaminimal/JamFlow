@@ -1,8 +1,9 @@
-import { type ComponentProps, type JSX, useRef } from "react";
+import { type JSX, useRef } from "react";
 
+import { ErrorDisplay, FormField } from "@/components/ui";
 import { DatePicker } from "@/components/ui/DatePicker";
 import type { ValidationErrorDetails } from "@/errors";
-import { Button, Input, Label } from "@/ui-lib";
+import { Button, Input } from "@/ui-lib";
 
 type UploadFormProps = {
   title: string;
@@ -87,45 +88,5 @@ export function UploadForm({
         </div>
       </div>
     </form>
-  );
-}
-
-type FormFieldProps = {
-  id: string;
-  label: string;
-  children: JSX.Element;
-  errors?: string[];
-};
-
-function FormField({
-  id,
-  label,
-  children,
-  errors,
-}: FormFieldProps): JSX.Element {
-  return (
-    <div className="flex flex-col gap-1">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {errors && errors.length > 0 && (
-        <div id={`${id}-errors`}>
-          {errors.map((message, idx) => (
-            <ErrorDisplay key={idx} message={message} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-type ErrorDisplayProps = Omit<ComponentProps<"p">, "className"> & {
-  message: string;
-};
-
-function ErrorDisplay({ message, ...props }: ErrorDisplayProps): JSX.Element {
-  return (
-    <p className="text-destructive mt-1 text-sm" {...props}>
-      {message}
-    </p>
   );
 }
