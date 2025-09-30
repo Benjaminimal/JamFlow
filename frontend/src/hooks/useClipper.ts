@@ -17,6 +17,9 @@ export const ClipperStatus = {
 const logger = getLogger("useClipper");
 
 // TODO: when clips are playable as well we need to reconsider how we handle playable as the type will broaden
+// TODO: reconsider how to represent and return client side, server side and network errors
+// TODO: review if resetting works and if you need to expose a reset action
+// TODO: server is unhappy about fractions for clip start and end, we should probably round them
 const START_OFFSET = 5 * 1_000;
 const END_OFFSET = 60 * 1_000;
 const SEEK_END_OFFSET = 1 * 1_000;
@@ -226,7 +229,6 @@ export function useClipper(): UseClipperResult {
       dispatch({ type: "SUBMIT_SUCCESS", clip });
     } catch (error) {
       if (error instanceof ValidationError) {
-        // TODO: improve error message handling
         const message = Object.values(error.details).join(", ");
         dispatch({ type: "SUBMIT_ERROR", message });
       } else {

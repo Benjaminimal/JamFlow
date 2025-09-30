@@ -1,11 +1,13 @@
-import { X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { type JSX } from "react";
 
 import { ClipperControls } from "@/components/clipper";
-import { PlaybackToggle, ProgressBar } from "@/components/playback";
+import { PlaybackToggle, ProgressBarCompact } from "@/components/playback";
 import { IconButton } from "@/components/primitives";
+import { FormField } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
+import { Button, Input } from "@/ui-lib";
 
 type ClipperProps = {
   clipper: UseClipperResult;
@@ -16,24 +18,60 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
     state: { playable },
   } = usePlaybackContext();
 
+  const {
+    state: { title },
+    actions: { setTitle },
+    derived: { isSubmitting },
+  } = clipper;
+
+  // TODO: replace with real validation errors
+  const errors: string[] = [];
+
   return (
-    <div data-testid="clipper" className="flex flex-col space-y-4">
-      <div className="text-center font-medium" data-testid="audio-player-title">
-        {playable?.title || ""}
-        <IconButton icon={X} onClick={clipper.actions.cancelClipping} />
-      </div>
-      <div className="space-y-2">
+    <div data-testid="clipper">
+      <FormField
+        labelProps={{ className: "text-sm" }}
+        id="title"
+        label="Clip Title"
+        errors={errors}
+      >
+        <div className="flex flex-row gap-2">
+          <Input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            aria-describedby={errors ? "title-errors" : undefined}
+          />
+          <Button
+            onClick={clipper.actions.submitClip}
+            variant="secondary"
+            disabled={isSubmitting}
+          >
+            <Save />
+          </Button>
+        </div>
+      </FormField>
+      <IconButton
+        className="absolute top-0 right-1"
+        icon={X}
+        onClick={clipper.actions.cancelClipping}
+      />
+      <div className="my-4">
         <ClipperControls clipper={clipper} />
-        <ProgressBar />
       </div>
-      <div className="my-2 flex flex-row items-center justify-between">
-        <div className="ml-1 flex flex-row items-center space-x-2">P</div>
+      <div className="mb-2 flex flex-row items-center space-x-4">
         <PlaybackToggle
           className="rounded-full border-2 !border-current"
-          size="icon-lg"
+          size="icon-md"
           variant="outline"
         />
-        <div className="mr-1 flex flex-row items-center space-x-2">P</div>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 overflow-hidden text-xs text-ellipsis whitespace-nowrap">
+            {playable?.title || ""}
+          </div>
+          <ProgressBarCompact />
+        </div>
       </div>
     </div>
   );
