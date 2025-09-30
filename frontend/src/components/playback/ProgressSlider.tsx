@@ -2,7 +2,7 @@ import { type JSX } from "react";
 
 import { Slider } from "@/ui-lib";
 
-type PorgressSliderProps = {
+type ProgressSliderProps = {
   playbackPosition: number;
   duration: number;
   seekTarget: number;
@@ -18,7 +18,7 @@ export function ProgressSlider({
   setSeekTarget,
   setIsSeeking,
   seek,
-}: PorgressSliderProps): JSX.Element {
+}: ProgressSliderProps): JSX.Element {
   return (
     <Slider
       value={[playbackPosition]}
