@@ -1,22 +1,27 @@
 import { type JSX } from "react";
 
+import type { Bounds } from "@/components/clipper/types";
 import { timeToPositionPercent } from "@/lib/time";
 
 type ClipperBarProps = {
-  windowStart: number;
-  windowEnd: number;
-  clipStart: number;
-  clipEnd: number;
+  viewBounds: Bounds;
+  clipBounds: Bounds;
 };
 
 export function ClipperBar({
-  windowStart,
-  windowEnd,
-  clipStart,
-  clipEnd,
+  viewBounds,
+  clipBounds,
 }: ClipperBarProps): JSX.Element {
-  const startPercent = timeToPositionPercent(clipStart, windowStart, windowEnd);
-  const endPercent = timeToPositionPercent(clipEnd, windowStart, windowEnd);
+  const startPercent = timeToPositionPercent(
+    clipBounds.start,
+    viewBounds.start,
+    viewBounds.end,
+  );
+  const endPercent = timeToPositionPercent(
+    clipBounds.end,
+    viewBounds.start,
+    viewBounds.end,
+  );
   const widthPercent = endPercent - startPercent;
 
   return (

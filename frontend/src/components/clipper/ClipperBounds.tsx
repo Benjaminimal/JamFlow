@@ -1,21 +1,17 @@
 import { type JSX, type PointerEvent, useEffect, useState } from "react";
 
+import type { Bounds } from "@/components/clipper/types";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
+import type { UseClipperResult } from "@/hooks/useClipper";
 import { formatDuration, timeToPositionPercent } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 export type DraggingThumb = "start" | "end";
 
 type ClipperBoundsProps = {
-  windowStart: number;
-  windowEnd: number;
-  clipStart: number;
-  setStart: (v: number) => void;
-  clipEnd: number;
-  setEnd: (v: number) => void;
-  clampStart: (start: number, end: number) => number;
-  clampEnd: (end: number, start: number) => number;
+  clipper: UseClipperResult;
+  viewBounds: Bounds;
   draggingThumb: DraggingThumb | null;
   setDraggingThumb: (v: DraggingThumb | null) => void;
   startTarget: number;
@@ -25,14 +21,8 @@ type ClipperBoundsProps = {
 };
 
 export function ClipperBounds({
-  windowStart,
-  windowEnd,
-  clipStart,
-  setStart,
-  clipEnd,
-  setEnd,
-  clampStart,
-  clampEnd,
+  clipper,
+  viewBounds,
   draggingThumb,
   setDraggingThumb,
   startTarget,
@@ -40,6 +30,12 @@ export function ClipperBounds({
   endTarget,
   setEndTarget,
 }: ClipperBoundsProps): JSX.Element {
+  const {
+    state: { start: clipStart, end: clipEnd },
+    actions: { setStart, setEnd },
+    utils: { clampStart, clampEnd },
+  } = clipper;
+
   const startDisplay = draggingThumb === "start" ? startTarget : clipStart;
   const endDisplay = draggingThumb === "end" ? endTarget : clipEnd;
 
@@ -56,7 +52,8 @@ export function ClipperBounds({
     e.preventDefault();
     const { left, width } = e.currentTarget.getBoundingClientRect();
     const factor = (e.clientX - left) / width;
-    const time = windowStart + factor * (windowEnd - windowStart);
+    const time =
+      viewBounds.start + factor * (viewBounds.end - viewBounds.start);
 
     if (draggingThumb === "start") {
       setStartTarget(clampStart(time, endDisplay));
@@ -84,14 +81,22 @@ export function ClipperBounds({
       <ClipperThumb
         thumbRole="start"
         timestamp={startDisplay}
-        offset={timeToPositionPercent(startDisplay, windowStart, windowEnd)}
+        offset={timeToPositionPercent(
+          startDisplay,
+          viewBounds.start,
+          viewBounds.end,
+        )}
         onPointerDown={(e) => onPointerDown(e, "start")}
       />
-      <ProgressLine windowStart={windowStart} windowEnd={windowEnd} />
+      <ProgressLine viewBounds={viewBounds} />
       <ClipperThumb
         thumbRole="end"
         timestamp={endDisplay}
-        offset={timeToPositionPercent(endDisplay, windowStart, windowEnd)}
+        offset={timeToPositionPercent(
+          endDisplay,
+          viewBounds.start,
+          viewBounds.end,
+        )}
         onPointerDown={(e) => onPointerDown(e, "end")}
       />
     </div>
@@ -140,14 +145,10 @@ function ClipperThumb({
 }
 
 type ProgressLineProps = {
-  windowStart: number;
-  windowEnd: number;
+  viewBounds: Bounds;
 };
 
-function ProgressLine({
-  windowStart,
-  windowEnd,
-}: ProgressLineProps): JSX.Element {
+function ProgressLine({ viewBounds }: ProgressLineProps): JSX.Element {
   const [playbackPosition, setPlaybackPosition] = useState(0);
 
   const {
@@ -167,8 +168,8 @@ function ProgressLine({
 
   const offset = timeToPositionPercent(
     playbackPosition,
-    windowStart,
-    windowEnd,
+    viewBounds.start,
+    viewBounds.end,
   );
 
   return (

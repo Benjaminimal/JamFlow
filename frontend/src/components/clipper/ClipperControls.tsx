@@ -8,32 +8,28 @@ import {
 } from "@/components/clipper";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
-import { MAX_CLIP_DURATION } from "@/hooks/useClipper";
+import { MAX_CLIP_DURATION, type UseClipperResult } from "@/hooks/useClipper";
+
+const RULER_MARKER_DISTANCE = 60_000;
 
 type ClipperControlsProps = {
-  clipStart: number;
-  clipEnd: number;
-  setStart: (v: number) => void;
-  setEnd: (v: number) => void;
-  clampStart: (start: number, end: number) => number;
-  clampEnd: (end: number, start: number) => number;
+  clipper: UseClipperResult;
 };
 
 export function ClipperControls({
-  clipStart,
-  clipEnd,
-  setStart,
-  setEnd,
-  clampStart,
-  clampEnd,
+  clipper,
 }: ClipperControlsProps): JSX.Element {
   const {
     state: { duration },
     actions: { getPosition, subscribe },
   } = usePlaybackContext();
 
+  const {
+    state: { start: clipStart, end: clipEnd },
+  } = clipper;
+
   // TODO: think about how much reverse padding from current position is good UX
-  const getWindowBounds = useCallback(() => {
+  const getViewBounds = useCallback(() => {
     const padding = 30_000;
     const windowDuration = MAX_CLIP_DURATION + 2 * padding;
     const start = Math.max(0, getPosition() - padding);
@@ -41,7 +37,7 @@ export function ClipperControls({
     return { start, end };
   }, [getPosition, duration]);
 
-  const [windowBounds, setWindowBounds] = useState(getWindowBounds);
+  const [viewBounds, setViewBounds] = useState(getViewBounds);
 
   useEffect(() => {
     const handleSeek = (event: PlaybackEvent) => {
@@ -49,20 +45,14 @@ export function ClipperControls({
 
       // TODO: it would be a lot more usable to set new bound on UI seek
       // instead of checking bounds
-      if (
-        event.target < windowBounds.start ||
-        event.target > windowBounds.end
-      ) {
-        setWindowBounds(getWindowBounds());
+      if (event.target < viewBounds.start || event.target > viewBounds.end) {
+        setViewBounds(getViewBounds());
       }
     };
 
     const unsubscribe = subscribe(handleSeek);
     return () => unsubscribe();
-  }, [subscribe, windowBounds, getWindowBounds]);
-
-  const windowStart = windowBounds.start;
-  const windowEnd = windowBounds.end;
+  }, [subscribe, viewBounds, getViewBounds]);
 
   const [draggingThumb, setDraggingThumb] = useState<DraggingThumb | null>(
     null,
@@ -70,22 +60,18 @@ export function ClipperControls({
   const [startTarget, setStartTarget] = useState(clipStart);
   const [endTarget, setEndTarget] = useState(clipEnd);
 
-  const startDisplay = draggingThumb === "start" ? startTarget : clipStart;
-  const endDisplay = draggingThumb === "end" ? endTarget : clipEnd;
+  const clipDisplayBounds = {
+    start: draggingThumb === "start" ? startTarget : clipStart,
+    end: draggingThumb === "end" ? endTarget : clipEnd,
+  };
 
   return (
     <div className="flex flex-col space-y-2">
       <div className="my-8">
         <div className="relative w-full space-y-2">
           <ClipperBounds
-            windowStart={windowStart}
-            windowEnd={windowEnd}
-            clipStart={clipStart}
-            clipEnd={clipEnd}
-            setStart={setStart}
-            setEnd={setEnd}
-            clampStart={clampStart}
-            clampEnd={clampEnd}
+            clipper={clipper}
+            viewBounds={viewBounds}
             draggingThumb={draggingThumb}
             setDraggingThumb={setDraggingThumb}
             startTarget={startTarget}
@@ -93,16 +79,10 @@ export function ClipperControls({
             endTarget={endTarget}
             setEndTarget={setEndTarget}
           />
-          <ClipperBar
-            windowStart={windowStart}
-            windowEnd={windowEnd}
-            clipStart={startDisplay}
-            clipEnd={endDisplay}
-          />
+          <ClipperBar viewBounds={viewBounds} clipBounds={clipDisplayBounds} />
           <ClipperRuler
-            windowStart={windowStart}
-            windowEnd={windowEnd}
-            markerDistance={60_000}
+            viewBounds={viewBounds}
+            markerDistance={RULER_MARKER_DISTANCE}
           />
         </div>
       </div>

@@ -13,7 +13,7 @@ type ClipperProps = {
 
 export function Clipper({ clipper }: ClipperProps): JSX.Element {
   const {
-    state: { playable, duration },
+    state: { playable },
   } = usePlaybackContext();
 
   return (
@@ -23,14 +23,7 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
         <IconButton icon={X} onClick={clipper.actions.cancelClipping} />
       </div>
       <div className="space-y-2">
-        <ClipperControls
-          clipStart={clipper.state.start}
-          clipEnd={clipper.state.end}
-          setStart={clipper.actions.setStart}
-          setEnd={clipper.actions.setEnd}
-          clampStart={clipper.utils.clampStart}
-          clampEnd={(e, s) => clipper.utils.clampEnd(e, s, duration)}
-        />
+        <ClipperControls clipper={clipper} />
         <ProgressBar />
       </div>
       <div className="my-2 flex flex-row items-center justify-between">

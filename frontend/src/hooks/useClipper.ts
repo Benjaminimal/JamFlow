@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 
 import { postClip } from "@/api/clips";
 import { usePlaybackContext } from "@/contexts/playback";
@@ -54,7 +54,7 @@ type ClipperDerived = {
 
 type ClipperUtils = {
   clampStart: (rawStart: number, end: number) => number;
-  clampEnd: (rawEnd: number, start: number, duration: number) => number;
+  clampEnd: (rawEnd: number, start: number) => number;
 };
 
 export type UseClipperResult = {
@@ -299,6 +299,16 @@ export function useClipper(): UseClipperResult {
     return () => unsubscribe();
   }, [isIdle, state.start, state.end, duration, subscribe]);
 
+  const exposedClampStart = useCallback(
+    (rawStart: number, end: number) => clampStart(rawStart, end),
+    [],
+  );
+
+  const exposedClampEnd = useCallback(
+    (rawEnd: number, start: number) => clampEnd(rawEnd, start, duration),
+    [duration],
+  );
+
   return {
     state,
     actions: {
@@ -316,8 +326,8 @@ export function useClipper(): UseClipperResult {
       isClippable,
     },
     utils: {
-      clampStart,
-      clampEnd,
+      clampStart: exposedClampStart,
+      clampEnd: exposedClampEnd,
     },
   };
 }

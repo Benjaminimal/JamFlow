@@ -1,21 +1,20 @@
 import { type JSX } from "react";
 
+import type { Bounds } from "@/components/clipper/types";
 import { formatDuration, timeToPositionPercent } from "@/lib/time";
 
 type ClipperRulerProps = {
-  windowStart: number;
-  windowEnd: number;
+  viewBounds: Bounds;
   markerDistance: number;
 };
 
 export function ClipperRuler({
-  windowStart,
-  windowEnd,
+  viewBounds,
   markerDistance,
 }: ClipperRulerProps): JSX.Element {
   const stepSize = markerDistance / 2;
-  const firstMarkerTime = Math.ceil(windowStart / stepSize) * stepSize;
-  const lastMarkerTime = Math.floor(windowEnd / stepSize) * stepSize;
+  const firstMarkerTime = Math.ceil(viewBounds.start / stepSize) * stepSize;
+  const lastMarkerTime = Math.floor(viewBounds.end / stepSize) * stepSize;
   const markerTimes: number[] = [];
   for (let t = firstMarkerTime; t <= lastMarkerTime; t += stepSize) {
     markerTimes.push(t);
@@ -29,7 +28,11 @@ export function ClipperRuler({
           return (
             <RulerMarker
               key={t}
-              offset={timeToPositionPercent(t, windowStart, windowEnd)}
+              offset={timeToPositionPercent(
+                t,
+                viewBounds.start,
+                viewBounds.end,
+              )}
               timestamp={t}
               isMajor={isMajor}
             />
