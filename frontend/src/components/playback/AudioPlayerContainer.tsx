@@ -1,12 +1,11 @@
-import { Scissors, X } from "lucide-react";
+import { X } from "lucide-react";
 import { type JSX } from "react";
 
 import { ClipperControls } from "@/components/clipper";
 import {
-  MuteToggle,
+  AudioPlayer,
   PlaybackToggle,
   ProgressBar,
-  VolumeSlider,
 } from "@/components/playback";
 import { IconButton } from "@/components/primitives";
 import { ErrorState, LoadingState } from "@/components/ui";
@@ -34,43 +33,6 @@ function ErrorDisplay(): JSX.Element {
       message={errorMessage}
       onRetry={() => playable && load(playable)}
     />
-  );
-}
-
-type AudioPlayerProps = {
-  clipper: UseClipperResult;
-};
-
-function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
-  const {
-    state: { playable },
-  } = usePlaybackContext();
-  return (
-    <div data-testid="audio-player" className="flex flex-col space-y-4">
-      <div className="text-center font-medium" data-testid="audio-player-title">
-        {playable?.title || ""}
-      </div>
-      <ProgressBar />
-      <div className="my-2 flex flex-row items-center justify-between">
-        <div className="ml-1 flex flex-row items-center space-x-2">
-          <VolumeSlider className="!min-h-9" orientation="vertical" />
-          <MuteToggle />
-        </div>
-        <PlaybackToggle
-          className="rounded-full border-2 !border-current"
-          size="icon-lg"
-          variant="outline"
-        />
-        <div className="mr-1 flex flex-row items-center space-x-2">
-          <IconButton
-            icon={Scissors}
-            onClick={clipper.actions.startClipping}
-            disabled={!clipper.derived.isClippable}
-          />
-          <span className="w-[6px]"></span>
-        </div>
-      </div>
-    </div>
   );
 }
 

@@ -1,3 +1,4 @@
+export * from "./AudioPlayer";
 export * from "./AudioPlayerContainer";
 export * from "./MuteToggle";
 export * from "./PlaybackToggle";
