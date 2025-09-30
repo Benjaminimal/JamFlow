@@ -1,9 +1,9 @@
 import { type JSX, useEffect, useState } from "react";
 
+import { ProgressSlider } from "@/components/playback";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import { formatDuration } from "@/lib/time";
-import { Slider } from "@/ui-lib";
 
 export function ProgressBar(): JSX.Element {
   const {
@@ -37,19 +37,13 @@ export function ProgressBar(): JSX.Element {
           {formatDuration(duration)}
         </span>
       </div>
-      <Slider
-        value={[playbackPosition]}
-        min={0}
-        max={duration}
-        step={100}
-        onPointerDown={() => setIsSeeking(true)}
-        onPointerUp={() => {
-          seek(seekTarget);
-          setIsSeeking(false);
-        }}
-        onValueChange={(values: number[]) => setSeekTarget(values[0])}
-        role="slider"
-        aria-label="seek position"
+      <ProgressSlider
+        playbackPosition={playbackPosition}
+        duration={duration}
+        seekTarget={seekTarget}
+        setSeekTarget={setSeekTarget}
+        setIsSeeking={setIsSeeking}
+        seek={seek}
       />
     </div>
   );
