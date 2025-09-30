@@ -1,6 +1,7 @@
 import { type JSX, useCallback, useEffect, useState } from "react";
 
 import {
+  ClipperBar,
   ClipperBounds,
   ClipperRuler,
   type DraggingThumb,
@@ -8,7 +9,6 @@ import {
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import { MAX_CLIP_DURATION } from "@/hooks/useClipper";
-import { timeToPositionPercent } from "@/lib/time";
 
 type ClipperControlsProps = {
   clipStart: number;
@@ -106,36 +106,6 @@ export function ClipperControls({
           />
         </div>
       </div>
-    </div>
-  );
-}
-
-type ClipperBarProps = {
-  windowStart: number;
-  windowEnd: number;
-  clipStart: number;
-  clipEnd: number;
-};
-
-function ClipperBar({
-  windowStart,
-  windowEnd,
-  clipStart,
-  clipEnd,
-}: ClipperBarProps): JSX.Element {
-  const startPercent = timeToPositionPercent(clipStart, windowStart, windowEnd);
-  const endPercent = timeToPositionPercent(clipEnd, windowStart, windowEnd);
-  const widthPercent = endPercent - startPercent;
-
-  return (
-    <div className="bg-muted relative h-1.5 w-full rounded-full">
-      <div
-        className="bg-accent-foreground absolute h-1.5"
-        style={{
-          left: `${startPercent}%`,
-          width: `${widthPercent}%`,
-        }}
-      ></div>
     </div>
   );
 }
