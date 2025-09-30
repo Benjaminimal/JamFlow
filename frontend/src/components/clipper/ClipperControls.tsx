@@ -9,7 +9,7 @@ import {
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import { MAX_CLIP_DURATION } from "@/hooks/useClipper";
-import { formatDuration } from "@/lib/time";
+import { formatDuration, timeToPositionPercent } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 type ClipperControlsProps = {
@@ -381,14 +381,4 @@ function RulerMarker({
       <span className={`bg-muted w-0.5 ${isMajor ? "h-3" : "h-2"}`}></span>
     </div>
   );
-}
-
-function timeToPositionPercent(
-  time: number,
-  startTime: number,
-  endTime: number,
-): number {
-  if (time < startTime) return 0;
-  if (time > endTime) return 100;
-  return ((time - startTime) / (endTime - startTime)) * 100;
 }
