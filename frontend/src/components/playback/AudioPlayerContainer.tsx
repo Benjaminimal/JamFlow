@@ -1,6 +1,7 @@
-import { Scissors } from "lucide-react";
+import { Scissors, X } from "lucide-react";
 import { type JSX } from "react";
 
+import { ClipperControls } from "@/components/clipper";
 import {
   MuteToggle,
   PlaybackToggle,
@@ -10,14 +11,17 @@ import {
 import { IconButton } from "@/components/primitives";
 import { ErrorState, LoadingState } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
+import { useClipper, type UseClipperResult } from "@/hooks/useClipper";
 
 export function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
+  const clipper = useClipper();
 
   if (derived.isIdle) return null;
   if (derived.isError) return <ErrorDisplay />;
   if (derived.isLoading) return <LoadingState />;
-  return <AudioPlayer />;
+  if (clipper.derived.isActive) return <Clipper clipper={clipper} />;
+  return <AudioPlayer clipper={clipper} />;
 }
 
 function ErrorDisplay(): JSX.Element {
@@ -33,12 +37,16 @@ function ErrorDisplay(): JSX.Element {
   );
 }
 
-function AudioPlayer(): JSX.Element {
+type AudioPlayerProps = {
+  clipper: UseClipperResult;
+};
+
+function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
   const {
     state: { playable },
   } = usePlaybackContext();
   return (
-    <div data-testid="audio-player">
+    <div data-testid="audio-player" className="flex flex-col space-y-4">
       <div className="text-center font-medium" data-testid="audio-player-title">
         {playable?.title || ""}
       </div>
@@ -54,9 +62,52 @@ function AudioPlayer(): JSX.Element {
           variant="outline"
         />
         <div className="mr-1 flex flex-row items-center space-x-2">
-          <IconButton icon={Scissors} />
+          <IconButton
+            icon={Scissors}
+            onClick={clipper.actions.startClipping}
+            disabled={!clipper.derived.isClippable}
+          />
           <span className="w-[6px]"></span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+type ClipperProps = {
+  clipper: UseClipperResult;
+};
+
+function Clipper({ clipper }: ClipperProps): JSX.Element {
+  const {
+    state: { playable, duration },
+  } = usePlaybackContext();
+
+  return (
+    <div data-testid="clipper" className="flex flex-col space-y-4">
+      <div className="text-center font-medium" data-testid="audio-player-title">
+        {playable?.title || ""}
+        <IconButton icon={X} onClick={clipper.actions.cancelClipping} />
+      </div>
+      <div className="space-y-2">
+        <ClipperControls
+          clipStart={clipper.state.start}
+          clipEnd={clipper.state.end}
+          setStart={clipper.actions.setStart}
+          setEnd={clipper.actions.setEnd}
+          clampStart={clipper.utils.clampStart}
+          clampEnd={(e, s) => clipper.utils.clampEnd(e, s, duration)}
+        />
+        <ProgressBar />
+      </div>
+      <div className="my-2 flex flex-row items-center justify-between">
+        <div className="ml-1 flex flex-row items-center space-x-2">P</div>
+        <PlaybackToggle
+          className="rounded-full border-2 !border-current"
+          size="icon-lg"
+          variant="outline"
+        />
+        <div className="mr-1 flex flex-row items-center space-x-2">P</div>
       </div>
     </div>
   );

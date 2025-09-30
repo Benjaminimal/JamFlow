@@ -1,9 +1,9 @@
 import { type JSX, useEffect, useState } from "react";
 
-import { SliderFlat } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import { formatDuration } from "@/lib/time";
+import { Slider } from "@/ui-lib";
 
 export function ProgressBar(): JSX.Element {
   const {
@@ -37,7 +37,7 @@ export function ProgressBar(): JSX.Element {
           {formatDuration(duration)}
         </span>
       </div>
-      <SliderFlat
+      <Slider
         value={[playbackPosition]}
         min={0}
         max={duration}
