@@ -9,6 +9,8 @@ import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
 
 // TODO:
+// - make better use of clamp util (e.g. in usePlayback)
+// - consider accessibility for timestamps and durations
 // - uploading a new track should be visible in the track list without a full reload
 // - clean up outdated components
 // - port test from old components to new ones
@@ -23,7 +25,7 @@ export function Root(): JSX.Element {
 
 function Layout(): JSX.Element {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col">
       <Header />
       <Main />
       <Footer />
@@ -45,7 +47,7 @@ function PageContainer({ children }: { children: ReactNode }): JSX.Element {
 
 function Main(): JSX.Element {
   return (
-    <main className="grow overflow-y-auto">
+    <main className="flex-1 overflow-y-auto">
       <PageContainer>
         <Toaster position="top-center" theme="system" richColors />
         <Outlet />
