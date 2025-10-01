@@ -13,7 +13,7 @@ export function AudioPlayerContainer(): JSX.Element | null {
   if (derived.isIdle) return null;
   if (derived.isError) return <ErrorDisplay />;
   if (derived.isLoading) return <LoadingState />;
-  if (clipper.derived.isActive) return <Clipper clipper={clipper} />;
+  if (!clipper.derived.isIdle) return <Clipper clipper={clipper} />;
   return <AudioPlayer clipper={clipper} />;
 }
 

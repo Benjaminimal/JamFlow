@@ -1,5 +1,6 @@
 import { Save, X } from "lucide-react";
 import { type JSX } from "react";
+import { toast } from "sonner";
 
 import { ClipperControls } from "@/components/clipper";
 import { PlaybackToggle, ProgressBarCompact } from "@/components/playback";
@@ -7,6 +8,7 @@ import { IconButton } from "@/components/primitives";
 import { FormField } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
+import { getErrorMessage } from "@/lib/errorUtils";
 import { Button, Input } from "@/ui-lib";
 
 type ClipperProps = {
@@ -19,13 +21,23 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
   } = usePlaybackContext();
 
   const {
-    state: { title },
-    actions: { setTitle },
+    state: { title, validationErrors },
+    actions: { setTitle, validate, submitClip },
     derived: { isSubmitting },
   } = clipper;
 
-  // TODO: replace with real validation errors
-  const errors: string[] = [];
+  const onSubmit = async (): Promise<void> => {
+    if (!validate()) return;
+
+    const loadingToastId = toast.loading("Clipping track...");
+    const { success, error } = await submitClip();
+    if (success) {
+      toast.success("Clip saved!");
+    } else if (error) {
+      toast.error(getErrorMessage(error));
+    }
+    toast.dismiss(loadingToastId);
+  };
 
   return (
     <div data-testid="clipper">
@@ -33,7 +45,7 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
         labelProps={{ className: "text-sm" }}
         id="title"
         label="Clip Title"
-        errors={errors}
+        errors={validationErrors.title}
       >
         <div className="flex flex-row gap-2">
           <Input
@@ -41,10 +53,12 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            aria-describedby={errors ? "title-errors" : undefined}
+            aria-describedby={
+              validationErrors.title ? "title-errors" : undefined
+            }
           />
           <Button
-            onClick={clipper.actions.submitClip}
+            onClick={onSubmit}
             variant="secondary"
             disabled={isSubmitting}
           >

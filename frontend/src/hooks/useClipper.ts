@@ -3,29 +3,26 @@ import { useCallback, useEffect, useReducer } from "react";
 import { postClip } from "@/api/clips";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
-import { ValidationError } from "@/errors";
+import { ValidationError, type ValidationErrorDetails } from "@/errors";
 import { getErrorMessage } from "@/lib/errorUtils";
 import { getLogger } from "@/lib/logging";
-import type { Clip, Track } from "@/types";
-
-export const ClipperStatus = {
-  Idle: "idle",
-  Active: "active",
-  Submitting: "submitting",
-} as const;
+import type { Clip, SubmitResult, Track } from "@/types";
 
 const logger = getLogger("useClipper");
 
 // TODO: when clips are playable as well we need to reconsider how we handle playable as the type will broaden
-// TODO: reconsider how to represent and return client side, server side and network errors
-// TODO: review if resetting works and if you need to expose a reset action
-// TODO: server is unhappy about fractions for clip start and end, we should probably round them
 const START_OFFSET = 5 * 1_000;
 const END_OFFSET = 60 * 1_000;
 const SEEK_END_OFFSET = 1 * 1_000;
 export const MIN_CLIP_DURATION = 15 * 1_000;
 export const MAX_CLIP_DURATION = 3 * 60 * 1_000;
 const MAX_TITLE_LENGTH = 255;
+
+export const ClipperStatus = {
+  Idle: "idle",
+  Active: "active",
+  Submitting: "submitting",
+} as const;
 
 type ClipperStatus = (typeof ClipperStatus)[keyof typeof ClipperStatus];
 
@@ -36,16 +33,17 @@ type ClipperState = {
   title: string;
   track: Track | null;
   createdClip: Clip | null;
-  errorMessage: string | null;
+  validationErrors: ValidationErrorDetails;
 };
 
 type ClipperActions = {
   startClipping: () => void;
   cancelClipping: () => void;
   setStart: (v: number) => void;
-  submitClip: () => Promise<void>;
   setEnd: (v: number) => void;
   setTitle: (v: string) => void;
+  validate: () => boolean;
+  submitClip: () => Promise<SubmitResult>;
 };
 
 type ClipperDerived = {
@@ -74,18 +72,18 @@ const initialState: ClipperState = {
   title: "",
   track: null,
   createdClip: null,
-  errorMessage: null,
+  validationErrors: {},
 };
 
 type ClipperAction =
   | { type: "START_CLIPPING"; position: number; track: Track }
   | { type: "CANCEL_CLIPPING" }
   | { type: "SET_BOUNDS"; start: number; end: number }
-  | { type: "SET_TITLE"; title: string }
-  | { type: "SET_ERROR"; message: string }
+  | { type: "SET_TITLE"; title: string; error: string | null }
+  | { type: "SET_VALIDATION_ERRORS"; errors: ValidationErrorDetails }
   | { type: "SUBMIT_START" }
   | { type: "SUBMIT_SUCCESS"; clip: Clip }
-  | { type: "SUBMIT_ERROR"; message: string };
+  | { type: "SUBMIT_FAILURE" };
 
 type ClipperActionType = ClipperAction["type"];
 
@@ -95,9 +93,10 @@ const allowedActions: Record<ClipperStatus, ClipperActionType[]> = {
     "CANCEL_CLIPPING",
     "SET_BOUNDS",
     "SET_TITLE",
+    "SET_VALIDATION_ERRORS",
     "SUBMIT_START",
   ],
-  [ClipperStatus.Submitting]: ["SUBMIT_SUCCESS", "SUBMIT_ERROR"],
+  [ClipperStatus.Submitting]: ["SUBMIT_SUCCESS", "SUBMIT_FAILURE"],
 };
 
 function clipperReducer(
@@ -123,7 +122,6 @@ function clipperReducer(
         end,
         title: "",
         track: action.track,
-        errorMessage: null,
       };
     }
     case "CANCEL_CLIPPING": {
@@ -139,16 +137,29 @@ function clipperReducer(
       };
     }
     case "SET_TITLE": {
+      const { title: _, ...restErrors } = state.validationErrors;
+      const nextErrors = action.error
+        ? { ...restErrors, title: [action.error] }
+        : restErrors;
       return {
         ...state,
         title: action.title,
+        validationErrors: nextErrors,
+      };
+    }
+    case "SET_VALIDATION_ERRORS": {
+      return {
+        ...state,
+        validationErrors: {
+          ...state.validationErrors,
+          ...action.errors,
+        },
       };
     }
     case "SUBMIT_START": {
       return {
         ...state,
         status: ClipperStatus.Submitting,
-        errorMessage: null,
       };
     }
     case "SUBMIT_SUCCESS": {
@@ -158,16 +169,11 @@ function clipperReducer(
         createdClip: action.clip,
       };
     }
-    case "SUBMIT_ERROR": {
+    case "SUBMIT_FAILURE": {
       return {
         ...state,
         status: ClipperStatus.Active,
-        errorMessage: action.message,
       };
-    }
-    default: {
-      logger.warn(`Action ${action.type} not implemented yet`);
-      return state;
     }
   }
 }
@@ -211,30 +217,57 @@ export function useClipper(): UseClipperResult {
     dispatch({ type: "CANCEL_CLIPPING" });
   };
 
-  const submitClip = async () => {
-    if (!allowAction(state.status, "SUBMIT_START")) return;
+  const validate = useCallback((): boolean => {
+    if (isSubmitting) return true;
+    const titleError = validateTitle(sanitizeTitle(state.title));
+    if (titleError) {
+      dispatch({
+        type: "SET_VALIDATION_ERRORS",
+        errors: { title: [titleError] },
+      });
+      return false;
+    }
+    return true;
+  }, [isSubmitting, state.title]);
+
+  const submitClip = async (): Promise<SubmitResult> => {
+    if (!allowAction(state.status, "SUBMIT_START"))
+      return { success: false, error: "Can't clip" };
     if (!state.track) {
       logger.warn("No playable track available for clipping");
-      return;
+      return { success: false, error: "No track available" };
     }
 
     dispatch({ type: "SUBMIT_START" });
     try {
       const clip = await postClip({
         track_id: state.track.id,
-        title: state.title,
+        title: sanitizeTitle(state.title),
         start: state.start,
         end: state.end,
       });
       dispatch({ type: "SUBMIT_SUCCESS", clip });
+      return { success: true };
     } catch (error) {
       if (error instanceof ValidationError) {
-        const message = Object.values(error.details).join(", ");
-        dispatch({ type: "SUBMIT_ERROR", message });
-      } else {
-        const message = getErrorMessage(error);
-        dispatch({ type: "SUBMIT_ERROR", message });
+        const { title: titleErrors, ...restErrors } = error.details;
+        if (titleErrors) {
+          dispatch({
+            type: "SET_VALIDATION_ERRORS",
+            errors: { title: titleErrors },
+          });
+        }
+        dispatch({ type: "SUBMIT_FAILURE" });
+        const invisibleErrors = Object.values(restErrors).flat();
+        if (invisibleErrors.length > 0) {
+          // TODO: this will probably show a one large toast if there are multiple errors
+          return { success: false, error: invisibleErrors.join(" | ") };
+        }
+        return { success: false };
       }
+      const message = getErrorMessage(error);
+      dispatch({ type: "SUBMIT_FAILURE" });
+      return { success: false, error: message };
     }
   };
 
@@ -255,11 +288,7 @@ export function useClipper(): UseClipperResult {
   const setTitle = (title: string) => {
     const sanitized = sanitizeTitle(title);
     const error = validateTitle(sanitized);
-    if (error) {
-      dispatch({ type: "SET_ERROR", message: error });
-    } else {
-      dispatch({ type: "SET_TITLE", title });
-    }
+    dispatch({ type: "SET_TITLE", title, error });
   };
 
   // Cancel clipping if playable changes
@@ -316,10 +345,11 @@ export function useClipper(): UseClipperResult {
     actions: {
       startClipping,
       cancelClipping,
-      submitClip,
       setStart,
       setEnd,
       setTitle,
+      validate,
+      submitClip,
     },
     derived: {
       isIdle,
@@ -346,13 +376,13 @@ export function useClipper(): UseClipperResult {
 function clampStart(rawStart: number, end: number): number {
   const lowerBound = Math.max(0, end - MAX_CLIP_DURATION);
   const upperBound = end - MIN_CLIP_DURATION;
-  return clamp(rawStart, lowerBound, upperBound);
+  return Math.round(clamp(rawStart, lowerBound, upperBound));
 }
 
 function clampEnd(rawEnd: number, start: number, duration: number): number {
   const lowerBound = start + MIN_CLIP_DURATION;
   const upperBound = Math.min(duration, start + MAX_CLIP_DURATION);
-  return clamp(rawEnd, lowerBound, upperBound);
+  return Math.round(clamp(rawEnd, lowerBound, upperBound));
 }
 
 function getInitialBounds(
