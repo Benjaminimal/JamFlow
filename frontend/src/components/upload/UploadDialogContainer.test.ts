@@ -1,3 +1,8 @@
+// TODO: these are outdated tests of a component that no longer exists
+// One could port this to UploadDialogContainer
+
+// eslint-disable-next-line vitest/no-commented-out-tests
+/*
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 
 import { renderRoute } from "@/test-utils/render";
@@ -104,3 +109,4 @@ function submitValidForm() {
 
   fireEvent.submit(screen.getByTestId("upload-form"));
 }
+*/
