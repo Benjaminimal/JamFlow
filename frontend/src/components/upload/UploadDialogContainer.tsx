@@ -15,7 +15,7 @@ export function UploadDialogContainer(): JSX.Element {
     recordedDate,
     setRecordedDate,
     setFile,
-    formErrors,
+    validationErrors,
     isSubmitting,
     validate,
     reset,
@@ -38,7 +38,6 @@ export function UploadDialogContainer(): JSX.Element {
       toast.success("Track uploaded successfully");
       setOpen(false);
     } else if (error) {
-      // TODO: move this out of state. return the error from submit()
       toast.error(getErrorMessage(error));
     }
     toast.dismiss(loadingToastId);
@@ -54,7 +53,7 @@ export function UploadDialogContainer(): JSX.Element {
       onRecordedDateChange={setRecordedDate}
       onFileChange={setFile}
       fileInputRef={fileInputRef}
-      formErrors={formErrors}
+      validationErrors={validationErrors}
       onReset={onReset}
       onSubmit={onSubmit}
       disabled={isSubmitting}

@@ -27,7 +27,7 @@ type UploadDialogFormProps = {
   onRecordedDateChange: (v: string | null) => void;
   onFileChange: (file: File | null) => void;
   fileInputRef: RefObject<HTMLInputElement | null>;
-  formErrors: ValidationErrorDetails;
+  validationErrors: ValidationErrorDetails;
   onReset: () => void;
   onSubmit: () => Promise<void>;
   disabled: boolean;
@@ -43,7 +43,7 @@ export function UploadDialogForm({
   onRecordedDateChange,
   onFileChange,
   fileInputRef,
-  formErrors,
+  validationErrors,
   onReset,
   onSubmit,
   disabled,
@@ -77,44 +77,51 @@ export function UploadDialogForm({
             </DialogDescription>
           </DialogHeader>
           <div className="my-4 flex flex-col gap-4">
-            {formErrors.nonField && formErrors.nonField.length > 0 && (
-              <div role="alert" id="form-errors">
-                {formErrors.nonField.map((message, idx) => (
-                  <ErrorDisplay key={idx} message={message} />
-                ))}
-              </div>
-            )}
+            {validationErrors.nonField &&
+              validationErrors.nonField.length > 0 && (
+                <div role="alert" id="form-errors">
+                  {validationErrors.nonField.map((message, idx) => (
+                    <ErrorDisplay key={idx} message={message} />
+                  ))}
+                </div>
+              )}
 
-            <FormField id="title" label="Title" errors={formErrors.title}>
+            <FormField id="title" label="Title" errors={validationErrors.title}>
               <Input
                 id="title"
                 type="text"
                 value={title}
                 onChange={(e) => onTitleChange(e.target.value)}
-                aria-describedby={formErrors.title ? "title-errors" : undefined}
+                aria-describedby={
+                  validationErrors.title ? "title-errors" : undefined
+                }
               />
             </FormField>
             <FormField
               id="recordedDate"
               label="Recorded on"
-              errors={formErrors.recordedDate}
+              errors={validationErrors.recordedDate}
             >
               <DatePicker
                 value={recordedDate}
                 onChange={onRecordedDateChange}
                 id="recordedDate"
                 aria-describedby={
-                  formErrors.recordedDate ? "recordedDate-errors" : undefined
+                  validationErrors.recordedDate
+                    ? "recordedDate-errors"
+                    : undefined
                 }
               />
             </FormField>
-            <FormField id="file" label="Track" errors={formErrors.file}>
+            <FormField id="file" label="Track" errors={validationErrors.file}>
               <Input
                 id="file"
                 type="file"
                 ref={fileInputRef}
                 onChange={(e) => onFileChange(e.target.files?.[0] || null)}
-                aria-describedby={formErrors.file ? "file-errors" : undefined}
+                aria-describedby={
+                  validationErrors.file ? "file-errors" : undefined
+                }
               />
             </FormField>
           </div>

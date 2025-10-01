@@ -31,3 +31,8 @@ export type Clip = {
   start: number; // milliseconds
   end: number; // milliseconds
 };
+
+export type SubmitResult = {
+  success: boolean;
+  error?: unknown;
+};

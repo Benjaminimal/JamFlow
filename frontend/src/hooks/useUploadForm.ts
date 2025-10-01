@@ -2,11 +2,7 @@ import { useState } from "react";
 
 import { uploadTrack } from "@/api/tracks";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
-
-export type UploadSubmitResult = {
-  success: boolean;
-  error?: unknown;
-};
+import type { SubmitResult } from "@/types";
 
 export type UseUploadFormResult = {
   title: string;
@@ -15,10 +11,10 @@ export type UseUploadFormResult = {
   setRecordedDate: (v: string | null) => void;
   file: File | null;
   setFile: (v: File | null) => void;
-  formErrors: ValidationErrorDetails;
+  validationErrors: ValidationErrorDetails;
   validate: () => boolean;
   reset: () => void;
-  submit: () => Promise<UploadSubmitResult>;
+  submit: () => Promise<SubmitResult>;
   isSubmitting: boolean;
 };
 
@@ -27,37 +23,38 @@ export function useUploadForm(): UseUploadFormResult {
   const [title, _setTitle] = useState("");
   const [recordedDate, _setRecordedDate] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<ValidationErrorDetails>({});
+  const [validationErrors, setValidationErrors] =
+    useState<ValidationErrorDetails>({});
 
-  const setFile = setField("file", _setFile, setFormErrors);
-  const setTitle = setField("title", _setTitle, setFormErrors);
+  const setFile = setField("file", _setFile, setValidationErrors);
+  const setTitle = setField("title", _setTitle, setValidationErrors);
   const setRecordedDate = setField(
     "recordedDate",
     _setRecordedDate,
-    setFormErrors,
+    setValidationErrors,
   );
 
   const reset = (): void => {
     _setFile(null);
     _setTitle("");
     _setRecordedDate(null);
-    setFormErrors({});
+    setValidationErrors({});
   };
 
   const validate = (): boolean => {
     if (isSubmitting) return true;
 
-    const validationErrors = getValidationErrors(title, file);
-    if (validationErrors) {
-      setFormErrors(validationErrors);
+    const _validationErrors = getValidationErrors(title, file);
+    if (_validationErrors) {
+      setValidationErrors(_validationErrors);
       return false;
     }
 
-    setFormErrors({});
+    setValidationErrors({});
     return true;
   };
 
-  const submit = async (): Promise<UploadSubmitResult> => {
+  const submit = async (): Promise<SubmitResult> => {
     if (isSubmitting) return { success: false };
 
     setIsSubmitting(true);
@@ -72,7 +69,7 @@ export function useUploadForm(): UseUploadFormResult {
       return { success: true };
     } catch (error) {
       if (error instanceof ValidationError) {
-        setFormErrors(error.details);
+        setValidationErrors(error.details);
         return { success: false };
       }
       return { success: false, error: error };
@@ -88,7 +85,7 @@ export function useUploadForm(): UseUploadFormResult {
     setRecordedDate,
     file,
     setFile,
-    formErrors,
+    validationErrors,
     validate,
     reset,
     submit,

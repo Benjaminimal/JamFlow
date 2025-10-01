@@ -2,8 +2,8 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
 import { ValidationError } from "@/errors";
-import { type UploadSubmitResult, useUploadForm } from "@/hooks/useUploadForm";
-import type { TrackCreateForm } from "@/types";
+import { useUploadForm } from "@/hooks/useUploadForm";
+import type { SubmitResult, TrackCreateForm } from "@/types";
 
 vi.mock("@/api/tracks", () => ({
   uploadTrack: vi.fn(() => Promise.resolve({ success: true })),
@@ -50,15 +50,15 @@ describe("useUploadForm", () => {
   };
 
   describe("initial state", () => {
-    it("should initialize all form fields, formErrors, and isSubmitting correctly", () => {
+    it("should initialize all form fields, validationErrors, and isSubmitting correctly", () => {
       const { result } = setup();
-      const { title, recordedDate, file, formErrors, isSubmitting } =
+      const { title, recordedDate, file, validationErrors, isSubmitting } =
         result.current;
 
       expect(title).toBe("");
       expect(recordedDate).toBe(null);
       expect(file).toBe(null);
-      expect(formErrors).toEqual({});
+      expect(validationErrors).toEqual({});
       expect(isSubmitting).toBe(false);
     });
   });
@@ -69,7 +69,7 @@ describe("useUploadForm", () => {
       const { setTitle } = result.current;
 
       await triggerClientValidation(result);
-      expect(result.current.formErrors.title).toBeDefined();
+      expect(result.current.validationErrors.title).toBeDefined();
 
       const title = "Title Set";
 
@@ -78,7 +78,7 @@ describe("useUploadForm", () => {
       });
 
       expect(result.current.title).toBe(title);
-      expect(result.current.formErrors.title).toBeUndefined();
+      expect(result.current.validationErrors.title).toBeUndefined();
     });
 
     it("setRecordedDate updates recordedDate state", () => {
@@ -97,13 +97,13 @@ describe("useUploadForm", () => {
       const { setFile } = result.current;
 
       await triggerClientValidation(result);
-      expect(result.current.formErrors.file).toBeDefined();
+      expect(result.current.validationErrors.file).toBeDefined();
 
       act(() => {
         setFile(createTestFile());
       });
 
-      expect(result.current.formErrors.file).toBeUndefined();
+      expect(result.current.validationErrors.file).toBeUndefined();
     });
 
     it("setting one field does not clear unrelated errors", async () => {
@@ -111,13 +111,13 @@ describe("useUploadForm", () => {
       const { setRecordedDate } = result.current;
 
       await triggerClientValidation(result);
-      expect(result.current.formErrors.title).toBeDefined();
+      expect(result.current.validationErrors.title).toBeDefined();
 
       act(() => {
         setRecordedDate("Dummy date");
       });
 
-      expect(result.current.formErrors.title).toBeDefined();
+      expect(result.current.validationErrors.title).toBeDefined();
     });
   });
 
@@ -130,9 +130,9 @@ describe("useUploadForm", () => {
         validate();
       });
 
-      expect(result.current.formErrors.title).toBeDefined();
-      expect(result.current.formErrors.recordedDate).toBeUndefined();
-      expect(result.current.formErrors.file).toBeDefined();
+      expect(result.current.validationErrors.title).toBeDefined();
+      expect(result.current.validationErrors.recordedDate).toBeUndefined();
+      expect(result.current.validationErrors.file).toBeDefined();
       expect(uploadTrackMock).not.toHaveBeenCalled();
     });
   });
@@ -157,14 +157,14 @@ describe("useUploadForm", () => {
       expect(uploadTrackMock).toHaveBeenCalledExactlyOnceWith(formData);
     });
 
-    it("should clear formErrors on success", async () => {
+    it("should clear validationErrors on success", async () => {
       const { result } = setup();
 
       await triggerClientValidation(result);
 
       await submitForm(result);
 
-      expect(result.current.formErrors).toEqual({});
+      expect(result.current.validationErrors).toEqual({});
     });
 
     it("should toggle isSubmitting correctly", async () => {
@@ -226,7 +226,7 @@ describe("useUploadForm", () => {
         recordedDate: null,
       });
 
-      expect(result.current.formErrors.recordedDate).toBeUndefined();
+      expect(result.current.validationErrors.recordedDate).toBeUndefined();
     });
 
     it("should treat empty string recordedDate as null before submit", async () => {
@@ -242,12 +242,12 @@ describe("useUploadForm", () => {
         recordedDate: null,
       });
 
-      expect(result.current.formErrors.recordedDate).toBeUndefined();
+      expect(result.current.validationErrors.recordedDate).toBeUndefined();
     });
   });
 
   describe("handleSubmit failure", () => {
-    it("should set formErrors if uploadTrack throws ValidationError", async () => {
+    it("should set validationErrors if uploadTrack throws ValidationError", async () => {
       const { result } = setup();
 
       const errorDetails = {
@@ -262,7 +262,7 @@ describe("useUploadForm", () => {
 
       await submitForm(result);
 
-      expect(result.current.formErrors).toEqual(errorDetails);
+      expect(result.current.validationErrors).toEqual(errorDetails);
     });
 
     it("should return success false and no error on ValidationError", async () => {
@@ -338,12 +338,12 @@ describe("useUploadForm", () => {
       });
 
       let resolveUpload: () => void;
-      const uploadPromise = new Promise<UploadSubmitResult>((resolve) => {
+      const uploadPromise = new Promise<SubmitResult>((resolve) => {
         resolveUpload = () => resolve({ success: true });
       });
       uploadTrackMock.mockReturnValue(uploadPromise);
 
-      let firstSubmissionPromise: Promise<UploadSubmitResult>;
+      let firstSubmissionPromise: Promise<SubmitResult>;
       await act(async () => {
         firstSubmissionPromise = result.current.submit();
       });
@@ -365,15 +365,15 @@ describe("useUploadForm", () => {
 
       await triggerClientValidation(result);
 
-      expect(result.current.formErrors.title).toBeDefined();
-      expect(result.current.formErrors.file).toBeDefined();
+      expect(result.current.validationErrors.title).toBeDefined();
+      expect(result.current.validationErrors.file).toBeDefined();
 
       act(() => {
         result.current.setTitle("Keep File Error");
       });
 
-      expect(result.current.formErrors.title).toBeUndefined();
-      expect(result.current.formErrors.file).toBeDefined();
+      expect(result.current.validationErrors.title).toBeUndefined();
+      expect(result.current.validationErrors.file).toBeDefined();
     });
   });
 });
