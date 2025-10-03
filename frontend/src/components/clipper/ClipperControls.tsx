@@ -1,4 +1,4 @@
-import { RotateCcw, RotateCw, Save } from "lucide-react";
+import { RotateCcw, RotateCw } from "lucide-react";
 import { type JSX, useState } from "react";
 
 import {
@@ -7,7 +7,7 @@ import {
   ClipperTimeline,
 } from "@/components/clipper";
 import type { DraggingThumb } from "@/components/clipper/types";
-import { IconButton } from "@/components/primitives";
+import { PlaybackToggle } from "@/components/playback";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
 import { useClipperViewBounds } from "@/hooks/useClipperViewBounds";
@@ -18,12 +18,10 @@ type NudgeDirection = "forward" | "backward";
 
 type ClipperControlsProps = {
   clipper: UseClipperResult;
-  save: () => Promise<void>;
 };
 
 export function ClipperControls({
   clipper,
-  save,
 }: ClipperControlsProps): JSX.Element {
   const {
     actions: { seek },
@@ -32,7 +30,6 @@ export function ClipperControls({
   const {
     state: { start: clipStart, end: clipEnd },
     actions: { playStart, playEnd, setStart, setEnd },
-    derived: { isSubmitting },
   } = clipper;
 
   const { viewBounds } = useClipperViewBounds();
@@ -89,7 +86,7 @@ export function ClipperControls({
             replayIcon={RotateCcw}
           />
         }
-        durationActions={<SaveButton onClick={save} disabled={isSubmitting} />}
+        durationActions={<PlaybackToggle size="icon-lg" />}
         endActions={
           <ClipperBoundControls
             onNudgeBack={() => nudgeEnd("backward")}
@@ -100,21 +97,5 @@ export function ClipperControls({
         }
       />
     </div>
-  );
-}
-
-type SaveButtonProps = {
-  onClick: () => Promise<void>;
-  disabled: boolean;
-};
-
-function SaveButton({ onClick, disabled }: SaveButtonProps): JSX.Element {
-  return (
-    <IconButton
-      icon={Save}
-      onClick={onClick}
-      disabled={disabled}
-      size="icon-lg"
-    />
   );
 }

@@ -1,9 +1,9 @@
-import { X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { type JSX } from "react";
 import { toast } from "sonner";
 
 import { ClipperControls } from "@/components/clipper";
-import { PlaybackToggle, ProgressBarCompact } from "@/components/playback";
+import { ProgressBarCompact } from "@/components/playback";
 import { IconButton } from "@/components/primitives";
 import { FormField } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
@@ -23,6 +23,7 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
   const {
     state: { title, validationErrors },
     actions: { setTitle, validate, submitClip },
+    derived: { isSubmitting },
   } = clipper;
 
   const onSubmit = async (): Promise<void> => {
@@ -41,7 +42,7 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
   return (
     <div data-testid="clipper">
       <FormField
-        labelProps={{ className: "text-sm" }}
+        labelProps={{ className: "text-md" }}
         id="title"
         label="Clip Title"
         errors={validationErrors.title}
@@ -64,21 +65,33 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
         onClick={clipper.actions.cancelClipping}
       />
       <div className="my-4">
-        <ClipperControls clipper={clipper} save={onSubmit} />
+        <ClipperControls clipper={clipper} />
       </div>
       <div className="mb-2 flex flex-row items-center space-x-4">
-        <PlaybackToggle
-          className="rounded-full border-2 !border-current"
-          size="icon-md"
-          variant="outline"
-        />
         <div className="min-w-0 flex-1">
           <div className="mb-1 overflow-hidden text-xs text-ellipsis whitespace-nowrap">
             {playable?.title || ""}
           </div>
           <ProgressBarCompact />
         </div>
+        <SaveButton onClick={onSubmit} disabled={isSubmitting} />
       </div>
     </div>
+  );
+}
+
+type SaveButtonProps = {
+  onClick: () => Promise<void>;
+  disabled: boolean;
+};
+
+function SaveButton({ onClick, disabled }: SaveButtonProps): JSX.Element {
+  return (
+    <IconButton
+      icon={Save}
+      onClick={onClick}
+      disabled={disabled}
+      size="icon-lg"
+    />
   );
 }
