@@ -4,7 +4,11 @@ import type { Bounds } from "@/components/clipper/types";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import type { UseClipperResult } from "@/hooks/useClipper";
-import { formatDuration, timeToPositionPercent } from "@/lib/time";
+import {
+  formatDuration,
+  percentToTime,
+  timeToPositionPercent,
+} from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 export type DraggingThumb = "start" | "end";
@@ -18,6 +22,7 @@ type ClipperBoundsProps = {
   setStartTarget: (v: number) => void;
   endTarget: number;
   setEndTarget: (v: number) => void;
+  seek: (v: number) => void;
 };
 
 export function ClipperBounds({
@@ -29,6 +34,7 @@ export function ClipperBounds({
   setStartTarget,
   endTarget,
   setEndTarget,
+  seek,
 }: ClipperBoundsProps): JSX.Element {
   const {
     state: { start: clipStart, end: clipEnd },
@@ -72,11 +78,26 @@ export function ClipperBounds({
     setDraggingThumb(null);
   };
 
+  const handleSeek = (e: PointerEvent<HTMLDivElement>) => {
+    if (draggingThumb) return;
+
+    const { left, width } = e.currentTarget.getBoundingClientRect();
+    const factor = (e.clientX - left) / width;
+    const seekTime = percentToTime(
+      factor * 100,
+      viewBounds.start,
+      viewBounds.end,
+    );
+    if (seekTime < startTarget || seekTime > endTarget) return;
+    seek(seekTime);
+  };
+
   return (
     <div
       className="absolute z-10 h-full w-full touch-none"
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onClick={handleSeek}
     >
       <ClipperThumb
         thumbRole="start"
@@ -134,7 +155,7 @@ function ClipperThumb({
       />
       <div
         className={cn(
-          "text text-muted-foreground absolute -translate-x-1/2 text-xs",
+          "text-muted-foreground absolute -translate-x-1/2 text-xs",
           thumbRole === "end" ? "-bottom-5" : "-top-5",
         )}
       >

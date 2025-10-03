@@ -21,7 +21,7 @@ export function ClipperControls({
 }: ClipperControlsProps): JSX.Element {
   const {
     state: { duration },
-    actions: { getPosition, subscribe },
+    actions: { getPosition, subscribe, seek },
   } = usePlaybackContext();
 
   const {
@@ -78,6 +78,7 @@ export function ClipperControls({
             setStartTarget={setStartTarget}
             endTarget={endTarget}
             setEndTarget={setEndTarget}
+            seek={seek}
           />
           <ClipperBar viewBounds={viewBounds} clipBounds={clipDisplayBounds} />
           <ClipperRuler

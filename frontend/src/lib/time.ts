@@ -1,3 +1,4 @@
+// TODO: rename to formatTimecode
 /**
  * Formats a duration in seconds into a human-readable string.
  * The format is "HH:MM:SS" if hours are present, otherwise "MM:SS".
@@ -42,4 +43,20 @@ export function timeToPositionPercent(
   if (time < startTime) return 0;
   if (time > endTime) return 100;
   return ((time - startTime) / (endTime - startTime)) * 100;
+}
+
+/**
+ * Calculates the time corresponding to a given percentage between a start and end time.
+ *
+ * @param percent - The percentage (0 to 100).
+ * @param start - The start time in milliseconds.
+ * @param end - The end time in milliseconds.
+ * @returns The calculated time in milliseconds.
+ */
+export function percentToTime(
+  percent: number,
+  start: number,
+  end: number,
+): number {
+  return start + (percent / 100) * (end - start);
 }
