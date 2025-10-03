@@ -1,4 +1,5 @@
 import { type JSX } from "react";
+import { Link } from "react-router-dom";
 
 import { PlaybackToggle } from "@/components/playback";
 import { ErrorState, LoadingState, PlayButton } from "@/components/ui";
@@ -6,6 +7,7 @@ import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { pathGenerator } from "@/routes";
 import type { Track } from "@/types";
 
 export function TrackList(): JSX.Element {
@@ -83,21 +85,32 @@ function TrackItem({
         "hover:bg-muted active:bg-muted",
       )}
     >
-      <div className="text-muted-foreground w-7 text-center text-sm">
-        {number}
-      </div>
+      <Link
+        to={pathGenerator.trackDetail({ id: track.id })}
+        className="group flex min-w-0 flex-1 items-center"
+      >
+        <div className="text-muted-foreground w-7 text-center text-sm">
+          {number}
+        </div>
 
-      <div className="mx-2 flex min-w-0 flex-1 flex-col">
-        <span className={cn("truncate font-medium", currentTrackClasses)}>
-          {track.title}
-        </span>
-        <span className="text-muted-foreground text-sm">
-          {formatDuration(track.duration)}
-          {track.recordedDate && (
-            <span> • {track.recordedDate.toLocaleDateString()}</span>
-          )}
-        </span>
-      </div>
+        <div className="mx-2 flex min-w-0 flex-1 flex-col">
+          <span
+            className={cn(
+              "truncate font-medium",
+              "group-hover:underline group-active:underline",
+              currentTrackClasses,
+            )}
+          >
+            {track.title}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {formatDuration(track.duration)}
+            {track.recordedDate && (
+              <span> • {track.recordedDate.toLocaleDateString()}</span>
+            )}
+          </span>
+        </div>
+      </Link>
 
       <div>
         {isCurrent ? (
