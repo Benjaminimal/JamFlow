@@ -1,3 +1,8 @@
+// TODO: these are outdated tests of a component that no longer exists
+// One could port this to UploadDialogForm
+
+// eslint-disable-next-line vitest/no-commented-out-tests
+/*
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { UploadForm } from "@/components/upload";
@@ -20,7 +25,7 @@ describe("UploadForm", () => {
       const bottomMessage = "Other mistake";
 
       renderUploadForm({
-        formErrors: {
+        validationErrors: {
           title: [titleMessage],
           nonField: [topMessage, bottomMessage],
         },
@@ -97,15 +102,15 @@ describe("UploadForm", () => {
   });
 
   describe("edge cases", () => {
-    it("renders no errors if formErrors is empty", () => {
-      renderUploadForm({ formErrors: {} });
+    it("renders no errors if validationErrors is empty", () => {
+      renderUploadForm({ validationErrors: {} });
 
       expect(screen.queryByRole("alert")).toBeNull();
     });
 
     it("renders multiple error messages per field if provided", () => {
       renderUploadForm({
-        formErrors: {
+        validationErrors: {
           nonField: ["Non-Field Error 1", "Non-Field Error 2"],
           title: ["Title Error 1", "Title Error 2"],
           recordedDate: ["Date Error 1", "Date Error 2"],
@@ -144,7 +149,7 @@ function renderUploadForm(overrides: UploadFormPropsOverrides = {}) {
     recordedDate: "",
     onRecordedDateChange: vi.fn(),
     onFileChange: vi.fn(),
-    formErrors: {},
+    validationErrors: {},
     onSubmit: vi.fn(),
     disabled: false,
   };
@@ -159,3 +164,4 @@ function renderUploadForm(overrides: UploadFormPropsOverrides = {}) {
     },
   };
 }
+*/

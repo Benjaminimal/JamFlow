@@ -1,19 +1,20 @@
 import { useState } from "react";
 
-import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { uploadTrack } from "@/api/tracks";
-import { useNotifications } from "@/contexts/NotificationContext";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
+import type { SubmitResult } from "@/types";
 
-type UseUploadFormResult = {
+export type UseUploadFormResult = {
   title: string;
   setTitle: (v: string) => void;
   recordedDate: string | null;
   setRecordedDate: (v: string | null) => void;
   file: File | null;
   setFile: (v: File | null) => void;
-  formErrors: ValidationErrorDetails;
-  handleSubmit: () => Promise<{ success: boolean }>;
+  validationErrors: ValidationErrorDetails;
+  validate: () => boolean;
+  reset: () => void;
+  submit: () => Promise<SubmitResult>;
   isSubmitting: boolean;
 };
 
@@ -21,40 +22,41 @@ export function useUploadForm(): UseUploadFormResult {
   const [file, _setFile] = useState<File | null>(null);
   const [title, _setTitle] = useState("");
   const [recordedDate, _setRecordedDate] = useState<string | null>(null);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] =
+    useState<ValidationErrorDetails>({});
 
-  const [formErrors, setFormErrors] = useState<ValidationErrorDetails>({});
-
-  // TODO: return values and let the page handle using the notification context
-  const { addNotification } = useNotifications();
-
-  const setFile = setField("file", _setFile, setFormErrors);
-  const setTitle = setField("title", _setTitle, setFormErrors);
+  const setFile = setField("file", _setFile, setValidationErrors);
+  const setTitle = setField("title", _setTitle, setValidationErrors);
   const setRecordedDate = setField(
     "recordedDate",
     _setRecordedDate,
-    setFormErrors,
+    setValidationErrors,
   );
 
-  const resetForm = () => {
+  const reset = (): void => {
     _setFile(null);
     _setTitle("");
     _setRecordedDate(null);
+    setValidationErrors({});
   };
 
-  const handleSubmit = async (): Promise<{ success: boolean }> => {
-    if (isSubmitting) {
-      return { success: false };
+  const validate = (): boolean => {
+    if (isSubmitting) return true;
+
+    const _validationErrors = getValidationErrors(title, file);
+    if (_validationErrors) {
+      setValidationErrors(_validationErrors);
+      return false;
     }
 
-    const validationErrors = getValidationErrors(title, file);
-    if (validationErrors) {
-      setFormErrors(validationErrors);
-      return { success: false };
-    }
+    setValidationErrors({});
+    return true;
+  };
 
-    setFormErrors({});
+  const submit = async (): Promise<SubmitResult> => {
+    if (isSubmitting) return { success: false };
+
     setIsSubmitting(true);
 
     try {
@@ -63,17 +65,14 @@ export function useUploadForm(): UseUploadFormResult {
         recordedDate: recordedDate || null,
         file: file!,
       });
-      addNotification("Upload successful");
-      resetForm();
+      reset();
       return { success: true };
     } catch (error) {
       if (error instanceof ValidationError) {
-        setFormErrors(error.details);
-      } else {
-        const message = getUserFriendlyErrorMessage(error);
-        addNotification(message);
+        setValidationErrors(error.details);
+        return { success: false };
       }
-      return { success: false };
+      return { success: false, error: error };
     } finally {
       setIsSubmitting(false);
     }
@@ -86,8 +85,10 @@ export function useUploadForm(): UseUploadFormResult {
     setRecordedDate,
     file,
     setFile,
-    formErrors,
-    handleSubmit,
+    validationErrors,
+    validate,
+    reset,
+    submit,
     isSubmitting,
   };
 }
@@ -101,6 +102,7 @@ function getValidationErrors(
     validationErrors.file = ["File is required"];
   }
 
+  // TODO: validate length
   if (!title.trim()) {
     validationErrors.title = ["Title is required"];
   }

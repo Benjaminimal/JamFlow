@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { type ComponentProps, type JSX, useRef } from "react";
+import { type ComponentProps, type JSX, type RefObject } from "react";
 
 import { IconButton } from "@/components/primitives";
 import { DatePicker } from "@/components/ui/DatePicker";
@@ -19,31 +19,45 @@ import {
 } from "@/ui-lib";
 
 type UploadDialogFormProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   title: string;
   onTitleChange: (v: string) => void;
   recordedDate: string | null;
   onRecordedDateChange: (v: string | null) => void;
   onFileChange: (file: File | null) => void;
-  formErrors: ValidationErrorDetails;
-  onSubmit: () => Promise<{ success: boolean }>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
+  validationErrors: ValidationErrorDetails;
+  onReset: () => void;
+  onSubmit: () => Promise<void>;
   disabled: boolean;
 };
 
 // TODO: make the DiaglogTrigger button look nicer
 export function UploadDialogForm({
+  open,
+  onOpenChange,
   title,
   onTitleChange,
   recordedDate,
   onRecordedDateChange,
   onFileChange,
-  formErrors,
+  fileInputRef,
+  validationErrors,
+  onReset,
   onSubmit,
   disabled,
 }: UploadDialogFormProps): JSX.Element {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        onOpenChange(nextOpen);
+        if (!nextOpen) {
+          onReset();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <IconButton icon={Plus} aria-label="Upload" />
       </DialogTrigger>
@@ -53,10 +67,7 @@ export function UploadDialogForm({
           data-testid="upload-form"
           onSubmit={async (e) => {
             e.preventDefault();
-            const { success } = await onSubmit();
-            if (success && fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
+            await onSubmit();
           }}
         >
           <DialogHeader>
@@ -66,44 +77,51 @@ export function UploadDialogForm({
             </DialogDescription>
           </DialogHeader>
           <div className="my-4 flex flex-col gap-4">
-            {formErrors.nonField && formErrors.nonField.length > 0 && (
-              <div role="alert" id="form-errors">
-                {formErrors.nonField.map((message, idx) => (
-                  <ErrorDisplay key={idx} message={message} />
-                ))}
-              </div>
-            )}
+            {validationErrors.nonField &&
+              validationErrors.nonField.length > 0 && (
+                <div role="alert" id="form-errors">
+                  {validationErrors.nonField.map((message, idx) => (
+                    <ErrorDisplay key={idx} message={message} />
+                  ))}
+                </div>
+              )}
 
-            <FormField id="title" label="Title" errors={formErrors.title}>
+            <FormField id="title" label="Title" errors={validationErrors.title}>
               <Input
                 id="title"
                 type="text"
                 value={title}
                 onChange={(e) => onTitleChange(e.target.value)}
-                aria-describedby={formErrors.title ? "title-errors" : undefined}
+                aria-describedby={
+                  validationErrors.title ? "title-errors" : undefined
+                }
               />
             </FormField>
             <FormField
               id="recordedDate"
               label="Recorded on"
-              errors={formErrors.recordedDate}
+              errors={validationErrors.recordedDate}
             >
               <DatePicker
                 value={recordedDate}
                 onChange={onRecordedDateChange}
                 id="recordedDate"
                 aria-describedby={
-                  formErrors.recordedDate ? "recordedDate-errors" : undefined
+                  validationErrors.recordedDate
+                    ? "recordedDate-errors"
+                    : undefined
                 }
               />
             </FormField>
-            <FormField id="file" label="Track" errors={formErrors.file}>
+            <FormField id="file" label="Track" errors={validationErrors.file}>
               <Input
                 id="file"
                 type="file"
                 ref={fileInputRef}
                 onChange={(e) => onFileChange(e.target.files?.[0] || null)}
-                aria-describedby={formErrors.file ? "file-errors" : undefined}
+                aria-describedby={
+                  validationErrors.file ? "file-errors" : undefined
+                }
               />
             </FormField>
           </div>

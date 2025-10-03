@@ -14,6 +14,25 @@ export type Track = {
   duration: number; // milliseconds
   format: AudioFormat;
   size: number; // bytes
-  recordedDate: Date | null;
   url: string;
+  recordedDate: Date | null;
+};
+
+export type Clip = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  title: string;
+  duration: number; // milliseconds
+  format: AudioFormat;
+  size: number; // bytes
+  url: string;
+  trackId: string;
+  start: number; // milliseconds
+  end: number; // milliseconds
+};
+
+export type SubmitResult = {
+  success: boolean;
+  error?: unknown;
 };

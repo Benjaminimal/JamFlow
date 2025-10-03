@@ -1,8 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { Mock } from "vitest";
 
-import * as errorHandler from "@/api/errorHandler";
 import { useTrackList } from "@/hooks/useTrackList";
+import * as errorUitls from "@/lib/errorUtils";
 import { createTestTrack } from "@/test-utils/testData";
 
 vi.mock("@/api/tracks", () => ({
@@ -43,7 +43,7 @@ describe("useTrackList", () => {
   it("handles errors gracefully", async () => {
     const error = new Error("Unexpected Error");
     const mockGetUserFriendlyErrorMessage = vi
-      .spyOn(errorHandler, "getUserFriendlyErrorMessage")
+      .spyOn(errorUitls, "getErrorMessage")
       .mockImplementationOnce(() => "Oops!");
     listTracksMock.mockRejectedValueOnce(error);
 

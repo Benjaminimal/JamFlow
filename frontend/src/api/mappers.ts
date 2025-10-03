@@ -1,25 +1,31 @@
-import type { TrackResponse } from "@/api/types";
-import type { Track } from "@/types";
+import type { ClipResponse, TrackResponse } from "@/api/types";
+import type { Clip, Track } from "@/types";
 
 export function mapTrackToInternal({
-  id,
+  created_at,
   updated_at,
-  title,
-  duration,
-  format,
-  size,
   recorded_date,
   url,
+  ...rest
 }: TrackResponse): Track {
   return {
-    id,
-    createdAt: new Date(updated_at),
+    createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),
-    title,
-    duration,
-    format,
-    size,
     recordedDate: recorded_date !== null ? new Date(recorded_date) : null,
     url,
+    ...rest,
+  };
+}
+
+export function mapClipToInternal({
+  created_at,
+  updated_at,
+  ...rest
+}: ClipResponse): Clip {
+  return {
+    createdAt: new Date(created_at),
+    updatedAt: new Date(updated_at),
+    trackId: rest.track_id,
+    ...rest,
   };
 }

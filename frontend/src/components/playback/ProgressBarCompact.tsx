@@ -4,7 +4,7 @@ import { ProgressSlider } from "@/components/playback";
 import { useProgressBar } from "@/hooks/useProgressBar";
 import { formatDuration } from "@/lib/time";
 
-export function ProgressBar(): JSX.Element {
+export function ProgressBarCompact(): JSX.Element {
   const {
     playbackPosition,
     duration,
@@ -15,15 +15,10 @@ export function ProgressBar(): JSX.Element {
   } = useProgressBar();
 
   return (
-    <div className="flex flex-col space-y-2">
-      <div className="text-muted-foreground flex flex-row justify-between">
-        <span data-testid="audio-player-position">
-          {formatDuration(playbackPosition)}
-        </span>
-        <span data-testid="audio-player-duration">
-          {formatDuration(duration)}
-        </span>
-      </div>
+    <div className="text-muted-foreground flex flex-row space-x-2 text-xs">
+      <span data-testid="audio-player-position">
+        {formatDuration(playbackPosition)}
+      </span>
       <ProgressSlider
         playbackPosition={playbackPosition}
         duration={duration}
@@ -32,6 +27,9 @@ export function ProgressBar(): JSX.Element {
         setIsSeeking={setIsSeeking}
         seek={seek}
       />
+      <span data-testid="audio-player-duration">
+        {formatDuration(duration)}
+      </span>
     </div>
   );
 }

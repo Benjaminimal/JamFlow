@@ -1,23 +1,20 @@
-import { Scissors } from "lucide-react";
 import { type JSX } from "react";
 
-import {
-  MuteToggle,
-  PlaybackToggle,
-  ProgressBar,
-  VolumeSlider,
-} from "@/components/playback";
-import { IconButton } from "@/components/primitives";
+import { Clipper } from "@/components/clipper";
+import { AudioPlayer } from "@/components/playback";
 import { ErrorState, LoadingState } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
+import { useClipper } from "@/hooks/useClipper";
 
 export function AudioPlayerContainer(): JSX.Element | null {
   const { derived } = usePlaybackContext();
+  const clipper = useClipper();
 
   if (derived.isIdle) return null;
   if (derived.isError) return <ErrorDisplay />;
   if (derived.isLoading) return <LoadingState />;
-  return <AudioPlayer />;
+  if (!clipper.derived.isIdle) return <Clipper clipper={clipper} />;
+  return <AudioPlayer clipper={clipper} />;
 }
 
 function ErrorDisplay(): JSX.Element {
@@ -30,34 +27,5 @@ function ErrorDisplay(): JSX.Element {
       message={errorMessage}
       onRetry={() => playable && load(playable)}
     />
-  );
-}
-
-function AudioPlayer(): JSX.Element {
-  const {
-    state: { playable },
-  } = usePlaybackContext();
-  return (
-    <div data-testid="audio-player">
-      <div className="text-center font-medium" data-testid="audio-player-title">
-        {playable?.title || ""}
-      </div>
-      <ProgressBar />
-      <div className="my-2 flex flex-row items-center justify-between">
-        <div className="ml-1 flex flex-row items-center space-x-2">
-          <VolumeSlider className="!min-h-9" orientation="vertical" />
-          <MuteToggle />
-        </div>
-        <PlaybackToggle
-          className="rounded-full border-2 !border-current"
-          size="icon-lg"
-          variant="outline"
-        />
-        <div className="mr-1 flex flex-row items-center space-x-2">
-          <IconButton icon={Scissors} />
-          <span className="w-[6px]"></span>
-        </div>
-      </div>
-    </div>
   );
 }

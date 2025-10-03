@@ -1,18 +1,17 @@
 import { type JSX, type ReactNode } from "react";
 import { Outlet } from "react-router-dom";
+import { Toaster } from "sonner";
 
-import { NotificationContainer } from "@/components/NotificationContainer";
 import { AudioPlayerContainer } from "@/components/playback";
 import { H1 } from "@/components/primitives";
 import { UploadDialogContainer } from "@/components/upload";
-import { NotificationProvider } from "@/contexts/NotificationProvider";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
 
 // TODO:
-// - the upload dialog needs some love regarding auto close and reset state
+// - make better use of clamp util (e.g. in usePlayback)
+// - consider accessibility for timestamps and durations
 // - uploading a new track should be visible in the track list without a full reload
-// - replace notifications with toasts (shadcn Sonner component)
 // - clean up outdated components
 // - port test from old components to new ones
 // - look at test failures due to heavy refactoring
@@ -26,7 +25,7 @@ export function Root(): JSX.Element {
 
 function Layout(): JSX.Element {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col">
       <Header />
       <Main />
       <Footer />
@@ -35,11 +34,7 @@ function Layout(): JSX.Element {
 }
 
 function AppProviders({ children }: { children: ReactNode }) {
-  return (
-    <NotificationProvider>
-      <PlaybackProvider>{children}</PlaybackProvider>
-    </NotificationProvider>
-  );
+  return <PlaybackProvider>{children}</PlaybackProvider>;
 }
 
 function PageContainer({ children }: { children: ReactNode }): JSX.Element {
@@ -52,9 +47,9 @@ function PageContainer({ children }: { children: ReactNode }): JSX.Element {
 
 function Main(): JSX.Element {
   return (
-    <main className="grow overflow-y-auto">
+    <main className="flex-1 overflow-y-auto">
       <PageContainer>
-        <NotificationContainer />
+        <Toaster position="top-center" theme="system" richColors />
         <Outlet />
       </PageContainer>
     </main>

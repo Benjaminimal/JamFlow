@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { getUserFriendlyErrorMessage } from "@/api/errorHandler";
 import { listTracks } from "@/api/tracks";
+import { getErrorMessage } from "@/lib/errorUtils";
 import type { Track } from "@/types";
 
 type UseTrackListResult = {
@@ -23,7 +23,7 @@ export function useTrackList(): UseTrackListResult {
       const tracks = await listTracks();
       setTracks(tracks);
     } catch (error) {
-      const message = getUserFriendlyErrorMessage(error);
+      const message = getErrorMessage(error);
       setErrorMessage(message);
     } finally {
       setIsLoading(false);
