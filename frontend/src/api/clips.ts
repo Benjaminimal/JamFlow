@@ -1,7 +1,7 @@
 import { apiClient } from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
 import { mapClipToInternal } from "@/api/mappers";
-import type { ClipCreateRequest, ClipResponse } from "@/api/types";
+import type { ClipCreateRequest, ClipResponse, QueryParams } from "@/api/types";
 import type { Clip } from "@/types";
 
 export async function postClip({
@@ -23,9 +23,16 @@ export async function postClip({
   }
 }
 
-export async function listClips(): Promise<Clip[]> {
+export async function listClips(trackId?: string): Promise<Clip[]> {
+  const params: QueryParams = {};
+  if (trackId) {
+    params.track_id = trackId;
+  }
+
   try {
-    const response = await apiClient.get<ClipResponse[]>("/clips");
+    const response = await apiClient.get<ClipResponse[]>("/clips", {
+      params,
+    });
     return response.data.map(mapClipToInternal);
   } catch (error) {
     throw mapAxiosError(error);

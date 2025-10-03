@@ -24,6 +24,15 @@ export async function uploadTrack({
   }
 }
 
+export async function getTrack(id: string): Promise<Track> {
+  try {
+    const response = await apiClient.get<TrackResponse>(`/tracks/${id}`);
+    return mapTrackToInternal(response.data);
+  } catch (error) {
+    throw mapAxiosError(error);
+  }
+}
+
 export async function listTracks(): Promise<Track[]> {
   try {
     const response = await apiClient.get<TrackResponse[]>("/tracks");
