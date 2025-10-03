@@ -1,13 +1,13 @@
-import { Save } from "lucide-react";
+import { RotateCcw, RotateCw, Save } from "lucide-react";
 import { type JSX, useState } from "react";
 
 import {
+  ClipperActionBar,
   ClipperBar,
+  ClipperBoundControls,
   ClipperBounds,
-  ClipperButtons,
   ClipperRuler,
   type DraggingThumb,
-  Timecode,
 } from "@/components/clipper";
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
@@ -47,7 +47,6 @@ export function ClipperControls({
     start: draggingThumb === "start" ? startTarget : clipStart,
     end: draggingThumb === "end" ? endTarget : clipEnd,
   };
-  const displayDuration = clipDisplayBounds.end - clipDisplayBounds.start;
 
   return (
     <div className="flex flex-col space-y-2">
@@ -71,32 +70,42 @@ export function ClipperControls({
           />
         </div>
       </div>
-      <div className="mt-2 flex flex-row items-center justify-between">
-        <div className="flex flex-col items-center space-y-1">
-          <Timecode time={clipDisplayBounds.start} />
-          <ClipperButtons
-            variant="start"
-            stepBack={() => nudgeStart("backward")}
-            stepForward={() => nudgeStart("forward")}
-            replay={playStart}
+      <ClipperActionBar
+        clipBounds={clipDisplayBounds}
+        startActions={
+          <ClipperBoundControls
+            onNudgeBack={() => nudgeStart("backward")}
+            onNudgeForward={() => nudgeStart("forward")}
+            onReplay={playStart}
+            replayIcon={RotateCcw}
           />
-        </div>
-
-        <div className="flex flex-col items-center space-y-2">
-          <Timecode time={displayDuration} />
-          <IconButton icon={Save} onClick={save} disabled={isSubmitting} />
-        </div>
-
-        <div className="flex flex-col items-center space-y-2">
-          <Timecode time={clipDisplayBounds.start} />
-          <ClipperButtons
-            variant="end"
-            stepBack={() => nudgeEnd("backward")}
-            stepForward={() => nudgeEnd("forward")}
-            replay={playEnd}
+        }
+        durationActions={<SaveButton onClick={save} disabled={isSubmitting} />}
+        endActions={
+          <ClipperBoundControls
+            onNudgeBack={() => nudgeEnd("backward")}
+            onNudgeForward={() => nudgeEnd("forward")}
+            onReplay={playEnd}
+            replayIcon={RotateCw}
           />
-        </div>
-      </div>
+        }
+      />
     </div>
+  );
+}
+
+type SaveButtonProps = {
+  onClick: () => Promise<void>;
+  disabled: boolean;
+};
+
+function SaveButton({ onClick, disabled }: SaveButtonProps): JSX.Element {
+  return (
+    <IconButton
+      icon={Save}
+      onClick={onClick}
+      disabled={disabled}
+      size="icon-lg"
+    />
   );
 }
