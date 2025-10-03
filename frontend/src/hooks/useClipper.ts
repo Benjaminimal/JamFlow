@@ -40,8 +40,8 @@ type ClipperActions = {
   startClipping: () => void;
   cancelClipping: () => void;
   playStart: () => void;
-  setStart: (v: number) => void;
   playEnd: () => void;
+  setStart: (v: number) => void;
   setEnd: (v: number) => void;
   setTitle: (v: string) => void;
   validate: () => boolean;
@@ -356,8 +356,8 @@ export function useClipper(): UseClipperResult {
       startClipping,
       cancelClipping,
       playStart,
-      setStart,
       playEnd,
+      setStart,
       setEnd,
       setTitle,
       validate,

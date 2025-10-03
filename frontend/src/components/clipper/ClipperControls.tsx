@@ -1,5 +1,5 @@
 import { Save } from "lucide-react";
-import { type JSX, useCallback, useEffect, useState } from "react";
+import { type JSX, useState } from "react";
 
 import {
   ClipperBar,
@@ -10,12 +10,11 @@ import {
 } from "@/components/clipper";
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
-import type { PlaybackEvent } from "@/contexts/playback/types";
-import { MAX_CLIP_DURATION, type UseClipperResult } from "@/hooks/useClipper";
+import { type UseClipperResult } from "@/hooks/useClipper";
+import { useClipperViewBounds } from "@/hooks/useClipperViewBounds";
 import { formatDuration } from "@/lib/time";
 
 const RULER_MARKER_DISTANCE = 60_000;
-const STEP_SIZE = 500;
 
 type ClipperControlsProps = {
   clipper: UseClipperResult;
@@ -27,42 +26,16 @@ export function ClipperControls({
   save,
 }: ClipperControlsProps): JSX.Element {
   const {
-    state: { duration },
-    actions: { getPosition, subscribe, seek },
+    actions: { seek },
   } = usePlaybackContext();
 
   const {
     state: { start: clipStart, end: clipEnd },
-    actions: { playStart, setStart, playEnd, setEnd },
+    actions: { playStart, playEnd },
     derived: { isSubmitting },
   } = clipper;
 
-  // TODO: think about how much reverse padding from current position is good UX
-  const getViewBounds = useCallback(() => {
-    const padding = 30_000;
-    const windowDuration = MAX_CLIP_DURATION + 2 * padding;
-    const start = Math.max(0, getPosition() - padding);
-    const end = Math.min(duration, start + windowDuration);
-    return { start, end };
-  }, [getPosition, duration]);
-
-  const [viewBounds, setViewBounds] = useState(getViewBounds);
-
-  // Update view bounds on seek events
-  useEffect(() => {
-    const handleSeek = (event: PlaybackEvent) => {
-      if (event.type !== "seek") return;
-
-      // TODO: it would be a lot more usable to set new bound on UI seek
-      // instead of checking bounds
-      if (event.target < viewBounds.start || event.target > viewBounds.end) {
-        setViewBounds(getViewBounds());
-      }
-    };
-
-    const unsubscribe = subscribe(handleSeek);
-    return () => unsubscribe();
-  }, [subscribe, viewBounds, getViewBounds]);
+  const { viewBounds, nudgeStart, nudgeEnd } = useClipperViewBounds(clipper);
 
   const [draggingThumb, setDraggingThumb] = useState<DraggingThumb | null>(
     null,
@@ -75,15 +48,6 @@ export function ClipperControls({
     end: draggingThumb === "end" ? endTarget : clipEnd,
   };
   const displayDuration = clipDisplayBounds.end - clipDisplayBounds.start;
-
-  const stepBack = (from: number, setter: (v: number) => void) => {
-    const nextStart = Math.max(viewBounds.start, from - STEP_SIZE);
-    setter(nextStart);
-  };
-  const stepForward = (from: number, setter: (v: number) => void) => {
-    const nextStart = Math.min(viewBounds.end, from + STEP_SIZE);
-    setter(nextStart);
-  };
 
   return (
     <div className="flex flex-col space-y-2">
@@ -114,8 +78,8 @@ export function ClipperControls({
           </div>
           <ClipperButtons
             variant="start"
-            stepBack={() => stepBack(clipStart, setStart)}
-            stepForward={() => stepForward(clipStart, setStart)}
+            stepBack={() => nudgeStart("backward")}
+            stepForward={() => nudgeStart("forward")}
             replay={playStart}
           />
         </div>
@@ -134,8 +98,8 @@ export function ClipperControls({
           </div>
           <ClipperButtons
             variant="end"
-            stepBack={() => stepBack(clipEnd, setEnd)}
-            stepForward={() => stepForward(clipEnd, setEnd)}
+            stepBack={() => nudgeEnd("backward")}
+            stepForward={() => nudgeEnd("forward")}
             replay={playEnd}
           />
         </div>
