@@ -4,3 +4,4 @@ export * from "./ClipperBounds";
 export * from "./ClipperButtons";
 export * from "./ClipperControls";
 export * from "./ClipperRuler";
+export * from "./Timecode";

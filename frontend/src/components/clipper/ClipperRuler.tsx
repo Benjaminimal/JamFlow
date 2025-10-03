@@ -1,7 +1,8 @@
 import { type JSX } from "react";
 
+import { Timecode } from "@/components/clipper";
 import type { Bounds } from "@/components/clipper/types";
-import { formatDuration, timeToPositionPercent } from "@/lib/time";
+import { timeToPositionPercent } from "@/lib/time";
 
 type ClipperRulerProps = {
   viewBounds: Bounds;
@@ -60,11 +61,7 @@ function RulerMarker({
       className="absolute bottom-0 flex translate-x-[-50%] flex-col items-center"
       style={{ left: `${offset}%` }}
     >
-      {isMajor && (
-        <span className="text-muted-foreground mb-1 text-xs">
-          {formatDuration(timestamp)}
-        </span>
-      )}
+      {isMajor && <Timecode time={timestamp} className="mb-1" />}
       <span className={`bg-muted w-0.5 ${isMajor ? "h-3" : "h-2"}`}></span>
     </div>
   );

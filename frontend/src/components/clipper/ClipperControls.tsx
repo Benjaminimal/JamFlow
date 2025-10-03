@@ -7,12 +7,12 @@ import {
   ClipperButtons,
   ClipperRuler,
   type DraggingThumb,
+  Timecode,
 } from "@/components/clipper";
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
 import { useClipperViewBounds } from "@/hooks/useClipperViewBounds";
-import { formatDuration } from "@/lib/time";
 
 const RULER_MARKER_DISTANCE = 60_000;
 
@@ -73,9 +73,7 @@ export function ClipperControls({
       </div>
       <div className="mt-2 flex flex-row items-center justify-between">
         <div className="flex flex-col items-center space-y-1">
-          <div className="text-muted-foreground text-xs">
-            {formatDuration(clipDisplayBounds.start)}
-          </div>
+          <Timecode time={clipDisplayBounds.start} />
           <ClipperButtons
             variant="start"
             stepBack={() => nudgeStart("backward")}
@@ -85,17 +83,12 @@ export function ClipperControls({
         </div>
 
         <div className="flex flex-col items-center space-y-2">
-          <div className="text-muted-foreground flex items-center text-xs">
-            {formatDuration(displayDuration)}
-          </div>
-
+          <Timecode time={displayDuration} />
           <IconButton icon={Save} onClick={save} disabled={isSubmitting} />
         </div>
 
         <div className="flex flex-col items-center space-y-2">
-          <div className="text-muted-foreground text-xs">
-            {formatDuration(clipDisplayBounds.end)}
-          </div>
+          <Timecode time={clipDisplayBounds.start} />
           <ClipperButtons
             variant="end"
             stepBack={() => nudgeEnd("backward")}
