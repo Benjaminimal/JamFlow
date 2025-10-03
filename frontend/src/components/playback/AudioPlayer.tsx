@@ -1,5 +1,6 @@
 import { Scissors } from "lucide-react";
 import { type JSX } from "react";
+import { Link } from "react-router-dom";
 
 import {
   MuteToggle,
@@ -10,6 +11,7 @@ import {
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
+import { pathGenerator } from "@/routes";
 
 type AudioPlayerProps = {
   clipper: UseClipperResult;
@@ -21,9 +23,14 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
   } = usePlaybackContext();
   return (
     <div data-testid="audio-player" className="flex flex-col space-y-4">
-      <div className="text-center font-medium" data-testid="audio-player-title">
+      <Link
+        to={playable ? pathGenerator.trackDetail({ id: playable.id }) : "#"}
+        state={{ track: playable }}
+        className="text-center font-medium hover:underline"
+        data-testid="audio-player-title"
+      >
         {playable?.title || ""}
-      </div>
+      </Link>
       <ProgressBar />
       <div className="my-2 flex flex-row items-center justify-between">
         <div className="ml-1 flex flex-row items-center space-x-2">

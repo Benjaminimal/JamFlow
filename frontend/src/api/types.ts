@@ -1,3 +1,5 @@
+import type { AxiosRequestConfig } from "axios";
+
 export type AudioFormat = "mp3" | "wav" | "ogg";
 
 export type TrackCreateRequest = {
@@ -60,3 +62,5 @@ export type ErrorDetail = {
   message: string;
   field: string | null;
 };
+
+export type QueryParams = AxiosRequestConfig["params"];

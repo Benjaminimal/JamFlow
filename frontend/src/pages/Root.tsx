@@ -1,5 +1,5 @@
 import { type JSX, type ReactNode } from "react";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { AudioPlayerContainer } from "@/components/playback";
@@ -7,6 +7,7 @@ import { H1 } from "@/components/primitives";
 import { UploadDialogContainer } from "@/components/upload";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
+import { pathGenerator } from "@/routes";
 
 // TODO:
 // - make better use of clamp util (e.g. in usePlayback)
@@ -69,7 +70,9 @@ function Header(): JSX.Element {
     >
       <PageContainer>
         <div className="flex items-center justify-between">
-          <H1>JamFlow</H1>
+          <Link to={pathGenerator.root()}>
+            <H1>JamFlow</H1>
+          </Link>
           <UploadDialogContainer />
         </div>
       </PageContainer>
