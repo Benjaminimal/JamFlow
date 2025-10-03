@@ -9,15 +9,24 @@ export const routes = [
   {
     path: "/",
     element: <Root />,
-    errorElement: <ErrorPage />,
+    errorElement: <Root />,
     children: [
       {
-        index: true,
-        element: <TrackList />,
-      },
-      {
-        path: "tracks/:id",
-        element: <TrackDetail />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            path: "*",
+            element: <ErrorPage />,
+          },
+          {
+            index: true,
+            element: <TrackList />,
+          },
+          {
+            path: "tracks/:id",
+            element: <TrackDetail />,
+          },
+        ],
       },
     ],
   },
