@@ -2,7 +2,12 @@ import { type JSX } from "react";
 import { Link } from "react-router-dom";
 
 import { PlaybackToggle } from "@/components/playback";
-import { ErrorState, LoadingState, PlayButton } from "@/components/ui";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PlayButton,
+} from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
@@ -25,10 +30,6 @@ export function TrackList(): JSX.Element {
   return (
     <LoadedState tracks={tracks} currentTrack={playable} playTrack={load} />
   );
-}
-
-function EmptyState(): JSX.Element {
-  return <p>No tracks found</p>;
 }
 
 type LoadedStateProps = {
