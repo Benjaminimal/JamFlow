@@ -88,6 +88,7 @@ function TrackItem({
     >
       <Link
         to={pathGenerator.trackDetail({ id: track.id })}
+        state={{ track }}
         className="group flex min-w-0 flex-1 items-center"
       >
         <div className="text-muted-foreground w-7 text-center text-sm">
