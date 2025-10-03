@@ -3,18 +3,18 @@ import { type JSX, useState } from "react";
 
 import {
   ClipperActionBar,
-  ClipperBar,
   ClipperBoundControls,
-  ClipperBounds,
-  ClipperRuler,
-  type DraggingThumb,
+  ClipperTimeline,
 } from "@/components/clipper";
+import type { DraggingThumb } from "@/components/clipper/types";
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
 import { useClipperViewBounds } from "@/hooks/useClipperViewBounds";
 
-const RULER_MARKER_DISTANCE = 60_000;
+const NUDGE_STEP = 0.5 * 1_000;
+
+type NudgeDirection = "forward" | "backward";
 
 type ClipperControlsProps = {
   clipper: UseClipperResult;
@@ -31,11 +31,11 @@ export function ClipperControls({
 
   const {
     state: { start: clipStart, end: clipEnd },
-    actions: { playStart, playEnd },
+    actions: { playStart, playEnd, setStart, setEnd },
     derived: { isSubmitting },
   } = clipper;
 
-  const { viewBounds, nudgeStart, nudgeEnd } = useClipperViewBounds(clipper);
+  const { viewBounds } = useClipperViewBounds();
 
   const [draggingThumb, setDraggingThumb] = useState<DraggingThumb | null>(
     null,
@@ -48,28 +48,37 @@ export function ClipperControls({
     end: draggingThumb === "end" ? endTarget : clipEnd,
   };
 
+  const nudge = (
+    value: number,
+    setter: (v: number) => void,
+    direction: NudgeDirection,
+  ): void => {
+    const delta = direction === "forward" ? NUDGE_STEP : -NUDGE_STEP;
+    const nudgedValue = value + delta;
+    const clamper = (v: number) =>
+      direction === "backward"
+        ? Math.max(viewBounds.start, v)
+        : Math.min(viewBounds.end, v);
+    const nextValue = clamper(nudgedValue);
+    setter(nextValue);
+  };
+
+  const nudgeStart = (d: NudgeDirection) => nudge(clipStart, setStart, d);
+  const nudgeEnd = (d: NudgeDirection) => nudge(clipEnd, setEnd, d);
+
   return (
     <div className="flex flex-col space-y-2">
-      <div className="my-8">
-        <div className="relative w-full space-y-2">
-          <ClipperBounds
-            clipper={clipper}
-            viewBounds={viewBounds}
-            draggingThumb={draggingThumb}
-            setDraggingThumb={setDraggingThumb}
-            startTarget={startTarget}
-            setStartTarget={setStartTarget}
-            endTarget={endTarget}
-            setEndTarget={setEndTarget}
-            seek={seek}
-          />
-          <ClipperBar viewBounds={viewBounds} clipBounds={clipDisplayBounds} />
-          <ClipperRuler
-            viewBounds={viewBounds}
-            markerDistance={RULER_MARKER_DISTANCE}
-          />
-        </div>
-      </div>
+      <ClipperTimeline
+        clipper={clipper}
+        draggingThumb={draggingThumb}
+        setDraggingThumb={setDraggingThumb}
+        startTarget={startTarget}
+        setStartTarget={setStartTarget}
+        endTarget={endTarget}
+        setEndTarget={setEndTarget}
+        seek={seek}
+        viewBounds={viewBounds}
+      />
       <ClipperActionBar
         clipBounds={clipDisplayBounds}
         startActions={

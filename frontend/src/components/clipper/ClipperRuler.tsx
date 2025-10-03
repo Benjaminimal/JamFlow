@@ -22,25 +22,19 @@ export function ClipperRuler({
   }
 
   return (
-    <div>
-      <div className="relative h-8 w-full">
-        {markerTimes.map((t) => {
-          const isMajor = t % markerDistance === 0;
-          return (
-            <RulerMarker
-              key={t}
-              offset={timeToPositionPercent(
-                t,
-                viewBounds.start,
-                viewBounds.end,
-              )}
-              timestamp={t}
-              isMajor={isMajor}
-            />
-          );
-        })}
-        <div className="bg-muted absolute bottom-0 h-0.5 w-full"></div>
-      </div>
+    <div className="relative h-8 w-full">
+      {markerTimes.map((t) => {
+        const isMajor = t % markerDistance === 0;
+        return (
+          <RulerMarker
+            key={t}
+            offset={timeToPositionPercent(t, viewBounds.start, viewBounds.end)}
+            timestamp={t}
+            isMajor={isMajor}
+          />
+        );
+      })}
+      <div className="bg-muted absolute bottom-0 h-0.5 w-full"></div>
     </div>
   );
 }

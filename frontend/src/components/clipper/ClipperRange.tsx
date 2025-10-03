@@ -3,15 +3,15 @@ import { type JSX } from "react";
 import type { Bounds } from "@/components/clipper/types";
 import { timeToPositionPercent } from "@/lib/time";
 
-type ClipperBarProps = {
+type ClipperRangeProps = {
   viewBounds: Bounds;
   clipBounds: Bounds;
 };
 
-export function ClipperBar({
+export function ClipperRange({
   viewBounds,
   clipBounds,
-}: ClipperBarProps): JSX.Element {
+}: ClipperRangeProps): JSX.Element {
   const startPercent = timeToPositionPercent(
     clipBounds.start,
     viewBounds.start,
