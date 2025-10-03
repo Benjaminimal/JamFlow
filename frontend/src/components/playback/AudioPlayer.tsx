@@ -6,6 +6,7 @@ import {
   MuteToggle,
   PlaybackToggle,
   ProgressBar,
+  StepButton,
   VolumeSlider,
 } from "@/components/playback";
 import { IconButton } from "@/components/primitives";
@@ -21,6 +22,7 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
   const {
     state: { playable },
   } = usePlaybackContext();
+
   return (
     <div data-testid="audio-player" className="flex flex-col space-y-4">
       <Link
@@ -35,18 +37,25 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
       <div className="my-2 flex flex-row items-center justify-between">
         <div className="ml-1 flex flex-row items-center space-x-2">
           <VolumeSlider className="!min-h-9" orientation="vertical" />
-          <MuteToggle />
+          <MuteToggle size="icon-lg" />
         </div>
-        <PlaybackToggle
-          className="rounded-full border-2 !border-current"
-          size="icon-lg"
-          variant="outline"
-        />
+
+        <div className="flex flex-row items-center space-x-2">
+          <StepButton variant="back" size="icon-lg" />
+          <PlaybackToggle
+            className="rounded-full border-2 !border-current"
+            size="icon-lg"
+            variant="outline"
+          />
+          <StepButton variant="forward" size="icon-lg" />
+        </div>
+
         <div className="mr-1 flex flex-row items-center space-x-2">
           <IconButton
             icon={Scissors}
             onClick={clipper.actions.startClipping}
             disabled={!clipper.derived.isClippable}
+            size="icon-lg"
           />
           <span className="w-[6px]"></span>
         </div>
