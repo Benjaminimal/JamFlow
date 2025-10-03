@@ -4,11 +4,7 @@ import type { Bounds } from "@/components/clipper/types";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
 import type { UseClipperResult } from "@/hooks/useClipper";
-import {
-  formatDuration,
-  percentToTime,
-  timeToPositionPercent,
-} from "@/lib/time";
+import { percentToTime, timeToPositionPercent } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 export type DraggingThumb = "start" | "end";
@@ -131,12 +127,7 @@ type ClipperThumbProps = {
   onPointerDown: (e: PointerEvent<HTMLDivElement>) => void;
 };
 
-function ClipperThumb({
-  thumbRole,
-  timestamp,
-  offset,
-  onPointerDown,
-}: ClipperThumbProps) {
+function ClipperThumb({ thumbRole, offset, onPointerDown }: ClipperThumbProps) {
   return (
     <div
       className={cn(
@@ -153,14 +144,6 @@ function ClipperThumb({
         )}
         onPointerDown={onPointerDown}
       />
-      <div
-        className={cn(
-          "text-muted-foreground absolute -translate-x-1/2 text-xs",
-          thumbRole === "end" ? "-bottom-5" : "-top-5",
-        )}
-      >
-        {formatDuration(timestamp)}
-      </div>
     </div>
   );
 }

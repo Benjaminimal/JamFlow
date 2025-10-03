@@ -1,4 +1,4 @@
-import { Save, X } from "lucide-react";
+import { X } from "lucide-react";
 import { type JSX } from "react";
 import { toast } from "sonner";
 
@@ -9,7 +9,7 @@ import { FormField } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { type UseClipperResult } from "@/hooks/useClipper";
 import { getErrorMessage } from "@/lib/errorUtils";
-import { Button, Input } from "@/ui-lib";
+import { Input } from "@/ui-lib";
 
 type ClipperProps = {
   clipper: UseClipperResult;
@@ -23,7 +23,6 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
   const {
     state: { title, validationErrors },
     actions: { setTitle, validate, submitClip },
-    derived: { isSubmitting },
   } = clipper;
 
   const onSubmit = async (): Promise<void> => {
@@ -57,13 +56,6 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
               validationErrors.title ? "title-errors" : undefined
             }
           />
-          <Button
-            onClick={onSubmit}
-            variant="secondary"
-            disabled={isSubmitting}
-          >
-            <Save />
-          </Button>
         </div>
       </FormField>
       <IconButton
@@ -72,7 +64,7 @@ export function Clipper({ clipper }: ClipperProps): JSX.Element {
         onClick={clipper.actions.cancelClipping}
       />
       <div className="my-4">
-        <ClipperControls clipper={clipper} />
+        <ClipperControls clipper={clipper} save={onSubmit} />
       </div>
       <div className="mb-2 flex flex-row items-center space-x-4">
         <PlaybackToggle

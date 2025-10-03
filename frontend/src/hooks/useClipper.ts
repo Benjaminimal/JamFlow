@@ -39,7 +39,9 @@ type ClipperState = {
 type ClipperActions = {
   startClipping: () => void;
   cancelClipping: () => void;
+  playStart: () => void;
   setStart: (v: number) => void;
+  playEnd: () => void;
   setEnd: (v: number) => void;
   setTitle: (v: string) => void;
   validate: () => boolean;
@@ -271,6 +273,14 @@ export function useClipper(): UseClipperResult {
     }
   };
 
+  const playStart = () => {
+    seek(state.start);
+  };
+
+  const playEnd = () => {
+    seek(state.end - SEEK_END_OFFSET);
+  };
+
   const setStart = (rawStart: number) => {
     const end = state.end;
     const start = clampStart(rawStart, end);
@@ -345,7 +355,9 @@ export function useClipper(): UseClipperResult {
     actions: {
       startClipping,
       cancelClipping,
+      playStart,
       setStart,
+      playEnd,
       setEnd,
       setTitle,
       validate,
