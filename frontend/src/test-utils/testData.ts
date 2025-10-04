@@ -44,6 +44,7 @@ let nextTrackId = 1;
 export function createTestTrack(overrides: Partial<Track> = {}): Track {
   return {
     id: (nextTrackId++).toString(),
+    kind: "track",
     title: "New Song",
     duration: 180_000,
     format: "mp3",

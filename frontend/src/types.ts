@@ -7,6 +7,7 @@ export type TrackCreateForm = {
 };
 
 export type Track = {
+  kind: "track";
   id: string;
   createdAt: Date;
   updatedAt: Date;
@@ -19,6 +20,7 @@ export type Track = {
 };
 
 export type Clip = {
+  kind: "clip";
   id: string;
   createdAt: Date;
   updatedAt: Date;

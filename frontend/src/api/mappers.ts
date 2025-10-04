@@ -9,6 +9,7 @@ export function mapTrackToInternal({
   ...rest
 }: TrackResponse): Track {
   return {
+    kind: "track",
     createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),
     recordedDate: recorded_date !== null ? new Date(recorded_date) : null,
@@ -23,6 +24,7 @@ export function mapClipToInternal({
   ...rest
 }: ClipResponse): Clip {
   return {
+    kind: "clip",
     createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),
     trackId: rest.track_id,

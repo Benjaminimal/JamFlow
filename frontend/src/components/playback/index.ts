@@ -5,4 +5,5 @@ export * from "./PlaybackToggle";
 export * from "./ProgressBar";
 export * from "./ProgressBarCompact";
 export * from "./ProgressSlider";
+export * from "./StepButton";
 export * from "./VolumeSlider";
