@@ -9,6 +9,7 @@ import {
   type PlaybackState,
   PlaybackStatus,
 } from "@/contexts/playback/types";
+import { isSamePlayable } from "@/contexts/playback/utils";
 import { getLogger } from "@/lib/logging";
 
 const logger = getLogger("usePlayback");
@@ -81,7 +82,7 @@ function playbackReducer(
   }
   switch (action.type) {
     case "LOAD": {
-      if (state.playable?.id === action.playable.id) {
+      if (isSamePlayable(state.playable, action.playable)) {
         return state;
       }
       return {

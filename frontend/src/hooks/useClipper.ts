@@ -3,6 +3,7 @@ import { useCallback, useEffect, useReducer } from "react";
 import { postClip } from "@/api/clips";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { PlaybackEvent } from "@/contexts/playback/types";
+import { asTrack, isSameTrack } from "@/contexts/playback/utils";
 import { ValidationError, type ValidationErrorDetails } from "@/errors";
 import { getErrorMessage } from "@/lib/errorUtils";
 import { getLogger } from "@/lib/logging";
@@ -10,7 +11,6 @@ import type { Clip, SubmitResult, Track } from "@/types";
 
 const logger = getLogger("useClipper");
 
-// TODO: when clips are playable as well we need to reconsider how we handle playable as the type will broaden
 const START_OFFSET = 5 * 1_000;
 const END_OFFSET = 60 * 1_000;
 const SEEK_END_OFFSET = 1 * 1_000;
@@ -196,13 +196,13 @@ export function useClipper(): UseClipperResult {
     derived: { isPlaying, isPaused },
   } = usePlaybackContext();
 
+  const track = asTrack(playable);
+
   const isIdle = state.status === ClipperStatus.Idle;
   const isActive = state.status === ClipperStatus.Active;
   const isSubmitting = state.status === ClipperStatus.Submitting;
   const isClippable =
-    !!playable &&
-    playable.duration > MAX_CLIP_DURATION &&
-    (isPlaying || isPaused);
+    !!track && track.duration > MAX_CLIP_DURATION && (isPlaying || isPaused);
 
   const startClipping = () => {
     if (!isClippable) return;
@@ -211,7 +211,7 @@ export function useClipper(): UseClipperResult {
     dispatch({
       type: "START_CLIPPING",
       position: getPosition(),
-      track: playable,
+      track,
     });
   };
 
@@ -301,12 +301,12 @@ export function useClipper(): UseClipperResult {
     dispatch({ type: "SET_TITLE", title, error });
   };
 
-  // Cancel clipping if playable changes
+  // Cancel clipping if track changes
   useEffect(() => {
     if (isIdle) return;
-    if (state.track?.id === playable?.id) return;
+    if (isSameTrack(state.track, track)) return;
     dispatch({ type: "CANCEL_CLIPPING" });
-  }, [isIdle, playable, state.track]);
+  }, [isIdle, track, state.track]);
 
   // Loop clip window
   useEffect(() => {

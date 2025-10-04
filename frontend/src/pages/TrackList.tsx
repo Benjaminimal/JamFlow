@@ -9,6 +9,7 @@ import {
   PlayButton,
 } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
+import { asTrack, isSameTrack } from "@/contexts/playback/utils";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -23,12 +24,13 @@ export function TrackList(): JSX.Element {
   } = usePlaybackContext();
 
   const isError = errorMessage !== null;
+  const currentTrack = asTrack(playable);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
   if (tracks.length === 0) return <EmptyState />;
   return (
-    <LoadedState tracks={tracks} currentTrack={playable} playTrack={load} />
+    <LoadedState tracks={tracks} currentTrack={currentTrack} playTrack={load} />
   );
 }
 
@@ -51,9 +53,7 @@ function LoadedState({
             <TrackItem
               track={track}
               number={index + 1}
-              // NOTE: this check is not future proof for playing clips
-              // we could make the playback context expose a predicate
-              isCurrent={track.id === currentTrack?.id}
+              isCurrent={isSameTrack(track, currentTrack)}
               onPlay={() => playTrack(track)}
             />
           </li>
