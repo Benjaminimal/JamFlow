@@ -11,6 +11,7 @@ import {
 } from "@/components/playback";
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
+import { asClip, asTrack } from "@/contexts/playback/utils";
 import { type UseClipperResult } from "@/hooks/useClipper";
 import { pathGenerator } from "@/routes";
 
@@ -23,11 +24,15 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
     state: { playable },
   } = usePlaybackContext();
 
+  const track = asTrack(playable);
+  const clip = asClip(playable);
+  const trackId = track?.id || clip?.trackId;
+
   return (
     <div data-testid="audio-player" className="flex flex-col space-y-4">
       <Link
-        to={playable ? pathGenerator.trackDetail({ id: playable.id }) : "#"}
-        state={{ track: playable }}
+        to={trackId ? pathGenerator.trackDetail({ id: trackId }) : "#"}
+        state={{ track }}
         className="text-center font-medium hover:underline"
         data-testid="audio-player-title"
       >
