@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
+import { PlaybackToggle } from "@/components/playback";
 import { H2, H3 } from "@/components/primitives";
 import {
   EmptyState,
@@ -8,6 +9,8 @@ import {
   LoadingState,
   PlayButton,
 } from "@/components/ui";
+import { usePlaybackContext } from "@/contexts/playback";
+import { isSamePlayable } from "@/contexts/playback/utils";
 import { useClipList } from "@/hooks/useClipList";
 import { useTrack } from "@/hooks/useTrack";
 import { formatDuration } from "@/lib/time";
@@ -122,6 +125,14 @@ type ClipItemProps = {
 };
 
 function ClipItem({ clip }: ClipItemProps): JSX.Element {
+  const {
+    state: { playable },
+    actions: { load },
+  } = usePlaybackContext();
+
+  const isCurrent = isSamePlayable(clip, playable);
+  const currentClipClasses = isCurrent && "text-accent font-semibold";
+
   return (
     <div
       className={cn(
@@ -132,7 +143,9 @@ function ClipItem({ clip }: ClipItemProps): JSX.Element {
     >
       <div className="flex min-w-0 flex-1 items-center">
         <div className="mx-2 flex min-w-0 flex-1 flex-col">
-          <span className="truncate font-medium">{clip.title}</span>
+          <span className={cn("truncate font-medium", currentClipClasses)}>
+            {clip.title}
+          </span>
           <span className="text-muted-foreground text-sm">
             {formatDuration(clip.start)}
             {" - "}
@@ -144,7 +157,17 @@ function ClipItem({ clip }: ClipItemProps): JSX.Element {
         </div>
       </div>
 
-      <PlayButton />
+      <div>
+        {isCurrent ? (
+          <PlaybackToggle className={cn(currentClipClasses)} />
+        ) : (
+          <PlayButton
+            onClick={() => {
+              load(clip);
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
