@@ -1,5 +1,5 @@
+import { Link } from "@tanstack/react-router";
 import { type JSX } from "react";
-import { Link } from "react-router-dom";
 
 import { PlaybackToggle } from "@/components/playback";
 import {
@@ -13,7 +13,7 @@ import { asTrack, isSameTrack } from "@/contexts/playback/utils";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
-import { pathGenerator } from "@/routes";
+import { trackDetailRoute } from "@/routes";
 import type { Track } from "@/types";
 
 export function TrackList(): JSX.Element {
@@ -87,8 +87,8 @@ function TrackItem({
       )}
     >
       <Link
-        to={pathGenerator.trackDetail({ id: track.id })}
-        state={{ track }}
+        to={trackDetailRoute.to}
+        params={{ id: track.id }}
         className="group flex min-w-0 flex-1 items-center"
       >
         <div className="text-muted-foreground w-7 text-center text-sm">

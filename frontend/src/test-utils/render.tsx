@@ -1,7 +1,8 @@
+// TODO: not sure if we even need this anymore now that we're using tanstack router
+import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
-import { createMemoryRouter, RouterProvider } from "react-router-dom";
 
-import { routes } from "@/routes";
+import { router } from "@/routes";
 
 type RenderWithRouterOptions = {
   initialEntries?: string[];
@@ -11,12 +12,12 @@ type RenderWithRouterOptions = {
 export function renderWithRouter({
   initialEntries = ["/"],
   initialIndex = 0,
-}: RenderWithRouterOptions) {
-  const router = createMemoryRouter(routes, {
+}: RenderWithRouterOptions = {}) {
+  const history = createMemoryHistory({
     initialEntries,
     initialIndex,
   });
-  return render(<RouterProvider router={router} />);
+  return render(<RouterProvider router={router} history={history} />);
 }
 
 export function renderRoute(path: string) {

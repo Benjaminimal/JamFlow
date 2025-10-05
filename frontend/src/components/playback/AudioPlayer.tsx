@@ -1,6 +1,6 @@
+import { Link } from "@tanstack/react-router";
 import { Scissors } from "lucide-react";
 import { type JSX } from "react";
-import { Link } from "react-router-dom";
 
 import {
   MuteToggle,
@@ -13,7 +13,7 @@ import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
 import { asClip, asTrack } from "@/contexts/playback/utils";
 import { type UseClipperResult } from "@/hooks/useClipper";
-import { pathGenerator } from "@/routes";
+import { trackDetailRoute } from "@/routes";
 
 type AudioPlayerProps = {
   clipper: UseClipperResult;
@@ -30,14 +30,22 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
 
   return (
     <div data-testid="audio-player" className="flex flex-col space-y-4">
-      <Link
-        to={trackId ? pathGenerator.trackDetail({ id: trackId }) : "#"}
-        state={{ track }}
+      <span
         className="text-center font-medium hover:underline"
         data-testid="audio-player-title"
       >
-        {playable?.title || ""}
-      </Link>
+        {trackId ? (
+          <Link
+            to={trackDetailRoute.to}
+            params={{ id: trackId }}
+            className="hover:underline"
+          >
+            {playable?.title || ""}
+          </Link>
+        ) : (
+          playable?.title || ""
+        )}
+      </span>
       <ProgressBar />
       <div className="my-2 flex flex-row items-center justify-between">
         <div className="ml-1 flex flex-row items-center space-x-2">

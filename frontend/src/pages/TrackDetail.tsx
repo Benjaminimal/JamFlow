@@ -1,5 +1,4 @@
 import type { JSX, ReactNode } from "react";
-import { useLocation, useParams } from "react-router-dom";
 
 import { PlaybackToggle } from "@/components/playback";
 import { H2, H3 } from "@/components/primitives";
@@ -15,21 +14,22 @@ import { useClipList } from "@/hooks/useClipList";
 import { useTrack } from "@/hooks/useTrack";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { trackDetailRoute } from "@/routes";
 import type { Clip, Track } from "@/types";
 
 export type TrackDetailParams = Pick<Track, "id">;
 
 export function TrackDetail(): JSX.Element {
-  const { id } = useParams<TrackDetailParams>();
-  const location = useLocation();
-  const passedTrack = location.state?.track as Track | undefined;
+  const { id } = trackDetailRoute.useParams();
+  console.log("TrackDetail render", { id });
 
   const {
-    track: fetchedTrack,
+    track,
     isLoading: trackLoading,
     errorMessage: trackErrorMessage,
     fetchData: fetchTrack,
-  } = useTrack(passedTrack ? undefined : id);
+  } = useTrack(id);
+  console.log("useTrack", { track, trackLoading, trackErrorMessage });
 
   const {
     clips,
@@ -37,8 +37,6 @@ export function TrackDetail(): JSX.Element {
     errorMessage: clipsErrorMessage,
     fetchData: fetchClips,
   } = useClipList(id);
-
-  const track = passedTrack ?? fetchedTrack;
 
   if (!track && trackLoading) return <LoadingState />;
   if (!track && trackErrorMessage)
