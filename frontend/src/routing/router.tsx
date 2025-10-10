@@ -6,7 +6,7 @@ import { Root } from "@/pages/Root";
 import { TrackDetail } from "@/pages/TrackDetail";
 import { TrackList } from "@/pages/TrackList";
 
-const routes = [
+export const routes = [
   {
     path: "/",
     element: <Root />,
