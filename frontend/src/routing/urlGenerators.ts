@@ -1,4 +1,10 @@
-import { type TrackDetailParams } from "@/pages/TrackDetail";
+import { createSearchParams } from "react-router-dom";
+
+import type {
+  TrackDetailParams,
+  TrackDetailSearch,
+  TrackListSearch,
+} from "@/routing/types";
 
 type UrlGenOptions = {
   absolute?: boolean;
@@ -6,15 +12,25 @@ type UrlGenOptions = {
 
 const root = (options?: UrlGenOptions): string => generateUrl("/", options);
 
-const trackList = (options?: UrlGenOptions): string =>
-  generateUrl("/tracks", options);
+const trackList = (
+  search?: TrackListSearch,
+  options?: UrlGenOptions,
+): string => {
+  const path = "/tracks";
+  const queryString = createSearchParams(search).toString();
+  const url = appendQueryString(path, queryString);
+  return generateUrl(url, options);
+};
 
 const trackDetail = (
   params: TrackDetailParams,
+  search?: TrackDetailSearch,
   options?: UrlGenOptions,
 ): string => {
-  const basePath = `/tracks/${params.id}`;
-  return generateUrl(basePath, options);
+  const path = `/tracks/${params.id}`;
+  const queryString = createSearchParams(search).toString();
+  const url = appendQueryString(path, queryString);
+  return generateUrl(url, options);
 };
 
 function generateUrl(path: string, options?: UrlGenOptions): string {
@@ -22,6 +38,11 @@ function generateUrl(path: string, options?: UrlGenOptions): string {
     return `${window.location.origin}${path}`;
   }
   return path;
+}
+
+function appendQueryString(url: string, queryString: string): string {
+  if (!queryString) return url;
+  return `${url}?${queryString}`;
 }
 
 export const urlGenerator = {

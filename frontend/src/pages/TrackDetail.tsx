@@ -15,9 +15,8 @@ import { useClipList } from "@/hooks/useClipList";
 import { useTrack } from "@/hooks/useTrack";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import type { TrackDetailParams } from "@/routing/types";
 import type { Clip, Track } from "@/types";
-
-export type TrackDetailParams = Pick<Track, "id">;
 
 export function TrackDetail(): JSX.Element {
   const { id } = useParams<TrackDetailParams>();

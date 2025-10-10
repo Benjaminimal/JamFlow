@@ -1,6 +1,7 @@
-import { Scissors } from "lucide-react";
+import { Link as LinkIcon, Scissors } from "lucide-react";
 import { type JSX } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 import {
   MuteToggle,
@@ -11,8 +12,10 @@ import {
 } from "@/components/playback";
 import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
+import type { Playable } from "@/contexts/playback/types";
 import { asClip, asTrack } from "@/contexts/playback/utils";
 import { type UseClipperResult } from "@/hooks/useClipper";
+import { copyToClipboard } from "@/lib/clipboard";
 import { urlGenerator } from "@/routing";
 
 type AudioPlayerProps = {
@@ -27,6 +30,17 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
   const track = asTrack(playable);
   const clip = asClip(playable);
   const trackId = track?.id || clip?.trackId;
+
+  const isShareable = !!playable;
+  const handleShare = async () => {
+    if (!isShareable) return;
+    const shared = await sharePlayable(playable);
+    if (shared) {
+      toast.success("Link copied to clipboard");
+    } else {
+      toast.error("Failed to link copy to clipboard");
+    }
+  };
 
   return (
     <div data-testid="audio-player" className="flex flex-col space-y-4">
@@ -57,6 +71,12 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
 
         <div className="mr-1 flex flex-row items-center space-x-2">
           <IconButton
+            icon={LinkIcon}
+            onClick={handleShare}
+            disabled={!isShareable}
+            size="icon-lg"
+          />
+          <IconButton
             icon={Scissors}
             onClick={clipper.actions.startClipping}
             disabled={!clipper.derived.isClippable}
@@ -67,4 +87,27 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
       </div>
     </div>
   );
+}
+
+async function sharePlayable(playable: Playable): Promise<boolean> {
+  let shareUrl: string;
+  switch (playable.kind) {
+    case "track": {
+      shareUrl = urlGenerator.trackList(
+        { sharedTrackId: playable.id },
+        { absolute: true },
+      );
+      break;
+    }
+    case "clip": {
+      shareUrl = urlGenerator.trackDetail(
+        { id: playable.trackId },
+        { sharedClipId: playable.id },
+        { absolute: true },
+      );
+      break;
+    }
+  }
+
+  return await copyToClipboard(shareUrl);
 }
