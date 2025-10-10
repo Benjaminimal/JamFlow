@@ -13,7 +13,7 @@ import { IconButton } from "@/components/primitives";
 import { usePlaybackContext } from "@/contexts/playback";
 import { asClip, asTrack } from "@/contexts/playback/utils";
 import { type UseClipperResult } from "@/hooks/useClipper";
-import { pathGenerator } from "@/routes";
+import { pathGenerator } from "@/routing";
 
 type AudioPlayerProps = {
   clipper: UseClipperResult;

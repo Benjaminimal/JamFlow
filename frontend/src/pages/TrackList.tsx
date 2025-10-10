@@ -13,7 +13,7 @@ import { asTrack, isSameTrack } from "@/contexts/playback/utils";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
-import { pathGenerator } from "@/routes";
+import { pathGenerator } from "@/routing";
 import type { Track } from "@/types";
 
 export function TrackList(): JSX.Element {
