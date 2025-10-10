@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { ErrorPage } from "@/pages/Error";
 import { Root } from "@/pages/Root";
@@ -20,6 +20,10 @@ export const routes = [
           },
           {
             index: true,
+            element: <Navigate to="/tracks" replace />,
+          },
+          {
+            path: "tracks",
             element: <TrackList />,
           },
           {
