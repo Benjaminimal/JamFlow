@@ -23,6 +23,15 @@ export async function postClip({
   }
 }
 
+export async function getClip(id: string): Promise<Clip> {
+  try {
+    const response = await apiClient.get<ClipResponse>(`/clips/${id}`);
+    return mapClipToInternal(response.data);
+  } catch (error) {
+    throw mapAxiosError(error);
+  }
+}
+
 export async function listClips(trackId?: string): Promise<Clip[]> {
   const params: QueryParams = {};
   if (trackId) {

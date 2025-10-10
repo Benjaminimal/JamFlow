@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { usePlaybackContext } from "@/contexts/playback";
 import type { Playable } from "@/contexts/playback/types";
 import { isSamePlayable } from "@/contexts/playback/utils";
+import { useClip } from "@/hooks/useClip";
 import { useTrack } from "@/hooks/useTrack";
 
 type PlayableKind = Playable["kind"];
@@ -19,14 +20,16 @@ export function useAutoloadPlayable(
     state: { playable },
     actions: { load },
   } = usePlaybackContext();
-  const { track: playableToLoad, errorMessage } = useTrack(playableId);
+  const trackId = kind === "track" ? playableId : undefined;
+  const clipId = kind === "clip" ? playableId : undefined;
+
+  const { track, errorMessage: trackErrorMessage } = useTrack(trackId);
+  const { clip, errorMessage: clipErrorMessage } = useClip(clipId);
+
+  const playableToLoad = kind === "track" ? track : clip;
+  const errorMessage = kind === "track" ? trackErrorMessage : clipErrorMessage;
 
   const lastLoadedIdRef = useRef<string | undefined>(undefined);
-
-  if (kind === "clip") {
-    // TODO: implement clip loading
-    throw new Error("Not implemented");
-  }
 
   useEffect(() => {
     if (!playableToLoad) return;
