@@ -7,7 +7,7 @@ import { H1 } from "@/components/primitives";
 import { UploadDialogContainer } from "@/components/upload";
 import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
 import { cn } from "@/lib/utils";
-import { pathGenerator } from "@/routing";
+import { urlGenerator } from "@/routing";
 
 // TODO:
 // - make better use of clamp util (e.g. in usePlayback)
@@ -70,7 +70,7 @@ function Header(): JSX.Element {
     >
       <PageContainer>
         <div className="flex items-center justify-between">
-          <Link to={pathGenerator.root()}>
+          <Link to={urlGenerator.root()}>
             <H1>JamFlow</H1>
           </Link>
           <UploadDialogContainer />
