@@ -4,6 +4,8 @@ import { mapClipToInternal } from "@/api/mappers";
 import type { ClipCreateRequest, ClipResponse, QueryParams } from "@/api/types";
 import type { Clip } from "@/types";
 
+const resource = "/clips";
+
 export async function postClip({
   track_id,
   title,
@@ -11,7 +13,7 @@ export async function postClip({
   end,
 }: ClipCreateRequest): Promise<Clip> {
   try {
-    const response = await apiClient.post<ClipResponse>("/clips", {
+    const response = await apiClient.post<ClipResponse>(resource, {
       track_id,
       title,
       start,
@@ -25,7 +27,7 @@ export async function postClip({
 
 export async function getClip(id: string): Promise<Clip> {
   try {
-    const response = await apiClient.get<ClipResponse>(`/clips/${id}`);
+    const response = await apiClient.get<ClipResponse>(`${resource}/${id}`);
     return mapClipToInternal(response.data);
   } catch (error) {
     throw mapAxiosError(error);
@@ -39,7 +41,7 @@ export async function listClips(trackId?: string): Promise<Clip[]> {
   }
 
   try {
-    const response = await apiClient.get<ClipResponse[]>("/clips", {
+    const response = await apiClient.get<ClipResponse[]>(resource, {
       params,
     });
     return response.data.map(mapClipToInternal);
