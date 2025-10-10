@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { type JSX } from "react";
+import { type JSX, useEffect } from "react";
+import { toast } from "sonner";
 
 import { PlaybackToggle } from "@/components/playback";
 import {
@@ -10,10 +11,11 @@ import {
 } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { asTrack, isSameTrack } from "@/contexts/playback/utils";
+import { useAutoloadPlayable } from "@/hooks/usePlayableFromSearch";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
-import { trackDetailRoute } from "@/routes";
+import { trackDetailRoute, trackListRoute } from "@/routes";
 import type { Track } from "@/types";
 
 export function TrackList(): JSX.Element {
@@ -25,6 +27,18 @@ export function TrackList(): JSX.Element {
 
   const isError = errorMessage !== null;
   const currentTrack = asTrack(playable);
+
+  const { sharedTrackId } = trackListRoute.useSearch();
+  const { errorMessage: autoLoadError } = useAutoloadPlayable(
+    "track",
+    sharedTrackId,
+  );
+
+  useEffect(() => {
+    if (autoLoadError) {
+      toast.error(autoLoadError);
+    }
+  }, [autoLoadError]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;

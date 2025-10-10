@@ -9,6 +9,7 @@ import { ErrorPage } from "@/pages/Error";
 import { Root } from "@/pages/Root";
 import { TrackDetail } from "@/pages/TrackDetail";
 import { TrackList } from "@/pages/TrackList";
+import type { Track } from "@/types";
 
 const rootRoute = createRootRoute({
   component: Root,
@@ -25,10 +26,19 @@ export const homeRoute = createRoute({
   },
 });
 
-export const trackListRoute = createRoute({
+export type TrackListSearch = {
+  sharedTrackId?: Track["id"];
+};
+
+export const trackListRoute = createRoute<void, TrackListSearch>({
   getParentRoute: () => rootRoute,
   path: "/tracks",
   component: TrackList,
+  validateSearch: (search: Record<string, string>): TrackListSearch => {
+    return {
+      sharedTrackId: search.sharedTrackId as Track["id"] | undefined,
+    };
+  },
 });
 
 export const trackDetailRoute = createRoute({
