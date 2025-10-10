@@ -53,13 +53,13 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
         {playable?.title || ""}
       </Link>
       <ProgressBar />
-      <div className="my-2 flex flex-row items-center justify-between">
-        <div className="ml-1 flex flex-row items-center space-x-2">
+      <div className="relative my-2 flex items-center justify-center">
+        <div className="absolute left-2 flex items-center space-x-2">
           <VolumeSlider className="!min-h-9" orientation="vertical" />
           <MuteToggle size="icon-lg" />
         </div>
 
-        <div className="flex flex-row items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <StepButton variant="back" size="icon-lg" />
           <PlaybackToggle
             className="rounded-full border-2 !border-current"
@@ -69,20 +69,19 @@ export function AudioPlayer({ clipper }: AudioPlayerProps): JSX.Element {
           <StepButton variant="forward" size="icon-lg" />
         </div>
 
-        <div className="mr-1 flex flex-row items-center space-x-2">
-          <IconButton
-            icon={LinkIcon}
-            onClick={handleShare}
-            disabled={!isShareable}
-            size="icon-lg"
-          />
+        <div className="absolute right-2 flex items-center space-x-2">
           <IconButton
             icon={Scissors}
             onClick={clipper.actions.startClipping}
             disabled={!clipper.derived.isClippable}
             size="icon-lg"
           />
-          <span className="w-[6px]"></span>
+          <IconButton
+            icon={LinkIcon}
+            onClick={handleShare}
+            disabled={!isShareable}
+            size="icon-lg"
+          />
         </div>
       </div>
     </div>
