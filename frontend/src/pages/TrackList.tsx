@@ -1,5 +1,6 @@
-import { type JSX } from "react";
-import { Link } from "react-router-dom";
+import { type JSX, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import { PlaybackToggle } from "@/components/playback";
 import {
@@ -10,10 +11,11 @@ import {
 } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { asTrack, isSameTrack } from "@/contexts/playback/utils";
+import { useAutoloadPlayable } from "@/hooks/useAutoloadPlayable";
 import { useTrackList } from "@/hooks/useTrackList";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
-import { pathGenerator } from "@/routes";
+import { urlGenerator } from "@/routing";
 import type { Track } from "@/types";
 
 export function TrackList(): JSX.Element {
@@ -25,6 +27,19 @@ export function TrackList(): JSX.Element {
 
   const isError = errorMessage !== null;
   const currentTrack = asTrack(playable);
+
+  const [searchParams, _] = useSearchParams();
+  const sharedTrackId = searchParams.get("sharedTrackId") || undefined;
+  const { errorMessage: autoloadError } = useAutoloadPlayable(
+    "track",
+    sharedTrackId,
+  );
+
+  useEffect(() => {
+    if (autoloadError) {
+      toast.error(autoloadError);
+    }
+  }, [autoloadError]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState message={errorMessage} onRetry={fetchData} />;
@@ -87,7 +102,7 @@ function TrackItem({
       )}
     >
       <Link
-        to={pathGenerator.trackDetail({ id: track.id })}
+        to={urlGenerator.trackDetail({ id: track.id })}
         state={{ track }}
         className="group flex min-w-0 flex-1 items-center"
       >

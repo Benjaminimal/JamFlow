@@ -1,5 +1,6 @@
-import type { JSX, ReactNode } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { type JSX, type ReactNode, useEffect } from "react";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import { PlaybackToggle } from "@/components/playback";
 import { H2, H3 } from "@/components/primitives";
@@ -11,13 +12,13 @@ import {
 } from "@/components/ui";
 import { usePlaybackContext } from "@/contexts/playback";
 import { isSamePlayable } from "@/contexts/playback/utils";
+import { useAutoloadPlayable } from "@/hooks/useAutoloadPlayable";
 import { useClipList } from "@/hooks/useClipList";
 import { useTrack } from "@/hooks/useTrack";
 import { formatDuration } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import type { TrackDetailParams } from "@/routing/types";
 import type { Clip, Track } from "@/types";
-
-export type TrackDetailParams = Pick<Track, "id">;
 
 export function TrackDetail(): JSX.Element {
   const { id } = useParams<TrackDetailParams>();
@@ -39,6 +40,19 @@ export function TrackDetail(): JSX.Element {
   } = useClipList(id);
 
   const track = passedTrack ?? fetchedTrack;
+
+  const [searchParams, _] = useSearchParams();
+  const sharedClipId = searchParams.get("sharedClipId") || undefined;
+  const { errorMessage: autoloadError } = useAutoloadPlayable(
+    "clip",
+    sharedClipId,
+  );
+
+  useEffect(() => {
+    if (autoloadError) {
+      toast.error(autoloadError);
+    }
+  }, [autoloadError]);
 
   if (!track && trackLoading) return <LoadingState />;
   if (!track && trackErrorMessage)
