@@ -75,6 +75,15 @@ services:
     networks:
       - jamflow
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - jamflow
+
 networks:
   jamflow:
 
