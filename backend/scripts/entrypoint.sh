@@ -25,5 +25,5 @@ else
 fi
 
 # Choose how to run the app
-echo "Starting FastAPI..."
-exec fastapi run --workers 4 jamflow/main.py --port 8000 --host 0.0.0.0
+echo "Starting backend service..."
+exec "$@"

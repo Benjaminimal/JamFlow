@@ -7,8 +7,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
-    expose:
-      - 5432
     ports:
       - "5432:5432"
     healthcheck:
@@ -17,6 +15,8 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+    networks:
+      - jamflow
 
   storage:
     image: minio/minio:latest
@@ -35,6 +35,8 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+    networks:
+      - jamflow
 
   proxy:
     image: nginx:latest
@@ -45,23 +47,30 @@ services:
     depends_on:
       - storage
       - db
+    networks:
+      - jamflow
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: ["/bin/bash", "/app/scripts/entrypoint.sh"]
     env_file:
       - ./backend/.env
     environment:
       - DB_HOST=db
       - STORAGE_URL=http://storage:9000/
-
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - storage
+      db:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+    networks:
+      - jamflow
+
+networks:
+  jamflow:
 
 volumes:
   db_data: {}
