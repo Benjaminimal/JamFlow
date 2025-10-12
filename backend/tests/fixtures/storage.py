@@ -14,6 +14,13 @@ def storage_name_override():
         yield
 
 
+@pytest.fixture(scope="session", autouse=True)
+def storage_public_url_override():
+    # ensure that the public url is the same as the storage url for testing
+    with mock.patch.object(settings, "STORAGE_PUBLIC_URL", settings.STORAGE_URL):
+        yield
+
+
 @pytest.fixture
 async def audio_storage(
     storage_name_override,  # noqa: ARG001

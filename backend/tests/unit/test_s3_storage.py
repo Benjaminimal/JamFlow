@@ -147,11 +147,18 @@ async def test_get_file_raises_storage_exception_on_error(mock_s3_client):
     )
 
 
-async def test_generate_expiring_url_returns_url_on_success(mock_s3_client):
+async def test_generate_expiring_url_returns_url_on_success(
+    mocker: MockerFixture,
+    mock_s3_client,
+):
     # mock the return value of generate_presigned_url
     mock_s3_client.generate_presigned_url.return_value = (
         "http://example.com/presigned-url"
     )
+
+    # mock replace_base_url to simulate replacing the base URL
+    mock_replace = mocker.patch("jamflow.services.storage.s3.replace_base_url")
+    mock_replace.return_value = "https://public.example.com/presigned-url"
 
     async with S3StorageService("test-bucket") as service:
         url = await service.generate_expiring_url("test/path")
@@ -162,7 +169,8 @@ async def test_generate_expiring_url_returns_url_on_success(mock_s3_client):
         Params={"Bucket": "test-bucket", "Key": "test/path"},
         ExpiresIn=3600,
     )
-    assert url == "http://example.com/presigned-url"
+    assert url == "https://public.example.com/presigned-url"
+    mock_replace.assert_called_once()
 
 
 async def test_generate_expiring_url_raises_storage_exception_on_error(mock_s3_client):

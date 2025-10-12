@@ -17,6 +17,7 @@ class Settings(
     LOG_LEVEL: str = "INFO"
     LOG_JSON: bool = True
 
+    STORAGE_PUBLIC_URL: HttpUrl
     STORAGE_URL: HttpUrl
     STORAGE_ACCESS_KEY: str
     STORAGE_SECRET_KEY: str
