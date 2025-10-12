@@ -43,6 +43,10 @@ def create_app() -> FastAPI:
     app.exception_handler(Exception)(external_exception_handler)
     app.add_exception_handler(status.HTTP_404_NOT_FOUND, page_not_found_handler)
 
+    @app.get("/health", tags=["health"])
+    def health_check() -> dict[str, str]:
+        return {"status": "ok"}
+
     app.include_router(api_router)
 
     return app

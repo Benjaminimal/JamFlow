@@ -66,6 +66,12 @@ services:
         condition: service_healthy
       storage:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 2s
     networks:
       - jamflow
 
