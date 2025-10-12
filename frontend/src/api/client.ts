@@ -4,6 +4,6 @@ import { appConfig } from "@/config/app";
 
 export const apiClient = axios.create({
   baseURL: appConfig.apiBaseUrl,
-  // NOTE: this might be too little for large file uploads
-  timeout: 10_000, // Milliseconds
+  // TODO: find a sane value that works for large file uploads
+  // timeout: 10 * 1_000, // Milliseconds
 });
