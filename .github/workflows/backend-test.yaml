@@ -34,4 +34,4 @@ jobs:
         if: always()
         run: |
           source .env.docker-compose
-          docker compose down --volumes
+          docker compose down db storage --volumes
