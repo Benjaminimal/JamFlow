@@ -254,13 +254,18 @@ export function usePlayback(): PlaybackContextType {
       },
       onplayerror: (_, error: unknown) => {
         logger.error("Audio play error:", error);
+
+        // Some browsers require user interaction before playing audio
+        // This is a workaround to that issue
+        // https://github.com/goldfire/howler.js?tab=readme-ov-file#mobilechrome-playback
         if (isPlaybackLockedByBrowser(error) && howlRef.current) {
-          // Some browsers require user interaction before playing audio
-          // This is a workaround to that issue
-          // https://github.com/goldfire/howler.js?tab=readme-ov-file#mobilechrome-playback
-          howlRef.current.once("unlock", () => howlRef.current?.play());
+          dispatch({ type: "PAUSE" });
+          howlRef.current.once("unlock", () => {
+            dispatch({ type: "PLAY" });
+          });
           return;
         }
+
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
