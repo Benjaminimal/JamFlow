@@ -56,6 +56,7 @@ async def clip_create(
     clip = Clip.model_validate(
         clip_create_dto,
         update={
+            "id": clip_id,
             "format": clip_format,
             "size": clip_size,
             "path": path,
