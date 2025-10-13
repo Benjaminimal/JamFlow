@@ -254,6 +254,13 @@ export function usePlayback(): PlaybackContextType {
       },
       onplayerror: (_, error: unknown) => {
         logger.error("Audio play error:", error);
+        if (isPlaybackLockedByBrowser(error) && howlRef.current) {
+          // Some browsers require user interaction before playing audio
+          // This is a workaround to that issue
+          // https://github.com/goldfire/howler.js?tab=readme-ov-file#mobilechrome-playback
+          howlRef.current.once("unlock", () => howlRef.current?.play());
+          return;
+        }
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
@@ -379,4 +386,13 @@ function getAudioErrorMessage(error: unknown): string {
     }
   }
   return "The audio can't be played right now.";
+}
+
+function isPlaybackLockedByBrowser(error: unknown): boolean {
+  if (typeof error === "string") {
+    return error
+      .toLocaleLowerCase()
+      .includes("playback was not within a user interaction");
+  }
+  return false;
 }
