@@ -9,6 +9,7 @@ from types_aiobotocore_s3.client import S3Client
 from jamflow.core.config import settings
 from jamflow.core.exceptions import StorageError
 from jamflow.core.log import bind_log_context, get_logger, unbind_log_context
+from jamflow.utils import replace_base_url
 
 logger = get_logger()
 
@@ -103,6 +104,7 @@ class S3StorageService:
             } | _get_error_context(exc)
             raise StorageError("Failed to purge bucket", context=context) from exc
 
+    # TODO: consider caching the generated URL as it will be requested multiple times
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         try:
             url = await self._client.generate_presigned_url(
@@ -110,7 +112,6 @@ class S3StorageService:
                 Params={"Bucket": self._bucket_name, "Key": path},
                 ExpiresIn=expiration,
             )
-            return url
         except (BotoCoreError, ClientError) as exc:
             context = {
                 "bucket_name": self._bucket_name,
@@ -120,6 +121,19 @@ class S3StorageService:
             raise StorageError(
                 "Failed to generate presigned URL", context=context
             ) from exc
+
+        try:
+            public_url = replace_base_url(url, str(settings.STORAGE_PUBLIC_URL))
+        except ValueError as exc:
+            raise StorageError(
+                "Failed to replace base URL for presigned URL",
+                context={
+                    "original_url": url,
+                    "new_base": str(settings.STORAGE_PUBLIC_URL),
+                },
+            ) from exc
+
+        return public_url
 
     async def __aenter__(self) -> Self:
         bind_log_context(bucket_name=self._bucket_name)

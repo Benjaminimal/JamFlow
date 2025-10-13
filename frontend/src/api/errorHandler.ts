@@ -5,7 +5,6 @@ import {
   ApplicationError,
   AuthenticationError,
   ClientError,
-  ConfigurationError,
   ConflictError,
   ExternalServiceError,
   NetworkError,
@@ -67,31 +66,6 @@ export function mapAxiosError(error: unknown): ApplicationError {
   }
 
   return new ApplicationError("Unable to map error from request", options);
-}
-
-export function getUserFriendlyErrorMessage(error: unknown): string {
-  if (error instanceof ValidationError) {
-    return "Please correct the errors in the form.";
-  } else if (error instanceof ConfigurationError) {
-    return "Something isn't set up correctly.";
-  } else if (error instanceof NetworkError) {
-    return "We're having trouble connecting. Please check your internet.";
-  } else if (error instanceof AuthenticationError) {
-    return "Please log in to continue.";
-  } else if (error instanceof PermissionError) {
-    return "You don't have permission to do that.";
-  } else if (error instanceof NotFoundError) {
-    return "Sorry, we couldn't find what you were looking for.";
-  } else if (error instanceof ConflictError) {
-    return "This item already exists or conflicts with existing data.";
-  } else if (
-    error instanceof ClientError ||
-    error instanceof ExternalServiceError
-  ) {
-    return "Something went wrong on our end. Please try again later.";
-  } else {
-    return "Sorry, something went wrong.";
-  }
 }
 
 const apiToInternalFieldMap: Record<string, string> = {

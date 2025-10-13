@@ -7,6 +7,7 @@ export type TrackCreateForm = {
 };
 
 export type Track = {
+  kind: "track";
   id: string;
   createdAt: Date;
   updatedAt: Date;
@@ -14,8 +15,26 @@ export type Track = {
   duration: number; // milliseconds
   format: AudioFormat;
   size: number; // bytes
-  recordedDate: Date | null;
   url: string;
+  recordedDate: Date | null;
 };
 
-export type Playable = Track;
+export type Clip = {
+  kind: "clip";
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  title: string;
+  duration: number; // milliseconds
+  format: AudioFormat;
+  size: number; // bytes
+  url: string;
+  trackId: string;
+  start: number; // milliseconds
+  end: number; // milliseconds
+};
+
+export type SubmitResult = {
+  success: boolean;
+  error?: unknown;
+};

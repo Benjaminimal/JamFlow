@@ -1,11 +1,10 @@
 import axios from "axios";
 
-import { getUserFriendlyErrorMessage, mapAxiosError } from "@/api/errorHandler";
+import { mapAxiosError } from "@/api/errorHandler";
 import {
   ApplicationError,
   AuthenticationError,
   ClientError,
-  ConfigurationError,
   ConflictError,
   ExternalServiceError,
   NetworkError,
@@ -109,46 +108,6 @@ describe("errorHandler", () => {
         const mappedError = mapAxiosError(error);
         expect(mappedError).toBeInstanceOf(expectedError);
         expect(mappedError.cause).toBe(error);
-      },
-    );
-  });
-
-  describe("getUserFriendlyErrorMessage", () => {
-    it.each([
-      { error: new Error(""), expectedMessage: /something went wrong/i },
-      {
-        error: new ApplicationError(""),
-        expectedMessage: /something went wrong/i,
-      },
-      {
-        error: new ValidationError("", {}),
-        expectedMessage: /correct the error/i,
-      },
-      {
-        error: new ConfigurationError(""),
-        expectedMessage: /something isn't set up correctly/i,
-      },
-      { error: new NetworkError(""), expectedMessage: /check your internet/i },
-      { error: new AuthenticationError(""), expectedMessage: /log in/i },
-      {
-        error: new PermissionError(""),
-        expectedMessage: /don't have permission/i,
-      },
-      { error: new NotFoundError(""), expectedMessage: /couldn't find/i },
-      { error: new ConflictError(""), expectedMessage: /already exists/i },
-      {
-        error: new ClientError(""),
-        expectedMessage: /something went wrong on our end/i,
-      },
-      {
-        error: new ExternalServiceError(""),
-        expectedMessage: /something went wrong on our end/i,
-      },
-    ])(
-      "matches $expectedMessage for $error.constructor.name",
-      ({ error, expectedMessage }) => {
-        const message = getUserFriendlyErrorMessage(error);
-        expect(message).toMatch(expectedMessage);
       },
     );
   });

@@ -1,44 +1,102 @@
-import "@/pages/Root.css";
-
-import { type JSX, memo } from "react";
+import { type JSX, type ReactNode } from "react";
 import { Link, Outlet } from "react-router-dom";
+import { Toaster } from "sonner";
 
-import AudioPlayerContainer from "@/components/AudioPlayerContainer";
-import NotificationContainer from "@/components/NotificationContainer";
-import NotificationProvider from "@/contexts/NotificationProvider";
-import PlaybackProvider from "@/contexts/PlaybackProvider";
+import { AudioPlayerContainer } from "@/components/playback";
+import { H1 } from "@/components/primitives";
+import { UploadDialogContainer } from "@/components/upload";
+import { PlaybackProvider, usePlaybackContext } from "@/contexts/playback";
+import { cn } from "@/lib/utils";
+import { urlGenerator } from "@/routing";
 
-export default function Root(): JSX.Element {
+// TODO:
+// - make better use of clamp util (e.g. in usePlayback)
+// - consider accessibility for timestamps and durations
+// - uploading a new track should be visible in the track list without a full reload
+// - clean up outdated components
+// - port test from old components to new ones
+// - look at test failures due to heavy refactoring
+export function Root(): JSX.Element {
   return (
-    <NotificationProvider>
-      <PlaybackProvider>
-        <LayoutContent />
-      </PlaybackProvider>
-    </NotificationProvider>
+    <AppProviders>
+      <Layout />
+    </AppProviders>
   );
 }
 
-function LayoutContent(): JSX.Element {
+function Layout(): JSX.Element {
   return (
-    <>
-      <Navbar />
-      <h1>JamFlow</h1>
+    <div className="flex h-screen flex-col">
+      <Header />
+      <Main />
+      <Footer />
+    </div>
+  );
+}
 
-      <NotificationContainer />
+function AppProviders({ children }: { children: ReactNode }) {
+  return <PlaybackProvider>{children}</PlaybackProvider>;
+}
 
-      <div id="outlet">
+function PageContainer({ children }: { children: ReactNode }): JSX.Element {
+  return (
+    <div className={cn("max-w-4xl", "mx-auto", "px-4 sm:px-6 lg:px-8")}>
+      {children}
+    </div>
+  );
+}
+
+function Main(): JSX.Element {
+  return (
+    <main className="flex-1 overflow-y-auto">
+      <PageContainer>
+        <Toaster position="top-center" theme="system" richColors />
         <Outlet />
-      </div>
-      <AudioPlayerContainer />
-    </>
+      </PageContainer>
+    </main>
   );
 }
 
-const Navbar = memo((): JSX.Element => {
+function Header(): JSX.Element {
   return (
-    <nav>
-      <Link to="/">Home</Link> | <Link to="/upload">Upload</Link> |{" "}
-      <Link to="/tracks">Tracks</Link>
-    </nav>
+    <header
+      className={cn(
+        "sticky top-0",
+        "border-b-accent-foreground",
+        "border-b",
+        "bg-background",
+        "py-2 sm:py-3 lg:py-4",
+      )}
+    >
+      <PageContainer>
+        <div className="flex items-center justify-between">
+          <Link to={urlGenerator.root()}>
+            <H1>JamFlow</H1>
+          </Link>
+          <UploadDialogContainer />
+        </div>
+      </PageContainer>
+    </header>
   );
-});
+}
+
+function Footer(): JSX.Element | null {
+  const { derived } = usePlaybackContext();
+
+  if (derived.isIdle) return null;
+  return (
+    <footer
+      className={cn(
+        "sticky bottom-0",
+        "border-t-accent-foreground",
+        "border-t",
+        "bg-background",
+        "py-2 sm:py-3 lg:py-4",
+      )}
+    >
+      <PageContainer>
+        <AudioPlayerContainer />
+      </PageContainer>
+    </footer>
+  );
+}

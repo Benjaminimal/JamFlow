@@ -8,7 +8,7 @@ import {
 } from "@/test-utils/testData";
 
 vi.mock("@/api/client", () => ({
-  default: {
+  apiClient: {
     post: vi.fn(),
     get: vi.fn(),
   },
@@ -18,7 +18,7 @@ vi.mock("@/api/errorHandler", () => ({
   mapAxiosError: vi.fn(),
 }));
 
-import apiClient from "@/api/client";
+import { apiClient } from "@/api/client";
 import { mapAxiosError } from "@/api/errorHandler";
 
 describe("track api", () => {

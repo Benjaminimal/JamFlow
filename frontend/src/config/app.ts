@@ -1,46 +1,79 @@
+import * as z from "zod";
+
 import { ConfigurationError } from "@/errors";
 
-const requiredEnvVars = ["VITE_API_BASE_URL", "VITE_LOG_LEVEL"] as const;
-
-function validateRequired(): void {
-  const missing = requiredEnvVars.filter((key) => !import.meta.env[key]);
-  if (missing.length > 0) {
-    throw new ConfigurationError(
-      `Provide missing environment variables: ${missing.join(", ")}`,
-    );
+declare global {
+  interface Window {
+    __RUNTIME_CONFIG__?: Record<string, string>;
   }
 }
 
-export type LogLevelName = "debug" | "info" | "warn" | "error";
+const allowedLogLevels = ["debug", "info", "warn", "error"] as const;
+export type LogLevelName = (typeof allowedLogLevels)[number];
 
-function getLogLevel(level?: string): LogLevelName {
-  if (import.meta.env.MODE === "test") return "error";
+/**
+ * Schema with validation for runtime config.
+ */
+const RuntimeConfigSchema = z.object({
+  API_BASE_URL: z.string().nonempty(),
+  LOG_LEVEL: z
+    .string()
+    .nonempty()
+    .transform((v) => v.trim().toLocaleLowerCase())
+    .pipe(z.enum(allowedLogLevels)),
+});
 
-  const allowedLogLevels: LogLevelName[] = ["debug", "info", "warn", "error"];
+export type AppConfig = z.infer<typeof RuntimeConfigSchema>;
 
-  if (!level) {
-    throw new ConfigurationError(
-      `VITE_LOG_LEVEL is not set. Must be one of: ${allowedLogLevels.join(", ")}`,
-    );
-  }
+let config: AppConfig | null = null;
 
-  const normalizedLevel = level.trim().toLowerCase() as LogLevelName;
-  if (!allowedLogLevels.includes(normalizedLevel)) {
-    throw new ConfigurationError(
-      `Invalid VITE_LOG_LEVEL "${level}". Must be one of: ${allowedLogLevels.join(", ")}`,
-    );
-  }
-
-  return normalizedLevel;
-}
-
-function initConfig() {
-  validateRequired();
+/**
+ * Merge multiple sources for runtime config in order of precedence:
+ *   1. window.__RUNTIME_CONFIG__
+ *   2. Build-time env variables (import.meta.env)
+ */
+function getRawConfig(): Record<string, string> {
+  const runtime = window.__RUNTIME_CONFIG__ ?? {};
+  const buildEnv = import.meta.env || {};
 
   return {
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL as string,
-    logLevel: getLogLevel(import.meta.env.VITE_LOG_LEVEL),
+    ...Object.fromEntries(
+      Object.entries(buildEnv).map(([k, v]) => [k.replace(/^VITE_/, ""), v]),
+    ),
+    ...runtime,
   };
 }
 
-export const appConfig = initConfig();
+/**
+ * Lazy load and validate runtime config from window.__RUNTIME_CONFIG__.
+ */
+export function ensureConfig(): AppConfig {
+  if (config) return config;
+
+  const raw = getRawConfig();
+
+  try {
+    config = RuntimeConfigSchema.parse(raw);
+    return config;
+  } catch (error) {
+    throw new ConfigurationError(`Invalid runtime config: ${error}`);
+  }
+}
+
+/**
+ * Type-safe proxy for accessing runtime config everywhere.
+ * Throws if accessed before `loadConfig()` has run.
+ *
+ * Usage:
+ *   import { appConfig } from "@/config/app";
+ *   console.log(appConfig.API_BASE_URL);
+ */
+export const appConfig: Readonly<AppConfig> = new Proxy<AppConfig>(
+  {} as AppConfig,
+  {
+    get(_: AppConfig, prop: keyof AppConfig) {
+      const _config = ensureConfig();
+      return _config[prop];
+    },
+  },
+);

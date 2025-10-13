@@ -1,6 +1,58 @@
+import {
+  ApplicationError,
+  AuthenticationError,
+  ClientError,
+  ConfigurationError,
+  ConflictError,
+  ExternalServiceError,
+  NetworkError,
+  NotFoundError,
+  PermissionError,
+  ValidationError,
+} from "@/errors";
 import { getErrorMessage } from "@/lib/errorUtils";
 
 describe("getErrorMessage", () => {
+  describe("when error ApplicationError", () => {
+    it.each([
+      // { error: new Error(""), expectedMessage: /something went wrong/i },
+      {
+        error: new ApplicationError(""),
+        expectedMessage: /something went wrong/i,
+      },
+      {
+        error: new ValidationError("", {}),
+        expectedMessage: /correct the error/i,
+      },
+      {
+        error: new ConfigurationError(""),
+        expectedMessage: /something isn't set up correctly/i,
+      },
+      { error: new NetworkError(""), expectedMessage: /check your internet/i },
+      { error: new AuthenticationError(""), expectedMessage: /log in/i },
+      {
+        error: new PermissionError(""),
+        expectedMessage: /don't have permission/i,
+      },
+      { error: new NotFoundError(""), expectedMessage: /couldn't find/i },
+      { error: new ConflictError(""), expectedMessage: /already exists/i },
+      {
+        error: new ClientError(""),
+        expectedMessage: /something went wrong on our end/i,
+      },
+      {
+        error: new ExternalServiceError(""),
+        expectedMessage: /something went wrong on our end/i,
+      },
+    ])(
+      "matches $expectedMessage for $error.constructor.name",
+      ({ error, expectedMessage }) => {
+        const message = getErrorMessage(error);
+        expect(message).toMatch(expectedMessage);
+      },
+    );
+  });
+
   describe("when error has valid message", () => {
     it.each([
       { error: "Error message", expected: "Error message" },
