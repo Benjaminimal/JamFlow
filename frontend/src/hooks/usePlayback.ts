@@ -264,7 +264,16 @@ export function usePlayback(): PlaybackContextType {
         const message = getAudioErrorMessage(error);
         dispatch({ type: "SET_ERROR", message: message });
       },
-      // TODO: implement onend to correct the state
+      onend: () => {
+        const howl = howlRef.current;
+        if (!howl) return;
+
+        if (!howl.loop()) {
+          // Howler ends the playback automatically
+          // so we need to keep the state in sync
+          dispatch({ type: "PAUSE" });
+        }
+      },
     });
 
     return () => {
