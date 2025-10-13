@@ -1,7 +1,7 @@
 import type { LogLevelName } from "@/config/app";
 
 vi.mock("@/config/app", () => ({
-  appConfig: { logLevel: "debug" },
+  appConfig: { LOG_LEVEL: "debug" },
 }));
 
 import { getLogger } from "@/lib/logging";

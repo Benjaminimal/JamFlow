@@ -14,7 +14,7 @@ const LogLevelNameToInt = {
   error: LogLevel.Error,
 };
 
-const logLevel = LogLevelNameToInt[appConfig.logLevel];
+const logLevel = LogLevelNameToInt[appConfig.LOG_LEVEL];
 
 export type Logger = {
   debug: (...data: unknown[]) => void;
