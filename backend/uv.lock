@@ -485,6 +485,7 @@ dependencies = [
     { name = "pydub" },
     { name = "sqlmodel" },
     { name = "structlog" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -516,6 +517,7 @@ requires-dist = [
     { name = "pydub", specifier = ">=0.25.1" },
     { name = "sqlmodel", specifier = ">=0.0.22" },
     { name = "structlog", specifier = ">=25.1.0" },
+    { name = "uvicorn", specifier = ">=0.34.0" },
 ]
 
 [package.metadata.requires-dev]

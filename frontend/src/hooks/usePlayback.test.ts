@@ -130,6 +130,7 @@ describe("usePlayback", () => {
     it("seeks while paused", async () => {
       const { result } = await renderHookPaused();
       const howlMock = HowlMock.getRecent();
+      howlMock.seek.mockReset();
 
       act(() => result.current.actions.seek(5000));
       expect(result.current.state.seekTarget).toBe(5000);
@@ -316,12 +317,12 @@ describe("usePlayback", () => {
       const { result } = await renderHookPlaying();
       const howlMock = HowlMock.getRecent();
 
-      howlMock.seek.mockReturnValueOnce(0.5).mockReturnValueOnce(1.5);
-
+      howlMock.seek.mockReturnValueOnce(0.5);
       await waitFor(() => {
         expect(result.current.actions.getPosition()).toBe(500);
       });
 
+      howlMock.seek.mockReturnValueOnce(1.5);
       await waitFor(() => {
         expect(result.current.actions.getPosition()).toBe(1500);
       });
