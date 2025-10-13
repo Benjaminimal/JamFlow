@@ -314,7 +314,12 @@ export function useClipper(): UseClipperResult {
       if (isIdle) return;
       if (event.type !== "progress") return;
 
-      if (event.position > state.end) {
+      // As the position approaches the end, seek back to start
+      // with some buffer to avoid the playback stopping.
+      // A small enough buffer shouldn't be perceptible to the human ear.
+      const buffer = 30;
+
+      if (event.position > state.end - buffer) {
         seek(state.start);
       }
     };
