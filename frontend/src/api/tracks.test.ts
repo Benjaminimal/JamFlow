@@ -8,7 +8,7 @@ import {
 } from "@/test-utils/testData";
 
 vi.mock("@/api/client", () => ({
-  default: {
+  apiClient: {
     post: vi.fn(),
     get: vi.fn(),
   },
