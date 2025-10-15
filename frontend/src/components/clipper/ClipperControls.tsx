@@ -1,5 +1,5 @@
 import { RotateCcw, RotateCw } from "lucide-react";
-import { type JSX, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 
 import {
   ClipperActionBar,
@@ -39,6 +39,15 @@ export function ClipperControls({
   );
   const [startTarget, setStartTarget] = useState(clipStart);
   const [endTarget, setEndTarget] = useState(clipEnd);
+
+  // Clipper moves start and end on seek
+  // we need to make sure the dragging targets are in sync
+  useEffect(() => {
+    if (draggingThumb !== null) return;
+
+    setStartTarget(clipStart);
+    setEndTarget(clipEnd);
+  }, [viewBounds, draggingThumb, clipStart, clipEnd]);
 
   const clipDisplayBounds = {
     start: draggingThumb === "start" ? startTarget : clipStart,
