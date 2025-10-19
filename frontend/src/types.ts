@@ -17,6 +17,7 @@ export type Track = {
   size: number; // bytes
   url: string;
   recordedDate: Date | null;
+  clipCount: number;
 };
 
 export type Clip = {
