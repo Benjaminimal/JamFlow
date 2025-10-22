@@ -4,7 +4,7 @@ from typing import Sequence
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from .types import Model
+from .types import Filters, FiltersHook, Model
 
 
 async def get_by_id(
@@ -19,8 +19,13 @@ async def get_by_id(
 async def list(
     model_class: type[Model],
     session: AsyncSession,
+    filters: Filters | None = None,
+    *,
+    filters_hook: FiltersHook[Model, Filters] | None = None,
 ) -> Sequence[Model]:
     statement = select(model_class)
+    if filters_hook is not None and filters is not None:
+        statement = filters_hook(statement, filters)
     result = await session.exec(statement)
     return result.all()
 

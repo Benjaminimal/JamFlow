@@ -1,13 +1,12 @@
 import uuid
 
-from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.core.log import get_logger
 from jamflow.models.clip import Clip
 from jamflow.repositories import clip_repository, track_repository
-from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
+from jamflow.schemas.clip import ClipCreateDto, ClipFilters, ClipReadDto
 from jamflow.services.audio import (
     clip_audio_file,
     get_audio_mime_type,
@@ -78,11 +77,9 @@ async def clip_list(
     session: AsyncSession,
     track_id: uuid.UUID | None = None,
 ) -> list[ClipReadDto]:
-    statement = select(Clip)
-    if track_id is not None:
-        statement = statement.where(Clip.track_id == track_id)
-    result = await session.exec(statement)
-    clips = result.all()
+    # TODO: this should come from the view
+    filters = ClipFilters(track_id=track_id)
+    clips = await clip_repository.list(session, filters)
     async with get_audio_storage_service() as audio_storage:
         clip_read_dtos = [
             ClipReadDto.model_validate(
