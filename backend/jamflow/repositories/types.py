@@ -8,6 +8,7 @@ from typing import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from jamflow.models.base import BaseSQLModel
+from jamflow.models.clip import Clip
 from jamflow.models.track import Track
 
 Model = TypeVar("Model", bound=BaseSQLModel)
@@ -24,3 +25,5 @@ class Repository[Model](Protocol):
 
 
 TrackRepository = Repository[Track]
+
+ClipRepository = Repository[Clip]

@@ -7,7 +7,7 @@ from structlog import get_logger
 
 from jamflow.core.exceptions import ResourceNotFoundError
 from jamflow.models import Track
-from jamflow.repositories.track import track_repository
+from jamflow.repositories import track_repository
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import (
     get_audio_duration,

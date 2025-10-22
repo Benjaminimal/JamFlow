@@ -6,7 +6,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.core.log import get_logger
 from jamflow.models.clip import Clip
-from jamflow.repositories.track import track_repository
+from jamflow.repositories import clip_repository, track_repository
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
 from jamflow.services.audio import (
     clip_audio_file,
@@ -64,7 +64,7 @@ async def clip_create(
         },
     )
 
-    session.add(clip)
+    await clip_repository.create(session, clip)
     await session.commit()
     await logger.ainfo("Clip created", clip_id=clip.id)
 
@@ -98,7 +98,7 @@ async def clip_read(
     session: AsyncSession,
     clip_id: uuid.UUID,
 ) -> ClipReadDto:
-    clip = await session.get(Clip, clip_id)
+    clip = await clip_repository.get_by_id(session, clip_id)
     if clip is None:
         raise ResourceNotFoundError("Clip not found")
 
