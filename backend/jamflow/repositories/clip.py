@@ -6,7 +6,7 @@ from sqlmodel.sql.expression import SelectOfScalar
 from jamflow.models.clip import Clip
 from jamflow.schemas.clip import ClipFilters
 
-from .primitives import create, get_by_id, list
+from . import primitives
 from .types import ClipRepository
 
 
@@ -19,7 +19,14 @@ def clip_filters_hook(
 
 
 clip_repository: ClipRepository = SimpleNamespace(
-    get_by_id=functools.partial(get_by_id, Clip),
-    list=functools.partial(list, Clip, filters_hook=clip_filters_hook),
-    create=create,
+    get_by_id=functools.partial(
+        primitives.get_by_id,
+        model_class=Clip,
+    ),
+    list=functools.partial(
+        primitives.list,
+        model_class=Clip,
+        filters_hook=clip_filters_hook,
+    ),
+    create=primitives.create,
 )

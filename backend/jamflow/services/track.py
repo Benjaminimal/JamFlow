@@ -54,7 +54,7 @@ async def track_create(
         },
     )
 
-    track = await track_repository.create(session, track)
+    track = await track_repository.create(session, model=track)
     await session.commit()
     await logger.ainfo("Track created", track_id=track.id)
 
@@ -78,7 +78,7 @@ async def track_list(session: AsyncSession) -> list[TrackReadDto]:
 
 
 async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
-    track = await track_repository.get_by_id(session, track_id)
+    track = await track_repository.get_by_id(session, id=track_id)
     if track is None:
         raise ResourceNotFoundError("Track not found")
     async with get_audio_storage_service() as audio_storage:

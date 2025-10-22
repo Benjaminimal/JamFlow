@@ -8,20 +8,21 @@ from .types import Filters, FiltersHook, Model
 
 
 async def get_by_id(
-    model_class: type[Model],
     session: AsyncSession,
-    model_id: uuid.UUID,
+    *,
+    model_class: type[Model],
+    id: uuid.UUID,
 ) -> Model | None:
-    model = await session.get(model_class, model_id)
+    model = await session.get(model_class, id)
     return model
 
 
 async def list(
-    model_class: type[Model],
     session: AsyncSession,
-    filters: Filters | None = None,
     *,
-    filters_hook: FiltersHook[Model, Filters] | None = None,
+    model_class: type[Model],
+    filters: Filters | None = None,
+    filters_hook: FiltersHook | None = None,
 ) -> Sequence[Model]:
     statement = select(model_class)
     if filters_hook is not None and filters is not None:
@@ -32,6 +33,7 @@ async def list(
 
 async def create(
     session: AsyncSession,
+    *,
     model: Model,
 ) -> Model:
     session.add(model)

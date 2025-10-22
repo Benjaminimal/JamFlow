@@ -21,7 +21,7 @@ logger = get_logger()
 async def clip_create(
     session: AsyncSession, *, clip_create_dto: ClipCreateDto
 ) -> ClipReadDto:
-    track = await track_repository.get_by_id(session, clip_create_dto.track_id)
+    track = await track_repository.get_by_id(session, id=clip_create_dto.track_id)
     if track is None:
         raise ResourceNotFoundError("Track not found")
 
@@ -63,7 +63,7 @@ async def clip_create(
         },
     )
 
-    await clip_repository.create(session, clip)
+    await clip_repository.create(session, model=clip)
     await session.commit()
     await logger.ainfo("Clip created", clip_id=clip.id)
 
@@ -79,7 +79,7 @@ async def clip_list(
 ) -> list[ClipReadDto]:
     # TODO: this should come from the view
     filters = ClipFilters(track_id=track_id)
-    clips = await clip_repository.list(session, filters)
+    clips = await clip_repository.list(session, filters=filters)
     async with get_audio_storage_service() as audio_storage:
         clip_read_dtos = [
             ClipReadDto.model_validate(
@@ -95,7 +95,7 @@ async def clip_read(
     session: AsyncSession,
     clip_id: uuid.UUID,
 ) -> ClipReadDto:
-    clip = await clip_repository.get_by_id(session, clip_id)
+    clip = await clip_repository.get_by_id(session, id=clip_id)
     if clip is None:
         raise ResourceNotFoundError("Clip not found")
 

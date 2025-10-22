@@ -12,6 +12,7 @@ from sqlmodel.sql.expression import SelectOfScalar
 from jamflow.models.base import BaseSQLModel
 from jamflow.models.clip import Clip
 from jamflow.models.track import Track
+from jamflow.schemas.clip import ClipFilters
 
 Model = TypeVar("Model", bound=BaseSQLModel)
 Filters = TypeVar("Filters")
@@ -19,18 +20,18 @@ Filters = TypeVar("Filters")
 FiltersHook = Callable[[SelectOfScalar[Model], Filters], SelectOfScalar[Model]]
 
 
-class Repository[Model](Protocol):
+class Repository[Model, Filters](Protocol):
     async def get_by_id(
-        self, session: AsyncSession, model_id: uuid.UUID
+        self, session: AsyncSession, *, id: uuid.UUID
     ) -> Model | None: ...
 
     async def list(
-        self, session: AsyncSession, filters: Filters | None = None
+        self, session: AsyncSession, *, filters: Filters | None = None
     ) -> Sequence[Model]: ...
 
-    async def create(self, session: AsyncSession, model: Model) -> Model: ...
+    async def create(self, session: AsyncSession, *, model: Model) -> Model: ...
 
 
-TrackRepository = Repository[Track]
+TrackRepository = Repository[Track, None]
 
-ClipRepository = Repository[Clip]
+ClipRepository = Repository[Clip, ClipFilters]
