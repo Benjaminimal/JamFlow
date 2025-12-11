@@ -22,8 +22,15 @@ export function useClipperViewBounds(): ClipperViewBoundsResult {
 
   const getViewBounds = useCallback(() => {
     const windowDuration = MAX_CLIP_DURATION + 2 * VIEW_PADDING;
-    const start = Math.max(0, getPosition() - VIEW_PADDING);
+    let start = Math.max(0, getPosition() - VIEW_PADDING);
     const end = Math.min(duration, start + windowDuration);
+
+    // If we're near the end the window would be too small
+    // so we shift it to the left
+    if (end - start < windowDuration) {
+      start = Math.max(0, duration - windowDuration);
+    }
+
     return { start, end };
   }, [getPosition, duration]);
 

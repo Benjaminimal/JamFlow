@@ -13,6 +13,7 @@ const logger = getLogger("useClipper");
 
 const START_OFFSET = 5 * 1_000;
 const END_OFFSET = 60 * 1_000;
+const MIN_INITIAL_WINDOW = 60 * 1_000;
 const SEEK_END_OFFSET = 1 * 1_000;
 export const MIN_CLIP_DURATION = 15 * 1_000;
 export const MAX_CLIP_DURATION = 3 * 60 * 1_000;
@@ -314,7 +315,12 @@ export function useClipper(): UseClipperResult {
       if (isIdle) return;
       if (event.type !== "progress") return;
 
-      if (event.position > state.end) {
+      // As the position approaches the end, seek back to start
+      // with some buffer to avoid the playback stopping.
+      // A small enough buffer shouldn't be perceptible to the human ear.
+      const buffer = 30;
+
+      if (event.position > state.end - buffer) {
         seek(state.start);
       }
     };
@@ -403,8 +409,15 @@ function getInitialBounds(
 ): { start: number; end: number } {
   const rawStart = position - START_OFFSET;
   const rawEnd = position + END_OFFSET;
-  const start = Math.max(0, rawStart);
+  let start = Math.max(0, rawStart);
   const end = clampEnd(rawEnd, start, duration);
+
+  // When position is close to duration the resulting window may be too small
+  // so we shift the strat back.
+  if (end - start < MIN_INITIAL_WINDOW) {
+    start = clampStart(end - MIN_INITIAL_WINDOW, end);
+  }
+
   return { start, end };
 }
 
