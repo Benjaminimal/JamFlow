@@ -18,6 +18,7 @@ export type TrackResponse = {
   size: number; // bytes
   recorded_date: string | null;
   url: string;
+  clip_count: number;
 };
 
 export type ClipCreateRequest = {

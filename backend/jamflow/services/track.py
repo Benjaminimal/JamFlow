@@ -7,6 +7,7 @@ from structlog import get_logger
 
 from jamflow.core.exceptions import ResourceNotFoundError
 from jamflow.models import Track
+from jamflow.repositories import track_repository
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import (
     get_audio_duration,
@@ -53,7 +54,7 @@ async def track_create(
         },
     )
 
-    session.add(track)
+    track = await track_repository.create(session, model=track)
     await session.commit()
     await logger.ainfo("Track created", track_id=track.id)
 
@@ -64,8 +65,7 @@ async def track_create(
 
 
 async def track_list(session: AsyncSession) -> list[TrackReadDto]:
-    result = await session.exec(select(Track))
-    tracks = result.all()
+    tracks = await track_repository.list(session)
     async with get_audio_storage_service() as audio_storage:
         track_read_dtos = [
             TrackReadDto.model_validate(
@@ -78,7 +78,7 @@ async def track_list(session: AsyncSession) -> list[TrackReadDto]:
 
 
 async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
-    track = await session.get(Track, track_id)
+    track = await track_repository.get_by_id(session, id=track_id)
     if track is None:
         raise ResourceNotFoundError("Track not found")
     async with get_audio_storage_service() as audio_storage:
@@ -87,6 +87,7 @@ async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackRead
     return track_read_dto
 
 
+# TODO: replace with repository method or get rid of the entire endpoint
 async def track_generate_signed_urls(
     session: AsyncSession,
     *,
