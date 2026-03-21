@@ -9,6 +9,14 @@
       "managers": ["pep621"],
       "packagePatterns": ["*"],
       "paths": ["backend/pyproject.toml"]
+    },
+    {
+      "managers": ["dockerfile"],
+      "paths": ["frontend/Dockerfile", "backend/Dockerfile"]
+    },
+    {
+      "managers": ["docker-compose"],
+      "paths": ["docker-compose.yml"]
     }
   ]
 }
