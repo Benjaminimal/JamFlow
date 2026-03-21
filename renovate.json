@@ -6,6 +6,10 @@
   "prHourlyLimit": 2,
   "packageRules": [
     {
+      "managers": ["npm"],
+      "paths": ["frontend/package.json"]
+    },
+    {
       "managers": ["pep621"],
       "packagePatterns": ["*"],
       "paths": ["backend/pyproject.toml"]
