@@ -3,5 +3,12 @@
   "extends": ["config:recommended"],
   "baseBranchPatterns": ["develop"],
   "labels": ["dependencies"],
-  "prHourlyLimit": 2
+  "prHourlyLimit": 2,
+  "packageRules": [
+    {
+      "managers": ["pep621"],
+      "packagePatterns": ["*"],
+      "paths": ["backend/pyproject.toml"]
+    }
+  ]
 }
