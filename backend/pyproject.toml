@@ -21,7 +21,7 @@ dependencies = [
   "filetype>=1.2.0",
   "mutagen>=1.47.0",
   "pydub>=0.25.1",
-  "audioop-lts>=0.2.1", # pydub dependency
+  "audioop-lts>=0.2.1",
 ]
 
 [dependency-groups]
