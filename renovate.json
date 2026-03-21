@@ -4,6 +4,7 @@
   "baseBranchPatterns": ["develop"],
   "labels": ["dependencies"],
   "prHourlyLimit": 2,
+  "enabledManagers": ["npm", "pep621", "dockerfile", "docker-compose"],
   "packageRules": [
     {
       "managers": ["npm"],
