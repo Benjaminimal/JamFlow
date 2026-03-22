@@ -14,7 +14,7 @@ TEST_DB_URI = TEST_DB_NAME.join(
 
 
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
-async def db_engine():
+async def pg_engine():
     """
     Set up and tear down a fresh test database including tables for the entire test session.
     """
@@ -53,12 +53,12 @@ async def db_engine():
 
 
 @pytest.fixture
-async def db_session(db_engine: AsyncEngine):
+async def pg_session(pg_engine: AsyncEngine):
     """
     Create a new connection and transaction for each test.
     This ensures that the session has its own dedicated connection.
     """
-    async with db_engine.connect() as conn:
+    async with pg_engine.connect() as conn:
         # Begin a non-ORM transaction on this connection
         transaction = await conn.begin()
         # Bind a session to this connection
