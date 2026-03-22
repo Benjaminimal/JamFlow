@@ -56,7 +56,7 @@ async def pg_engine():
 async def pg_session(pg_engine: AsyncEngine):
     """
     Create a new connection and transaction for each test.
-    This ensures that the session has its own dedicated connection.
+    This ensures that tests using the database are isolated and the session has its own dedicated connection.
     """
     async with pg_engine.connect() as conn:
         # Begin a non-ORM transaction on this connection
