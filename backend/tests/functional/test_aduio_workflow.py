@@ -1,7 +1,7 @@
 from io import BytesIO
+from pathlib import Path
 
 import pytest
-from fastapi import Path
 from httpx import AsyncClient
 from pydub import AudioSegment
 
