@@ -133,3 +133,45 @@ async def test_list__without_instances_returns_empty(
 ):
     items = await repo.list_all()
     assert len(items) == 0
+
+
+async def test_list_by_ids__without_ids_returns_empty(
+    repo: DummyRepository,
+):
+    items = await repo.list_by_ids([])
+    assert len(items) == 0
+
+
+async def test_list_by_ids__returns_correct_objects(
+    repo: DummyRepository,
+    dummy_factory: DummyFactory,
+    sqli_session: AsyncSession,
+):
+    dummy_1 = dummy_factory("Dummy 1")
+    dummy_2 = dummy_factory("Dummy 2")
+    dummy_3 = dummy_factory("Dummy 3")
+    sqli_session.add(dummy_1)
+    sqli_session.add(dummy_2)
+    sqli_session.add(dummy_3)
+    await sqli_session.flush()
+
+    items = await repo.list_by_ids([dummy_1.id, dummy_2.id])
+    assert len(items) == 2
+    items_ids = [i.id for i in items]
+    assert dummy_1.id in items_ids
+    assert dummy_2.id in items_ids
+
+
+async def test_list_by_ids__orders_by_created_at_desc(
+    repo: DummyRepository,
+    dummy_factory: DummyFactory,
+    sqli_session: AsyncSession,
+):
+    dummy_1 = dummy_factory("Name 1", created_at=datetime(2025, 10, 18))
+    dummy_2 = dummy_factory("Name 2", created_at=datetime(2025, 10, 17))
+    sqli_session.add(dummy_1)
+    sqli_session.add(dummy_2)
+    await sqli_session.flush()
+
+    items = await repo.list_by_ids([dummy_1.id, dummy_2.id])
+    assert items[0].created_at < items[1].created_at

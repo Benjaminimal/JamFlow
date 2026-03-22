@@ -2,7 +2,7 @@ import uuid
 from typing import Sequence, TypeVar
 
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import select
+from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.exceptions import DuplicateEntityError
@@ -38,5 +38,14 @@ class SQLModelBaseRepository[M]:
 
     async def list_all(self) -> Sequence[M]:
         statement = select(self.model_class).order_by(self.model_class.created_at)  # type: ignore [unresolved-attribute]
+        result = await self._session.exec(statement)
+        return result.all()
+
+    async def list_by_ids(self, ids: list[uuid.UUID]) -> Sequence[M]:
+        statement = (
+            select(self.model_class)
+            .where(col(self.model_class.id).in_(ids))  # type: ignore [unresolved-attribute]
+            .order_by(self.model_class.created_at)  # type: ignore [unresolved-attribute]
+        )
         result = await self._session.exec(statement)
         return result.all()
