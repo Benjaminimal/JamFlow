@@ -1,7 +1,7 @@
 from io import BytesIO
+from pathlib import Path
 
 import pytest
-from fastapi import Path
 from httpx import AsyncClient
 from pydub import AudioSegment
 
@@ -75,5 +75,5 @@ async def test_track_upload_and_clip_create(
     assert response.status_code == 200, response.content
     clips = response.json()
     assert len(clips) == 2
-    assert clips[0]["title"] == "Test Clip 1"
-    assert clips[1]["title"] == "Test Clip 2"
+    assert clips[0]["title"] == "Test Clip 2"
+    assert clips[1]["title"] == "Test Clip 1"

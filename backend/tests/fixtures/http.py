@@ -22,14 +22,14 @@ async def simple_client(app: FastAPI) -> AsyncClient:
 async def client(
     simple_client: AsyncClient,
     app: FastAPI,
-    db_session: AsyncSession,
+    pg_session: AsyncSession,
 ) -> AsyncClient:
     """
     Fixture to create an ASGI test client with a database session dependency override.
     """
 
     def override_get_session():
-        return db_session
+        return pg_session
 
     app.dependency_overrides[get_session] = override_get_session
     yield simple_client

@@ -136,47 +136,60 @@ async def test_track_create_raises_validation_exception_when_audio_duration_fail
 
 async def test_track_list_returns_track_dtos_and_generates_url(
     mocker: MockerFixture,
+    mock_db_session,
     mock_audio_storage,
     track_1: Track,
     track_2: Track,
 ):
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = [track_1, track_2]
-    mock_db_session = mocker.AsyncMock()
-    mock_db_session.exec.return_value = mock_result
+    mock_list_all = mocker.patch(
+        "jamflow.services.track.TrackRepository.list_all",
+        new_callable=mocker.AsyncMock,
+        return_value=[track_1, track_2],
+    )
 
     result = await track_list(mock_db_session)
 
     assert len(result) == 2
     assert isinstance(result[0], TrackReadDto)
     assert result[0].title == "Track 1"
-    mock_db_session.exec.assert_called_once()
+    mock_list_all.assert_called_once()
     mock_audio_storage.generate_expiring_url.assert_called()
 
 
 async def test_track_read_returns_track_dto_and_generates_urls(
+    mocker: MockerFixture,
     mock_db_session,
     mock_audio_storage,
     track_1: Track,
 ):
-    mock_db_session.get.return_value = track_1
+    mock_get_by_id = mocker.patch(
+        "jamflow.services.track.TrackRepository.get_by_id",
+        new_callable=mocker.AsyncMock,
+        return_value=track_1,
+    )
 
     result = await track_read(mock_db_session, track_id=track_1.id)
 
     assert isinstance(result, TrackReadDto)
     assert result.title == "Track 1"
-    mock_db_session.get.assert_called_once_with(Track, track_1.id)
+    mock_get_by_id.assert_called_once_with(track_1.id)
     mock_audio_storage.generate_expiring_url.assert_called_once_with(track_1.path)
 
 
-async def test_track_read_with_missing_track_rasies_error(mocker: MockerFixture):
-    mock_db_session = mocker.AsyncMock()
-    mock_db_session.get.return_value = None
+async def test_track_read_with_missing_track_rasies_error(
+    mocker: MockerFixture,
+    mock_db_session,
+):
+    mock_get_by_id = mocker.patch(
+        "jamflow.services.track.TrackRepository.get_by_id",
+        new_callable=mocker.AsyncMock,
+        return_value=None,
+    )
 
     with pytest.raises(ResourceNotFoundError, match="Track not found"):
         await track_read(mock_db_session, track_id=uuid.uuid4())
 
-    mock_db_session.get.assert_called_once()
+    mock_get_by_id.assert_called_once()
 
 
 async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
@@ -191,9 +204,11 @@ async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
     expires_at_min = timezone_now() + timedelta(hours=1)
     expires_at_max = expires_at_min + timedelta(seconds=1)
 
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = [track_1, track_2]
-    mock_db_session.exec.return_value = mock_result
+    mock_list_by_ids = mocker.patch(
+        "jamflow.services.track.TrackRepository.list_by_ids",
+        new_callable=mocker.AsyncMock,
+        return_value=[track_1, track_2],
+    )
     mock_audio_storage.generate_expiring_url.side_effect = mock_expiring_urls
 
     result = await track_generate_signed_urls(
@@ -206,3 +221,5 @@ async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
         assert dto.track_id == track_ids[i]
         assert dto.url == mock_expiring_urls[i]
         assert expires_at_min <= dto.expires_at <= expires_at_max + timedelta(seconds=1)
+
+    mock_list_by_ids.assert_called_once_with(track_ids)

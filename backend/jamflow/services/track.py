@@ -1,12 +1,12 @@
 import uuid
 from datetime import timedelta
 
-from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
 from jamflow.core.exceptions import ResourceNotFoundError
 from jamflow.models import Track
+from jamflow.repositories.track import TrackRepository
 from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.services.audio import (
     get_audio_duration,
@@ -53,7 +53,8 @@ async def track_create(
         },
     )
 
-    session.add(track)
+    track_repo = TrackRepository(session)
+    track = await track_repo.create(track)
     await session.commit()
     await logger.ainfo("Track created", track_id=track.id)
 
@@ -64,8 +65,8 @@ async def track_create(
 
 
 async def track_list(session: AsyncSession) -> list[TrackReadDto]:
-    result = await session.exec(select(Track))
-    tracks = result.all()
+    track_repo = TrackRepository(session)
+    tracks = await track_repo.list_all()
     async with get_audio_storage_service() as audio_storage:
         track_read_dtos = [
             TrackReadDto.model_validate(
@@ -78,7 +79,8 @@ async def track_list(session: AsyncSession) -> list[TrackReadDto]:
 
 
 async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
-    track = await session.get(Track, track_id)
+    track_repo = TrackRepository(session)
+    track = await track_repo.get_by_id(track_id)
     if track is None:
         raise ResourceNotFoundError("Track not found")
     async with get_audio_storage_service() as audio_storage:
@@ -92,9 +94,8 @@ async def track_generate_signed_urls(
     *,
     track_ids: list[uuid.UUID],
 ) -> list[TrackSignedUrlDto]:
-    statement = select(Track).where(col(Track.id).in_(track_ids))
-    result = await session.exec(statement)
-    tracks = result.all()
+    track_repo = TrackRepository(session)
+    tracks = await track_repo.list_by_ids(track_ids)
     expires_at = timezone_now() + timedelta(hours=1)
     async with get_audio_storage_service() as audio_storage:
         track_url_data = [
