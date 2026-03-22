@@ -1,5 +1,5 @@
 import uuid
-from typing import Sequence, TypeVar
+from typing import Sequence
 
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import col, select
@@ -8,10 +8,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from jamflow.core.exceptions import DuplicateEntityError
 from jamflow.models.base import BaseSQLModel
 
-M = TypeVar("M", bound=BaseSQLModel)
 
-
-class SQLModelBaseRepository[M]:
+class SQLModelBaseRepository[M: BaseSQLModel]:
     _session: AsyncSession
     model_class: type[M]
 
@@ -27,7 +25,7 @@ class SQLModelBaseRepository[M]:
                 "Unable to create model",
                 context={
                     "model_class": self.model_class,
-                    "model_id": model.id,  # type: ignore [unresolved-attribute]
+                    "model_id": model.id,
                 },
             ) from exc
         return model
@@ -37,15 +35,15 @@ class SQLModelBaseRepository[M]:
         return model
 
     async def list_all(self) -> Sequence[M]:
-        statement = select(self.model_class).order_by(self.model_class.created_at)  # type: ignore [unresolved-attribute]
+        statement = select(self.model_class).order_by(col(self.model_class.created_at))
         result = await self._session.exec(statement)
         return result.all()
 
     async def list_by_ids(self, ids: list[uuid.UUID]) -> Sequence[M]:
         statement = (
             select(self.model_class)
-            .where(col(self.model_class.id).in_(ids))  # type: ignore [unresolved-attribute]
-            .order_by(self.model_class.created_at)  # type: ignore [unresolved-attribute]
+            .where(col(self.model_class.id).in_(ids))
+            .order_by(col(self.model_class.created_at))
         )
         result = await self._session.exec(statement)
         return result.all()
