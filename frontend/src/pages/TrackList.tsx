@@ -1,3 +1,4 @@
+import { Scissors } from "lucide-react";
 import { type JSX, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -120,11 +121,17 @@ function TrackItem({
           >
             {track.title}
           </span>
-          <span className="text-muted-foreground text-sm">
-            {formatDuration(track.duration)}
-            {track.recordedDate && (
-              <span> • {track.recordedDate.toLocaleDateString()}</span>
-            )}
+          <span className="text-muted-foreground flex justify-between text-sm">
+            <span>
+              {formatDuration(track.duration)}
+              {track.recordedDate && (
+                <span> • {track.recordedDate.toLocaleDateString()}</span>
+              )}
+            </span>
+            <span className="inline-flex items-center text-xs">
+              <Scissors className="mr-1 h-3 w-3" />
+              {track.clipCount}
+            </span>
           </span>
         </div>
       </Link>

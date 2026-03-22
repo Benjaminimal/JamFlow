@@ -41,6 +41,7 @@ test = [
   "pytest-asyncio>=0.25.3",
   "pytest-mock>=3.14.0",
   "pytest-structlog>=1.1",
+  "aiosqlite>=0.21.0",
 ]
 
 [tool.ruff.lint]
@@ -55,8 +56,9 @@ select = [
   "ARG001", # unused arguments in functions
 ]
 ignore = [
-  "E501", # line too long, handled by formatter
-  "B008", # do not perform function calls in argument defaults
+  "E501",  # line too long, handled by formatter
+  "B008",  # do not perform function calls in argument defaults
+  "UP035", # warn about deprecated imports, we still want to import type hints from typing
 ]
 
 [tool.mypy]

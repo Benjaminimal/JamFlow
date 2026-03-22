@@ -6,6 +6,7 @@ export function mapTrackToInternal({
   updated_at,
   recorded_date,
   url,
+  clip_count,
   ...rest
 }: TrackResponse): Track {
   return {
@@ -14,6 +15,7 @@ export function mapTrackToInternal({
     updatedAt: new Date(updated_at),
     recordedDate: recorded_date !== null ? new Date(recorded_date) : null,
     url,
+    clipCount: clip_count,
     ...rest,
   };
 }

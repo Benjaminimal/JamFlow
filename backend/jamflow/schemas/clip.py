@@ -32,3 +32,7 @@ class ClipReadDto(BaseModel, from_attributes=True):
     format: AudioFileFormat
     size: int  # in bytes
     url: HttpUrl
+
+
+class ClipFilters(BaseModel):
+    track_id: UUID4 | None = None
