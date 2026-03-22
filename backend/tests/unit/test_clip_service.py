@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.models.clip import Clip
+from jamflow.models.enums import AudioFileFormat
 from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
 from jamflow.services.clip import clip_create, clip_list, clip_read
 
@@ -18,7 +19,7 @@ def clip_1() -> Clip:
         duration=900,
         start=1200,
         end=2100,
-        format="mp3",
+        format=AudioFileFormat.MP3,
         size=7750,
         path="path/to/clip1.mp3",
     )
@@ -33,7 +34,7 @@ def clip_2() -> Clip:
         duration=900,
         start=500,
         end=1400,
-        format="mp3",
+        format=AudioFileFormat.MP3,
         size=7800,
         path="path/to/clip2.mp3",
     )
@@ -127,16 +128,18 @@ async def test_clip_list_retruns_clip_dtos_and_generates_url(
     clip_1: Clip,
     clip_2: Clip,
 ):
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = [clip_1, clip_2]
-    mock_db_session.exec.return_value = mock_result
+    mock_list = mocker.patch(
+        "jamflow.services.clip.ClipRepository.list",
+        new_callable=mocker.AsyncMock,
+        return_value=[clip_1, clip_2],
+    )
 
     result = await clip_list(mock_db_session)
 
     assert len(result) == 2
     assert isinstance(result[0], ClipReadDto)
     assert result[0].title == "Test Clip 1"
-    mock_db_session.exec.assert_called_once()
+    mock_list.assert_called_once()
     mock_audio_storage.generate_expiring_url.assert_called()
 
 
@@ -144,35 +147,32 @@ async def test_clip_list_filters_by_track_id(
     mocker: MockerFixture,
     mock_db_session,
 ):
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = []
-    mock_db_session.exec.return_value = mock_result
-
-    mock_select = mocker.patch("jamflow.services.clip.select")
-    mock_statement = mock_select.return_value
-    mock_statement.where.return_value = mock_statement
+    mock_list_by_track_id = mocker.patch(
+        "jamflow.services.clip.ClipRepository.list_by_track_id",
+        new_callable=mocker.AsyncMock,
+    )
 
     fake_track_id = uuid.uuid4()
 
     await clip_list(mock_db_session, track_id=fake_track_id)
 
-    mock_statement.where.assert_called_once()
-    args, _ = mock_statement.where.call_args
-    assert str(args[0]) == str(Clip.track_id == fake_track_id)
+    mock_list_by_track_id.assert_called_once_with(track_id=fake_track_id)
 
 
 async def test_clip_list_with_no_clips_returns_empty_list(
     mocker: MockerFixture,
     mock_db_session,
 ):
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = []
-    mock_db_session.exec.return_value = mock_result
+    mock_list = mocker.patch(
+        "jamflow.services.clip.ClipRepository.list",
+        new_callable=mocker.AsyncMock,
+        return_value=[],
+    )
 
     result = await clip_list(mock_db_session)
 
     assert result == []
-    mock_db_session.exec.assert_called_once()
+    mock_list.assert_called_once()
 
 
 async def test_clip_list_with_track_id_filter_returns_filtered_clips(
@@ -181,51 +181,67 @@ async def test_clip_list_with_track_id_filter_returns_filtered_clips(
     clip_1: Clip,
     clip_2: Clip,  # noqa: ARG001
 ):
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = [clip_1]
-    mock_db_session.exec.return_value = mock_result
+    mock_list_by_track_id = mocker.patch(
+        "jamflow.services.clip.ClipRepository.list_by_track_id",
+        new_callable=mocker.AsyncMock,
+        return_value=[clip_1],
+    )
 
     result = await clip_list(mock_db_session, track_id=clip_1.track_id)
 
     assert len(result) == 1
     assert result[0].id == clip_1.id
     assert result[0].title == clip_1.title
-    mock_db_session.exec.assert_called_once()
+    mock_list_by_track_id.assert_called_once()
 
 
 async def test_clip_list_with_non_existent_track_id_returns_empty_list(
     mocker: MockerFixture,
     mock_db_session,
 ):
-    mock_result = mocker.MagicMock()
-    mock_result.all.return_value = []
-    mock_db_session.exec.return_value = mock_result
+    mock_list_by_track_id = mocker.patch(
+        "jamflow.services.clip.ClipRepository.list_by_track_id",
+        new_callable=mocker.AsyncMock,
+        return_value=[],
+    )
 
     result = await clip_list(mock_db_session, track_id=uuid.uuid4())
 
     assert result == []
-    mock_db_session.exec.assert_called_once()
+    mock_list_by_track_id.assert_called_once()
 
 
 async def test_clip_read_returns_clip_dto_and_generates_url(
+    mocker: MockerFixture,
     mock_db_session,
     mock_audio_storage,
     clip_1: Clip,
 ):
-    mock_db_session.get.return_value = clip_1
+    mock_get_by_id = mocker.patch(
+        "jamflow.services.clip.ClipRepository.get_by_id",
+        new_callable=mocker.AsyncMock,
+        return_value=clip_1,
+    )
 
     result = await clip_read(mock_db_session, clip_id=clip_1.id)
 
     assert isinstance(result, ClipReadDto)
     assert result.title == "Test Clip 1"
-    mock_db_session.get.assert_called_once_with(Clip, clip_1.id)
+    mock_get_by_id.assert_called_once_with(clip_1.id)
     mock_audio_storage.generate_expiring_url.assert_called_once_with(clip_1.path)
 
 
-async def test_clip_read_with_missing_clip_raises_error(mock_db_session):
-    mock_db_session.get.return_value = None
+async def test_clip_read_with_missing_clip_raises_error(
+    mocker: MockerFixture,
+    mock_db_session,
+):
+    mock_get_by_id = mocker.patch(
+        "jamflow.services.clip.ClipRepository.get_by_id",
+        new_callable=mocker.AsyncMock,
+        return_value=None,
+    )
 
     with pytest.raises(ResourceNotFoundError, match="Clip not found"):
         await clip_read(mock_db_session, clip_id=uuid.uuid4())
 
-    mock_db_session.get.assert_called_once()
+    mock_get_by_id.assert_called_once()
