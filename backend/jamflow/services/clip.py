@@ -81,7 +81,7 @@ async def clip_list(
 ) -> list[ClipReadDto]:
     clip_repo = ClipRepository(session)
     clips = await (
-        clip_repo.list()
+        clip_repo.list_all()
         if track_id is None
         else clip_repo.list_by_track_id(track_id=track_id)
     )

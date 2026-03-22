@@ -129,7 +129,7 @@ async def test_clip_list_retruns_clip_dtos_and_generates_url(
     clip_2: Clip,
 ):
     mock_list = mocker.patch(
-        "jamflow.services.clip.ClipRepository.list",
+        "jamflow.services.clip.ClipRepository.list_all",
         new_callable=mocker.AsyncMock,
         return_value=[clip_1, clip_2],
     )
@@ -164,7 +164,7 @@ async def test_clip_list_with_no_clips_returns_empty_list(
     mock_db_session,
 ):
     mock_list = mocker.patch(
-        "jamflow.services.clip.ClipRepository.list",
+        "jamflow.services.clip.ClipRepository.list_all",
         new_callable=mocker.AsyncMock,
         return_value=[],
     )

@@ -123,7 +123,7 @@ async def test_list__returns_all_orderd_by_created_at(
     sqli_session.add_all([dummy_1, dummy_2])
     await sqli_session.commit()
 
-    items = await repo.list()
+    items = await repo.list_all()
     assert len(items) == 2
     assert items[0].created_at <= items[1].created_at
 
@@ -131,5 +131,5 @@ async def test_list__returns_all_orderd_by_created_at(
 async def test_list__without_instances_returns_empty(
     repo: DummyRepository,
 ):
-    items = await repo.list()
+    items = await repo.list_all()
     assert len(items) == 0

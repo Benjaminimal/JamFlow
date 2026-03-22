@@ -36,7 +36,7 @@ class SQLModelBaseRepository[M]:
         model = await self._session.get(self.model_class, id)
         return model
 
-    async def list(self) -> Sequence[M]:
+    async def list_all(self) -> Sequence[M]:
         statement = select(self.model_class).order_by(self.model_class.created_at)  # type: ignore [unresolved-attribute]
         result = await self._session.exec(statement)
         return result.all()
