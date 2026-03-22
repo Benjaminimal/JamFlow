@@ -60,11 +60,20 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
     mp3_file,
 ):
     mock_audio_storage.get_file.return_value = open(mp3_file, "rb")
-    mock_db_session.get.return_value = mocker.MagicMock(
-        id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
-        path="path/to/track.mp3",
-        format="mp3",
-        duration=2500,
+    mock_get_by_id = mocker.patch(
+        "jamflow.services.clip.TrackRepository.get_by_id",
+        new_callable=mocker.AsyncMock,
+        return_value=mocker.MagicMock(
+            id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
+            path="path/to/track.mp3",
+            format="mp3",
+            duration=2500,
+        ),
+    )
+    mock_create = mocker.patch(
+        "jamflow.services.clip.ClipRepository.create",
+        new_callable=mocker.AsyncMock,
+        side_effect=lambda x: x,
     )
     clip_create_dto = ClipCreateDto(
         title="Test Clip",
@@ -75,7 +84,8 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
 
     result = await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
 
-    mock_db_session.add.assert_called_once()
+    mock_get_by_id.assert_called_once_with(clip_create_dto.track_id)
+    mock_create.assert_called_once()
 
     assert isinstance(result, ClipReadDto)
     assert result.id is not None
