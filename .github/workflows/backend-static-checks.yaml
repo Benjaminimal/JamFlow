@@ -1,4 +1,4 @@
-name: Backend Lint
+name: Backend Static Checks
 
 on:
   push:
