@@ -6,22 +6,18 @@ echo "Setting up JamFlow development environment..."
 # Check dependencies
 echo "Checking dependencies..."
 command -v uv >/dev/null 2>&1 || {
-	echo "uv not found. Install from https://docs.astral.sh/uv/"
-	exit 1
+  echo "uv not found. Install from https://docs.astral.sh/uv/"
+  exit 1
 }
 command -v node >/dev/null 2>&1 || {
-	echo "Node.js not found. Install from https://nodejs.org/"
-	exit 1
+  echo "Node.js not found. Install from https://nodejs.org/"
+  exit 1
 }
 
 # Backend setup
 echo "Setting up backend..."
-cd backend
-if [ ! -d ".venv" ]; then
-	uv venv
-fi
-uv sync
-cp .env.example .env
+just backend-install-deps
+cd backend && cp .env.example .env
 cd ..
 
 # Frontend setup
