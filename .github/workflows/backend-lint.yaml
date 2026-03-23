@@ -27,4 +27,5 @@ jobs:
         run: just backend-lint
       - name: Typecheck
         run: just backend-typecheck
-      # TODO: check formatting
+      - name: Formatcheck
+        run: just backend-formatcheck
