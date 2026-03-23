@@ -1,3 +1,9 @@
+#=======================================================================
+# Backend - Local
+# Runs directly on the host for speed as these recipes don't need
+# infrastructure
+#=======================================================================
+
 backend-local-cd := "cd ./backend &&"
 backend-local-exec := "cd ./backend && uv run"
 
