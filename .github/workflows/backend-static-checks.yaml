@@ -23,9 +23,39 @@ jobs:
         uses: astral-sh/setup-uv@v5
       - name: Install just
         uses: extractions/setup-just@v3
+
       - name: Lint
-        run: just backend-lint
+        run: just backend-lint || echo "lint failed" > lint-failed
+        continue-on-error: true
+
       - name: Typecheck
-        run: just backend-typecheck
+        run: just backend-typecheck || echo "typecheck failed" > typecheck-failed
+        continue-on-error: true
+
       - name: Formatcheck
-        run: just backend-formatcheck
+        run: just backend-formatcheck || echo "formatcheck failed" > formatcheck-failed
+        continue-on-error: true
+
+      - name: Check Results
+        run: |
+          printf "%-20s | %-10s\n" "Check" "Status"
+          printf "%-20s | %-10s\n" "--------------------" "----------"
+          if [ -f lint-failed ]; then
+            printf "%-20s | %-10s\n" "Linting" "❌ Failed"
+          else
+            printf "%-20s | %-10s\n" "Linting" "✅ Passed"
+          fi
+          if [ -f typecheck-failed ]; then
+            printf "%-20s | %-10s\n" "Type Checking" "❌ Failed"
+          else
+            printf "%-20s | %-10s\n" "Type Checking" "✅ Passed"
+          fi
+          if [ -f formatcheck-failed ]; then
+            printf "%-20s | %-10s\n" "Formatting" "❌ Failed"
+          else
+            printf "%-20s | %-10s\n" "Formatting" "✅ Passed"
+          fi
+          if [ -f lint-failed ] || [ -f typecheck-failed ] || [ -f formatcheck-failed ]; then
+            exit 1
+          fi
+        shell: bash
