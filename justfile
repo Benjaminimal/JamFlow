@@ -6,3 +6,6 @@ backend-install-deps:
 
 backend-lint: backend-install-deps
     {{ backend-local-exec }} ruff check jamflow tests
+
+backend-typecheck: backend-install-deps
+    {{ backend-local-exec }} mypy .

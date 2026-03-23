@@ -25,4 +25,6 @@ jobs:
         uses: extractions/setup-just@v3
       - name: Lint
         run: just backend-lint
+      - name: Typecheck
+        run: just backend-typecheck
       # TODO: check formatting
