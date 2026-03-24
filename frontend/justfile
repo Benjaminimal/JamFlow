@@ -1,3 +1,9 @@
+#=======================================================================
+# Public Interface
+# These recipes must be implemented by this justfile as the top level
+# expects them to be defined.
+# =======================================================================
+
 test: setup
     npm run test
 
@@ -12,3 +18,11 @@ typecheck: setup
 
 setup:
     npm install
+
+#=======================================================================
+# Private Interface
+# Only available within the scope of this project.
+# =======================================================================
+
+build: setup
+    npm run build
