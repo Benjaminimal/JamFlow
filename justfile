@@ -1,3 +1,6 @@
+test project:
+    just --justfile {{ project }}/justfile test
+
 lint project:
     just --justfile {{ project }}/justfile lint
 

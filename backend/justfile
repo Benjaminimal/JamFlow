@@ -4,6 +4,9 @@
 # infrastructure
 # =======================================================================
 
+# TODO: fill this empty recipe
+test:
+
 lint: setup
     uv run ruff check jamflow tests
 
