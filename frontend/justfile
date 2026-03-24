@@ -1,0 +1,11 @@
+lint: setup
+    npm run lint:check
+
+formatcheck: setup
+    npm run format:check
+
+typecheck: setup
+    npm run typecheck
+
+setup:
+    npm install
