@@ -16,7 +16,7 @@ command -v node >/dev/null 2>&1 || {
 
 # Backend setup
 echo "Setting up backend..."
-just backend-install-deps
+just setup backend
 cd backend && cp .env.example .env
 cd ..
 

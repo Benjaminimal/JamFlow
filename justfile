@@ -1,20 +1,11 @@
-#=======================================================================
-# Backend - Local
-# Runs directly on the host for speed as these recipes don't need
-# infrastructure
-#=======================================================================
+lint project:
+    just --justfile {{ project }}/justfile lint
 
-backend-local-cd := "cd ./backend &&"
-backend-local-exec := "cd ./backend && uv run"
+typecheck project:
+    just --justfile {{ project }}/justfile typecheck
 
-backend-install-deps:
-    {{ backend-local-cd }} uv sync --frozen --group dev --group test
+formatcheck project:
+    just --justfile {{ project }}/justfile formatcheck
 
-backend-lint: backend-install-deps
-    {{ backend-local-exec }} ruff check jamflow tests
-
-backend-formatcheck: backend-install-deps
-    {{ backend-local-exec }} ruff format --check jamflow tests
-
-backend-typecheck: backend-install-deps
-    {{ backend-local-exec }} mypy .
+setup project:
+    just --justfile {{ project }}/justfile setup

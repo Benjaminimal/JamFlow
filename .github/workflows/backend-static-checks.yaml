@@ -25,15 +25,15 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Lint
-        run: just backend-lint || echo "lint failed" > lint-failed
+        run: just lint backend|| echo "lint failed" > lint-failed
         continue-on-error: true
 
       - name: Typecheck
-        run: just backend-typecheck || echo "typecheck failed" > typecheck-failed
+        run: just typecheck backend|| echo "typecheck failed" > typecheck-failed
         continue-on-error: true
 
       - name: Formatcheck
-        run: just backend-formatcheck || echo "formatcheck failed" > formatcheck-failed
+        run: just formatcheck backend|| echo "formatcheck failed" > formatcheck-failed
         continue-on-error: true
 
       - name: Check Results

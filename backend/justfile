@@ -1,0 +1,17 @@
+#=======================================================================
+# Local Checks
+# Run directly on the host for speed as these recipes don't need
+# infrastructure
+# =======================================================================
+
+lint: setup
+    uv run ruff check jamflow tests
+
+formatcheck: setup
+    uv run ruff format --check jamflow tests
+
+typecheck: setup
+    uv run mypy .
+
+setup:
+    uv sync --frozen --group dev --group test
