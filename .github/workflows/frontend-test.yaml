@@ -23,4 +23,4 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Run tests
-        run: just test frontend
+        run: just frontend test

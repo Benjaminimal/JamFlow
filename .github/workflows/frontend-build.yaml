@@ -10,9 +10,6 @@ on:
 jobs:
   frontend-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
@@ -23,4 +20,4 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Build frontend
-        run: just build
+        run: just frontend build

@@ -23,15 +23,15 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Lint
-        run: just lint frontend|| echo "lint failed" > lint-failed
+        run: just frontend lint || echo "lint failed" > lint-failed
         continue-on-error: true
 
       - name: Typecheck
-        run: just typecheck frontend|| echo "typecheck failed" > typecheck-failed
+        run: just frontend typecheck || echo "typecheck failed" > typecheck-failed
         continue-on-error: true
 
       - name: Formatcheck
-        run: just formatcheck frontend|| echo "formatcheck failed" > formatcheck-failed
+        run: just frontend formatcheck || echo "formatcheck failed" > formatcheck-failed
         continue-on-error: true
 
       - name: Check Results
