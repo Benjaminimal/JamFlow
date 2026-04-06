@@ -7,8 +7,8 @@ default:
 # infrastructure
 # =======================================================================
 
-# TODO: fill this empty recipe
-test:
+test *ARGS:
+    uv run pytest {{ ARGS }}
 
 lint: setup
     uv run ruff check jamflow tests
