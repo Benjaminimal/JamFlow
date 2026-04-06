@@ -1,0 +1,31 @@
+default:
+    @just --list --list-submodules
+
+#=======================================================================
+# Public Interface
+# These recipes must be implemented by this justfile as the top level
+# expects them to be defined.
+# =======================================================================
+
+test: setup
+    npm run test
+
+lint: setup
+    npm run lint:check
+
+formatcheck: setup
+    npm run format:check
+
+typecheck: setup
+    npm run typecheck
+
+setup:
+    npm install
+
+#=======================================================================
+# Private Interface
+# Only available within the scope of this project.
+# =======================================================================
+
+build: setup
+    npm run build
