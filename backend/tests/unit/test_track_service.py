@@ -24,7 +24,7 @@ def mock_audio_storage(mocker: MockerFixture):
     mock_storage_service = mocker.AsyncMock()
     mock_storage_service.generate_expiring_url.return_value = "http://example.com/track"
     mock_get_audio_storage_service = mocker.patch(
-        "jamflow.services.track.get_audio_storage_service"
+        "jamflow.recordings.services.track.get_audio_storage_service"
     )
     mock_get_audio_storage_service.return_value.__aenter__.return_value = (
         mock_storage_service
@@ -126,7 +126,7 @@ async def test_track_create_raises_validation_exception_when_audio_duration_fail
     track_create_dto: TrackCreateDto,
 ):
     mocker.patch(
-        "jamflow.services.track.get_audio_duration",
+        "jamflow.recordings.services.track.get_audio_duration",
         side_effect=ValidationError("Test error"),
     )
 
@@ -142,7 +142,7 @@ async def test_track_list_returns_track_dtos_and_generates_url(
     track_2: Track,
 ):
     mock_list_all = mocker.patch(
-        "jamflow.services.track.TrackRepository.list_all",
+        "jamflow.recordings.services.track.TrackRepository.list_all",
         new_callable=mocker.AsyncMock,
         return_value=[track_1, track_2],
     )
@@ -163,7 +163,7 @@ async def test_track_read_returns_track_dto_and_generates_urls(
     track_1: Track,
 ):
     mock_get_by_id = mocker.patch(
-        "jamflow.services.track.TrackRepository.get_by_id",
+        "jamflow.recordings.services.track.TrackRepository.get_by_id",
         new_callable=mocker.AsyncMock,
         return_value=track_1,
     )
@@ -181,7 +181,7 @@ async def test_track_read_with_missing_track_rasies_error(
     mock_db_session,
 ):
     mock_get_by_id = mocker.patch(
-        "jamflow.services.track.TrackRepository.get_by_id",
+        "jamflow.recordings.services.track.TrackRepository.get_by_id",
         new_callable=mocker.AsyncMock,
         return_value=None,
     )
@@ -205,7 +205,7 @@ async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
     expires_at_max = expires_at_min + timedelta(seconds=1)
 
     mock_list_by_ids = mocker.patch(
-        "jamflow.services.track.TrackRepository.list_by_ids",
+        "jamflow.recordings.services.track.TrackRepository.list_by_ids",
         new_callable=mocker.AsyncMock,
         return_value=[track_1, track_2],
     )
