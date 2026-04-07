@@ -27,7 +27,7 @@ def test_str_enum_column_passes_kwargs(
     mocker: MockerFixture,
     str_enum_class,
 ):
-    mock_column = mocker.patch("jamflow.models.enums.Column")
+    mock_column = mocker.patch("jamflow.core.models.enums.Column")
 
     str_enum_to_sa_column(str_enum_class, nullable=True, default="VALUE_ONE")
     mock_column.assert_called_once_with(mocker.ANY, nullable=True, default="VALUE_ONE")
