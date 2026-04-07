@@ -1,3 +1,13 @@
+from typing import Annotated
+
+from pydantic import StringConstraints
+
+NonBlankBoundedString = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, min_length=1, max_length=255),
+]
+
+
 def empty_string_to_none(value: str | None) -> str | None:
     """
     This validator can be used in the `BeforeValidator` to ensure that

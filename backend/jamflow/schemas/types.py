@@ -1,8 +1,2 @@
-from typing import Annotated
-
-from pydantic import StringConstraints
-
-NonBlankBoundedString = Annotated[
-    str,
-    StringConstraints(strip_whitespace=True, min_length=1, max_length=255),
-]
+# TODO: remove me
+from jamflow.core.validators import NonBlankBoundedString  # noqa: F401
