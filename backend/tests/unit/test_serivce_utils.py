@@ -10,7 +10,7 @@ from jamflow.services.utils import generate_clip_path, generate_track_path
 def test_generate_track_path_returns_path_nested_by_year_and_month(
     mocker: MockerFixture,
 ):
-    mock_timezone_now = mocker.patch("jamflow.services.utils.timezone_now")
+    mock_timezone_now = mocker.patch("jamflow.recordings.services.utils.timezone_now")
     mock_timezone_now.return_value = datetime(2023, 1, 1, 1, 1, 1)
 
     hex_digest = "1234567890abcdef1234567890abcdef"
