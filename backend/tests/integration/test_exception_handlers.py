@@ -284,7 +284,7 @@ async def test_timestamp_in_error_response(
 ):
     fixed_dt = datetime.datetime(2020, 3, 2, 11, 32, 11)
     mocker.patch(
-        "jamflow.schemas.error.timezone_now",
+        "jamflow.api.v1.schemas.timezone_now",
         return_value=fixed_dt,
     )
 
