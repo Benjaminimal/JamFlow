@@ -35,7 +35,7 @@ async def test_request_details_logged(
     assert_log_records,
 ) -> None:
     static_uuid = "123e4567-e89b-12d3-a456-426614174000"
-    mocker.patch("jamflow.api.middlewares.uuid.uuid4", return_value=static_uuid)
+    mocker.patch("jamflow.infra.api.middlewares.uuid.uuid4", return_value=static_uuid)
 
     @app.get("/test-logging")
     async def test_logging():

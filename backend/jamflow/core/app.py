@@ -2,21 +2,21 @@ from fastapi import FastAPI, status
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-from jamflow.api import router as api_router
-from jamflow.api.exception_handlers import (
+from jamflow.core.config import settings
+from jamflow.core.exceptions import ApplicationError
+from jamflow.core.log import configure_logging
+from jamflow.infra.api import router as api_router
+from jamflow.infra.api.exception_handlers import (
     application_exception_handler,
     external_exception_handler,
     fast_api_http_exception_handler,
     fast_api_validation_exception_handler,
     page_not_found_handler,
 )
-from jamflow.api.middlewares import (
+from jamflow.infra.api.middlewares import (
     request_bind_log_context_middleware,
     request_id_middleware,
 )
-from jamflow.core.config import settings
-from jamflow.core.exceptions import ApplicationError
-from jamflow.core.log import configure_logging
 
 
 def create_app() -> FastAPI:

@@ -8,10 +8,6 @@ from fastapi import FastAPI, HTTPException, Query
 from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
 
-from jamflow.api.exception_handlers import (
-    get_error_code,
-    get_http_status,
-)
 from jamflow.core.exceptions import (
     ApplicationError,
     AuthenticationError,
@@ -25,6 +21,10 @@ from jamflow.core.exceptions import (
     ResourceNotFoundError,
     StorageError,
     ValidationError,
+)
+from jamflow.infra.api.exception_handlers import (
+    get_error_code,
+    get_http_status,
 )
 
 
@@ -284,7 +284,7 @@ async def test_timestamp_in_error_response(
 ):
     fixed_dt = datetime.datetime(2020, 3, 2, 11, 32, 11)
     mocker.patch(
-        "jamflow.api.v1.schemas.timezone_now",
+        "jamflow.infra.api.v1.schemas.timezone_now",
         return_value=fixed_dt,
     )
 

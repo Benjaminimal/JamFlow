@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from pydantic import UUID4
 
-from jamflow.api.deps import SessionDep
+from jamflow.infra.api.deps import SessionDep
 from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
 from jamflow.recordings.services.clip import clip_create, clip_list, clip_read
 

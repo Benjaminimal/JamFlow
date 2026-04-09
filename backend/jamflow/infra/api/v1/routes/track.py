@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Form, Query, status
 from pydantic import UUID4
 
-from jamflow.api.deps import SessionDep
+from jamflow.infra.api.deps import SessionDep
 from jamflow.recordings.schemas import (
     TrackCreateDto,
     TrackReadDto,
