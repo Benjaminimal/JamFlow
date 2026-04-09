@@ -3,7 +3,7 @@ from typing import Sequence
 
 from sqlmodel import col, select
 
-from jamflow.core.repositories import SQLModelBaseRepository
+from jamflow.infra.database.repositories import SQLModelBaseRepository
 from jamflow.recordings.models import Clip, Track
 
 
