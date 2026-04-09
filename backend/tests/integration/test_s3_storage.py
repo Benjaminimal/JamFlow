@@ -3,7 +3,7 @@ from types_aiobotocore_s3.client import S3Client
 
 from jamflow.core.config import settings
 from jamflow.core.exceptions import StorageError
-from jamflow.services.storage.s3 import S3StorageService, get_storage_client
+from jamflow.infra.storage.s3 import S3StorageService, get_storage_client
 
 TEST_BUCKET_NAME = "test-storage-service-bucket"
 

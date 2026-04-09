@@ -9,11 +9,11 @@ from jamflow.infra.audio import (
     get_audio_mime_type,
     get_file_size,
 )
+from jamflow.infra.storage import get_audio_storage_service
 from jamflow.recordings.models import Clip
 from jamflow.recordings.repositories import ClipRepository, TrackRepository
 from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
 from jamflow.recordings.services.utils import generate_clip_path
-from jamflow.services.storage import get_audio_storage_service
 
 logger = get_logger()
 

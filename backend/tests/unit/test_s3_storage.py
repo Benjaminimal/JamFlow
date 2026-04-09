@@ -4,7 +4,7 @@ from botocore.exceptions import BotoCoreError
 from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import StorageError
-from jamflow.services.storage.s3 import S3StorageService
+from jamflow.infra.storage.s3 import S3StorageService
 
 
 @pytest.fixture
@@ -12,14 +12,14 @@ def mock_s3_client(mocker: MockerFixture):
     # mock the S3 client used by the S3StorageService
     mock_client = mocker.AsyncMock()
     # make get_storage_client return the mock client
-    mock_get = mocker.patch("jamflow.services.storage.s3.get_storage_client")
+    mock_get = mocker.patch("jamflow.infra.storage.s3.get_storage_client")
     mock_get.return_value = mock_client
     return mock_client
 
 
 async def test_raises_storage_exception_on_invalid_credentials(mocker: MockerFixture):
     # raise an exception to simulate invalid credentials
-    mock_session = mocker.patch("jamflow.services.storage.s3.get_session")
+    mock_session = mocker.patch("jamflow.infra.storage.s3.get_session")
     mock_session.return_value.create_client.side_effect = BotoCoreError()
 
     with pytest.raises(StorageError):
@@ -157,7 +157,7 @@ async def test_generate_expiring_url_returns_url_on_success(
     )
 
     # mock replace_base_url to simulate replacing the base URL
-    mock_replace = mocker.patch("jamflow.services.storage.s3.replace_base_url")
+    mock_replace = mocker.patch("jamflow.infra.storage.s3.replace_base_url")
     mock_replace.return_value = "https://public.example.com/presigned-url"
 
     async with S3StorageService("test-bucket") as service:
