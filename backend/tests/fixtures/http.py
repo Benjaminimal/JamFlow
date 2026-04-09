@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from jamflow.core.database import get_session
+from jamflow.infra.database import get_session
 
 
 @pytest.fixture
