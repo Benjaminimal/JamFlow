@@ -5,15 +5,15 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
 from jamflow.core.exceptions import ResourceNotFoundError
-from jamflow.recordings.models import Track
-from jamflow.recordings.repositories import TrackRepository
-from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
-from jamflow.recordings.services.utils import generate_track_path
-from jamflow.services.audio import (
+from jamflow.infra.audio import (
     get_audio_duration,
     get_audio_file_format,
     get_audio_mime_type,
 )
+from jamflow.recordings.models import Track
+from jamflow.recordings.repositories import TrackRepository
+from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
+from jamflow.recordings.services.utils import generate_track_path
 from jamflow.services.storage import get_audio_storage_service
 from jamflow.utils import timezone_now
 

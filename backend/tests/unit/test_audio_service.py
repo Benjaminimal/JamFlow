@@ -8,7 +8,7 @@ from pydub import AudioSegment
 from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import BusinessLogicError, ValidationError
-from jamflow.services.audio import (
+from jamflow.infra.audio import (
     AudioFileFormat,
     AudioMimeType,
     clip_audio_file,
@@ -47,7 +47,7 @@ def test_get_audio_file_format_with_unsupported_type_raises_exception(
 def test_get_audio_duration_for_valid_mp3_file_returns_duration_in_milliseconds(
     mocker: MockerFixture,
 ):
-    mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
+    mock_mp3 = mocker.patch("jamflow.infra.audio.MP3")
     mock_metadata = MagicMock()
     mock_metadata.info.length = 5.0  # 5 seconds
     mock_mp3.return_value = mock_metadata
@@ -59,7 +59,7 @@ def test_get_audio_duration_for_valid_mp3_file_returns_duration_in_milliseconds(
 def test_get_audio_duration_with_metadata_error_raises_audio_service_exception(
     mocker: MockerFixture,
 ):
-    mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
+    mock_mp3 = mocker.patch("jamflow.infra.audio.MP3")
     mock_mp3.side_effect = MutagenError("Metadata error")
 
     with pytest.raises(ValidationError, match="Failed to read metadata"):
@@ -69,7 +69,7 @@ def test_get_audio_duration_with_metadata_error_raises_audio_service_exception(
 def test_get_audio_duration_without_metadata_raises_audio_service_exception(
     mocker: MockerFixture,
 ):
-    mock_mp3 = mocker.patch("jamflow.services.audio.MP3")
+    mock_mp3 = mocker.patch("jamflow.infra.audio.MP3")
     mock_metadata = MagicMock(info=None)
     mock_mp3.return_value = mock_metadata
 

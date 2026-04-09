@@ -4,15 +4,15 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.core.log import get_logger
-from jamflow.recordings.models import Clip
-from jamflow.recordings.repositories import ClipRepository, TrackRepository
-from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
-from jamflow.recordings.services.utils import generate_clip_path
-from jamflow.services.audio import (
+from jamflow.infra.audio import (
     clip_audio_file,
     get_audio_mime_type,
     get_file_size,
 )
+from jamflow.recordings.models import Clip
+from jamflow.recordings.repositories import ClipRepository, TrackRepository
+from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
+from jamflow.recordings.services.utils import generate_clip_path
 from jamflow.services.storage import get_audio_storage_service
 
 logger = get_logger()
