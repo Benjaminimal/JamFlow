@@ -1,7 +1,7 @@
 import pytest
 from fastapi import FastAPI
 
-from jamflow.core.app import create_app
+from jamflow.infra.api.app import create_app
 
 
 @pytest.fixture(scope="session")
