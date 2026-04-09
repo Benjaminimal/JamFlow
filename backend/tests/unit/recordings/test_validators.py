@@ -1,22 +1,9 @@
 import pytest
 
-from jamflow.core.validators import empty_string_to_none
 from jamflow.recordings.validators import (
     get_file_size_validator,
     validate_audo_file_format,
 )
-
-
-def test_empty_string_to_none_casts_empty_string():
-    assert empty_string_to_none("") is None
-
-
-def test_empty_string_to_none_keeps_none():
-    assert empty_string_to_none(None) is None
-
-
-def test_empty_string_to_none_keeps_none_empty():
-    assert empty_string_to_none("test") == "test"
 
 
 @pytest.mark.parametrize(
