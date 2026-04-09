@@ -8,8 +8,8 @@ from sqlalchemy.exc import SAWarning
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.exceptions import DuplicateEntityError
+from jamflow.infra.database.models import BaseSQLModel
 from jamflow.infra.database.repositories import SQLModelBaseRepository
-from jamflow.infra.models import BaseSQLModel
 
 pytestmark = [pytest.mark.asyncio]
 

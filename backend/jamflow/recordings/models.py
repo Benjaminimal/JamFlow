@@ -4,7 +4,7 @@ from enum import StrEnum
 from pydantic import UUID4
 from sqlmodel import Field
 
-from jamflow.infra.models import BaseSQLModel, str_enum_to_sa_column
+from jamflow.infra.database.models import BaseSQLModel, str_enum_to_sa_column
 
 
 class AudioFileFormat(StrEnum):
