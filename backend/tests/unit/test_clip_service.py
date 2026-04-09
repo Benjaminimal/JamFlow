@@ -4,8 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
-from jamflow.core.models import AudioFileFormat
-from jamflow.recordings.models import Clip
+from jamflow.recordings.models import AudioFileFormat, Clip
 from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
 from jamflow.recordings.services.clip import clip_create, clip_list, clip_read
 

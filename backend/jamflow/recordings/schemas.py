@@ -12,8 +12,8 @@ from pydantic import (
     model_validator,
 )
 
-from jamflow.core.models import AudioFileFormat
 from jamflow.core.validators import NonBlankBoundedString, empty_string_to_none
+from jamflow.recordings.models import AudioFileFormat
 from jamflow.recordings.validators import (
     get_file_size_validator,
     validate_audo_file_format,

@@ -4,8 +4,7 @@ from datetime import date
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from jamflow.core.models import AudioFileFormat
-from jamflow.recordings.models import Clip, Track
+from jamflow.recordings.models import AudioFileFormat, Clip, Track
 from jamflow.recordings.repositories import ClipRepository
 
 pytestmark = [pytest.mark.asyncio]

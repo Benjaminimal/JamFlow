@@ -17,10 +17,3 @@ def str_enum_to_sa_column(
         SQLEnum(*(str(v) for v in str_enum), name=str_enum.__name__.lower()),
         **enum_kwargs,
     )
-
-
-# TODO: move into domain/service
-class AudioFileFormat(StrEnum):
-    MP3 = "mp3"
-    WAV = "wav"
-    OGG = "ogg"

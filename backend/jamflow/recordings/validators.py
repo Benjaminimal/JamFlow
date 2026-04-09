@@ -3,7 +3,7 @@ from collections.abc import Callable
 from fastapi import UploadFile
 
 from jamflow.core.exceptions import ValidationError
-from jamflow.core.models import AudioFileFormat
+from jamflow.recordings.models import AudioFileFormat
 from jamflow.services.audio import get_audio_file_format
 
 

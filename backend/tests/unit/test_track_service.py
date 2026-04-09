@@ -7,8 +7,7 @@ from fastapi import UploadFile
 from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
-from jamflow.core.models import AudioFileFormat
-from jamflow.recordings.models import Track
+from jamflow.recordings.models import AudioFileFormat, Track
 from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.recordings.services.track import (
     track_create,

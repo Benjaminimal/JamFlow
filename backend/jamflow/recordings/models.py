@@ -1,9 +1,16 @@
 from datetime import date
+from enum import StrEnum
 
 from pydantic import UUID4
 from sqlmodel import Field
 
-from jamflow.core.models import AudioFileFormat, BaseSQLModel, str_enum_to_sa_column
+from jamflow.core.models import BaseSQLModel, str_enum_to_sa_column
+
+
+class AudioFileFormat(StrEnum):
+    MP3 = "mp3"
+    WAV = "wav"
+    OGG = "ogg"
 
 
 class Track(BaseSQLModel, table=True):
