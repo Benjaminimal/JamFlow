@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from jamflow.core.config import settings
-from jamflow.services.storage import get_audio_storage_service
+from jamflow.infra.storage import get_audio_storage_service
 
 
 @pytest.fixture(scope="session", autouse=True)
