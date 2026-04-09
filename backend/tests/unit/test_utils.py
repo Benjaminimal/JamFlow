@@ -1,6 +1,6 @@
 import pytest
 
-from jamflow.utils import replace_base_url
+from jamflow.infra.storage.utils import replace_base_url
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,7 @@ import enum
 
 from pydantic import BaseModel, Field
 
-from jamflow.utils import timezone_now
+from jamflow.core.utils import timezone_now
 
 
 @enum.unique

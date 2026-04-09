@@ -7,6 +7,7 @@ from fastapi import UploadFile
 from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
+from jamflow.core.utils import timezone_now
 from jamflow.recordings.models import AudioFileFormat, Track
 from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.recordings.services.track import (
@@ -15,7 +16,6 @@ from jamflow.recordings.services.track import (
     track_list,
     track_read,
 )
-from jamflow.utils import timezone_now
 
 
 @pytest.fixture

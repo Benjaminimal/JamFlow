@@ -9,7 +9,7 @@ from types_aiobotocore_s3.client import S3Client
 from jamflow.core.config import settings
 from jamflow.core.exceptions import StorageError
 from jamflow.core.log import bind_log_context, get_logger, unbind_log_context
-from jamflow.utils import replace_base_url
+from jamflow.infra.storage.utils import replace_base_url
 
 logger = get_logger()
 

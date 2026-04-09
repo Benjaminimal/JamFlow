@@ -1,10 +1,4 @@
-from datetime import UTC, datetime, timezone
 from urllib.parse import urlparse, urlunparse
-
-
-def timezone_now(tz: timezone = UTC) -> datetime:
-    """Return the current datetime in the given timezone."""
-    return datetime.now(tz)
 
 
 def replace_base_url(url: str, new_base: str) -> str:

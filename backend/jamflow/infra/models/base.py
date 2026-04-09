@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlmodel import DateTime, Field, SQLModel
 
-from jamflow.utils import timezone_now
+from jamflow.core.utils import timezone_now
 
 
 class BaseSQLModel(SQLModel):

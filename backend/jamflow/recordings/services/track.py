@@ -5,6 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
 from jamflow.core.exceptions import ResourceNotFoundError
+from jamflow.core.utils import timezone_now
 from jamflow.infra.audio import (
     get_audio_duration,
     get_audio_file_format,
@@ -15,7 +16,6 @@ from jamflow.recordings.models import Track
 from jamflow.recordings.repositories import TrackRepository
 from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.recordings.services.utils import generate_track_path
-from jamflow.utils import timezone_now
 
 logger = get_logger()
 

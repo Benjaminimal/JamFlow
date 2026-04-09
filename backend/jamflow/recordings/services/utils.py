@@ -1,6 +1,6 @@
 import uuid
 
-from jamflow.utils import timezone_now
+from jamflow.core.utils import timezone_now
 
 
 def generate_track_path(unique_id: uuid.UUID, extension: str) -> str:
