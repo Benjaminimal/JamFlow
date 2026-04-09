@@ -4,7 +4,7 @@ import pytest
 from fastapi import UploadFile
 from pydantic import ValidationError
 
-from jamflow.schemas.track import TrackCreateDto
+from jamflow.recordings.schemas import TrackCreateDto
 
 
 @pytest.mark.parametrize("recorded_date", ["", None, date.today()])

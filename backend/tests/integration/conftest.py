@@ -2,10 +2,14 @@ import pytest
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import col, func, select
 
-from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
-from jamflow.schemas.track import TrackCreateDto, TrackReadDto
-from jamflow.services.clip import clip_create
-from jamflow.services.track import track_create
+from jamflow.recordings.schemas import (
+    ClipCreateDto,
+    ClipReadDto,
+    TrackCreateDto,
+    TrackReadDto,
+)
+from jamflow.recordings.services.clip import clip_create
+from jamflow.recordings.services.track import track_create
 
 
 @pytest.fixture

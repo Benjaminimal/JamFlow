@@ -6,8 +6,8 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from jamflow.models.track import Track
-from jamflow.schemas.track import TrackReadDto
+from jamflow.recordings.models import Track
+from jamflow.recordings.schemas import TrackReadDto
 from jamflow.utils import timezone_now
 
 pytestmark = pytest.mark.usefixtures("audio_storage")

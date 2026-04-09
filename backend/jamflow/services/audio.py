@@ -10,7 +10,7 @@ from mutagen.wave import WAVE
 from pydub import AudioSegment  # type: ignore [import-untyped]
 
 from jamflow.core.exceptions import BusinessLogicError, ValidationError
-from jamflow.models.enums import AudioFileFormat
+from jamflow.core.models import AudioFileFormat
 
 
 class AudioMimeType(StrEnum):

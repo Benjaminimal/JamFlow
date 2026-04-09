@@ -1,7 +1,7 @@
 import pytest
 
-from jamflow.schemas.validators import (
-    empty_string_to_none,
+from jamflow.core.validators import empty_string_to_none
+from jamflow.recordings.validators import (
     get_file_size_validator,
     validate_audo_file_format,
 )

@@ -3,7 +3,7 @@ from enum import StrEnum
 import pytest
 from pytest_mock import MockerFixture
 
-from jamflow.models.enums import str_enum_to_sa_column
+from jamflow.core.models import str_enum_to_sa_column
 
 
 @pytest.fixture

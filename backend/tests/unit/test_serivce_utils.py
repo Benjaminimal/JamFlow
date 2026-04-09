@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest
 from pytest_mock import MockerFixture
 
-from jamflow.services.utils import generate_clip_path, generate_track_path
+from jamflow.recordings.services.utils import generate_clip_path, generate_track_path
 
 
 def test_generate_track_path_returns_path_nested_by_year_and_month(

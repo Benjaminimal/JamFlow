@@ -2,8 +2,8 @@ from fastapi import APIRouter, status
 from pydantic import UUID4
 
 from jamflow.api.deps import SessionDep
-from jamflow.schemas.clip import ClipCreateDto, ClipReadDto
-from jamflow.services.clip import clip_create, clip_list, clip_read
+from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
+from jamflow.recordings.services.clip import clip_create, clip_list, clip_read
 
 router = APIRouter(prefix="/clips", tags=["clips"])
 

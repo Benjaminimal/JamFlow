@@ -4,8 +4,12 @@ from fastapi import APIRouter, Form, Query, status
 from pydantic import UUID4
 
 from jamflow.api.deps import SessionDep
-from jamflow.schemas.track import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
-from jamflow.services.track import (
+from jamflow.recordings.schemas import (
+    TrackCreateDto,
+    TrackReadDto,
+    TrackSignedUrlDto,
+)
+from jamflow.recordings.services.track import (
     track_create,
     track_generate_signed_urls,
     track_list,

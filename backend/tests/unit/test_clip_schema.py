@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from jamflow.schemas.clip import ClipCreateDto
+from jamflow.recordings.schemas import ClipCreateDto
 
 
 @pytest.fixture

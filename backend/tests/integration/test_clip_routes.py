@@ -4,9 +4,8 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from jamflow.models.clip import Clip
-from jamflow.schemas.clip import ClipReadDto
-from jamflow.schemas.track import TrackReadDto
+from jamflow.recordings.models import Clip
+from jamflow.recordings.schemas import ClipReadDto, TrackReadDto
 
 
 @pytest.fixture

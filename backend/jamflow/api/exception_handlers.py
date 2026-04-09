@@ -2,6 +2,7 @@ from fastapi import Request, Response, status
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
+from jamflow.api.v1.schemas import ApiErrorDto, ErrorCode, ErrorDetailDto
 from jamflow.core.exceptions import (
     ApplicationError,
     AuthenticationError,
@@ -17,7 +18,6 @@ from jamflow.core.exceptions import (
     ValidationError,
 )
 from jamflow.core.log import get_logger
-from jamflow.schemas.error import ApiErrorDto, ErrorCode, ErrorDetailDto
 
 logger = get_logger()
 
