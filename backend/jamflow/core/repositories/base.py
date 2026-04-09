@@ -6,7 +6,7 @@ from sqlmodel import col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.exceptions import DuplicateEntityError
-from jamflow.core.models import BaseSQLModel
+from jamflow.infra.models import BaseSQLModel
 
 
 class SQLModelBaseRepository[M: BaseSQLModel]:
