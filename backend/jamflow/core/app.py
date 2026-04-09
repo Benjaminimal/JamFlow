@@ -10,13 +10,13 @@ from jamflow.api.exception_handlers import (
     fast_api_validation_exception_handler,
     page_not_found_handler,
 )
-from jamflow.core.config import settings
-from jamflow.core.exceptions import ApplicationError
-from jamflow.core.log import configure_logging
-from jamflow.core.middlewares import (
+from jamflow.api.middlewares import (
     request_bind_log_context_middleware,
     request_id_middleware,
 )
+from jamflow.core.config import settings
+from jamflow.core.exceptions import ApplicationError
+from jamflow.core.log import configure_logging
 
 
 def create_app() -> FastAPI:
