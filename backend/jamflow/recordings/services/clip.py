@@ -16,7 +16,7 @@ from jamflow.infra.database.repositories import (
 from jamflow.infra.storage import get_audio_storage_service
 from jamflow.recordings.models import Clip
 from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
-from jamflow.recordings.services.utils import generate_clip_path
+from jamflow.recordings.utils import generate_clip_path
 
 logger = get_logger()
 

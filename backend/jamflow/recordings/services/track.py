@@ -15,7 +15,7 @@ from jamflow.infra.database.repositories import SQLModelTrackRepository
 from jamflow.infra.storage import get_audio_storage_service
 from jamflow.recordings.models import Track
 from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
-from jamflow.recordings.services.utils import generate_track_path
+from jamflow.recordings.utils import generate_track_path
 
 logger = get_logger()
 
