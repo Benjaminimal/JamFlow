@@ -4,15 +4,14 @@ from contextlib import asynccontextmanager
 from jamflow.core.config import settings
 
 from .s3 import S3StorageService
-from .types import StorageService
 
 __all__ = [
-    "StorageService",
     "get_audio_storage_service",
 ]
 
 
+# TODO: remove when services are gone
 @asynccontextmanager
-async def get_audio_storage_service() -> AsyncIterator[StorageService]:
+async def get_audio_storage_service() -> AsyncIterator[S3StorageService]:
     async with S3StorageService(settings.STORAGE_NAME_AUDIO) as service:
         yield service
