@@ -9,9 +9,12 @@ from jamflow.infra.audio import (
     get_audio_mime_type,
     get_file_size,
 )
+from jamflow.infra.database.repositories import (
+    SQLModelClipRepository,
+    SQLModelTrackRepository,
+)
 from jamflow.infra.storage import get_audio_storage_service
 from jamflow.recordings.models import Clip
-from jamflow.recordings.repositories import ClipRepository, TrackRepository
 from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
 from jamflow.recordings.services.utils import generate_clip_path
 
@@ -21,7 +24,7 @@ logger = get_logger()
 async def clip_create(
     session: AsyncSession, *, clip_create_dto: ClipCreateDto
 ) -> ClipReadDto:
-    track_repo = TrackRepository(session)
+    track_repo = SQLModelTrackRepository(session)
     track = await track_repo.get_by_id(clip_create_dto.track_id)
     if track is None:
         raise ResourceNotFoundError("Track not found")
@@ -64,7 +67,7 @@ async def clip_create(
         },
     )
 
-    clip_repo = ClipRepository(session)
+    clip_repo = SQLModelClipRepository(session)
     clip = await clip_repo.create(clip)
     await session.commit()
     await logger.ainfo("Clip created", clip_id=clip.id)
@@ -79,7 +82,7 @@ async def clip_list(
     session: AsyncSession,
     track_id: uuid.UUID | None = None,
 ) -> list[ClipReadDto]:
-    clip_repo = ClipRepository(session)
+    clip_repo = SQLModelClipRepository(session)
     clips = await (
         clip_repo.list_all()
         if track_id is None
@@ -100,7 +103,7 @@ async def clip_read(
     session: AsyncSession,
     clip_id: uuid.UUID,
 ) -> ClipReadDto:
-    clip_repo = ClipRepository(session)
+    clip_repo = SQLModelClipRepository(session)
     clip = await clip_repo.get_by_id(clip_id)
     if clip is None:
         raise ResourceNotFoundError("Clip not found")

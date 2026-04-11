@@ -4,15 +4,15 @@ from datetime import date
 import pytest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from jamflow.infra.database.repositories import SQLModelClipRepository
 from jamflow.recordings.models import AudioFileFormat, Clip, Track
-from jamflow.recordings.repositories import ClipRepository
 
 pytestmark = [pytest.mark.asyncio]
 
 
 @pytest.fixture
-async def repo(sqli_session: AsyncSession) -> ClipRepository:
-    return ClipRepository(sqli_session)
+async def repo(sqli_session: AsyncSession) -> SQLModelClipRepository:
+    return SQLModelClipRepository(sqli_session)
 
 
 async def save_obj[M](sqli_session: AsyncSession, obj: M) -> M:
@@ -111,7 +111,7 @@ async def clip_3(
 
 
 async def test_list_by_track_id__returns_clips_scoped_by_track(
-    repo: ClipRepository,
+    repo: SQLModelClipRepository,
     track_1: Track,
     clip_1: Clip,
     clip_2: Clip,
@@ -126,7 +126,7 @@ async def test_list_by_track_id__returns_clips_scoped_by_track(
 
 
 async def test_list_by_track_id__returns_clips_ordered_by_created_at_desc(
-    repo: ClipRepository,
+    repo: SQLModelClipRepository,
     track_1: Track,
     clip_1: Clip,  # noqa: ARG001
     clip_2: Clip,  # noqa: ARG001
@@ -138,7 +138,7 @@ async def test_list_by_track_id__returns_clips_ordered_by_created_at_desc(
 
 
 async def test_list_by_track_id__without_clips_return_nothing(
-    repo: ClipRepository,
+    repo: SQLModelClipRepository,
     track_1: Track,
 ):
     clips = await repo.list_by_track_id(track_1.id)
@@ -147,7 +147,7 @@ async def test_list_by_track_id__without_clips_return_nothing(
 
 
 async def test_list_by_track_id__for_non_exising_track_returns_nothing(
-    repo: ClipRepository,
+    repo: SQLModelClipRepository,
 ):
     clips = await repo.list_by_track_id(uuid.uuid4())
 

@@ -11,9 +11,9 @@ from jamflow.infra.audio import (
     get_audio_file_format,
     get_audio_mime_type,
 )
+from jamflow.infra.database.repositories import SQLModelTrackRepository
 from jamflow.infra.storage import get_audio_storage_service
 from jamflow.recordings.models import Track
-from jamflow.recordings.repositories import TrackRepository
 from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
 from jamflow.recordings.services.utils import generate_track_path
 
@@ -53,7 +53,7 @@ async def track_create(
         },
     )
 
-    track_repo = TrackRepository(session)
+    track_repo = SQLModelTrackRepository(session)
     track = await track_repo.create(track)
     await session.commit()
     await logger.ainfo("Track created", track_id=track.id)
@@ -65,7 +65,7 @@ async def track_create(
 
 
 async def track_list(session: AsyncSession) -> list[TrackReadDto]:
-    track_repo = TrackRepository(session)
+    track_repo = SQLModelTrackRepository(session)
     tracks = await track_repo.list_all()
     async with get_audio_storage_service() as audio_storage:
         track_read_dtos = [
@@ -79,7 +79,7 @@ async def track_list(session: AsyncSession) -> list[TrackReadDto]:
 
 
 async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
-    track_repo = TrackRepository(session)
+    track_repo = SQLModelTrackRepository(session)
     track = await track_repo.get_by_id(track_id)
     if track is None:
         raise ResourceNotFoundError("Track not found")
@@ -94,7 +94,7 @@ async def track_generate_signed_urls(
     *,
     track_ids: list[uuid.UUID],
 ) -> list[TrackSignedUrlDto]:
-    track_repo = TrackRepository(session)
+    track_repo = SQLModelTrackRepository(session)
     tracks = await track_repo.list_by_ids(track_ids)
     expires_at = timezone_now() + timedelta(hours=1)
     async with get_audio_storage_service() as audio_storage:

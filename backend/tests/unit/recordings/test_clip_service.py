@@ -60,7 +60,7 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
 ):
     mock_audio_storage.get_file.return_value = open(mp3_file, "rb")
     mock_get_by_id = mocker.patch(
-        "jamflow.recordings.services.clip.TrackRepository.get_by_id",
+        "jamflow.recordings.services.clip.SQLModelTrackRepository.get_by_id",
         new_callable=mocker.AsyncMock,
         return_value=mocker.MagicMock(
             id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
@@ -70,7 +70,7 @@ async def test_clip_create_returns_clip_with_calculated_metadata(
         ),
     )
     mock_create = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.create",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.create",
         new_callable=mocker.AsyncMock,
         side_effect=lambda x: x,
     )
@@ -138,7 +138,7 @@ async def test_clip_list_retruns_clip_dtos_and_generates_url(
     clip_2: Clip,
 ):
     mock_list = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.list_all",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.list_all",
         new_callable=mocker.AsyncMock,
         return_value=[clip_1, clip_2],
     )
@@ -157,7 +157,7 @@ async def test_clip_list_filters_by_track_id(
     mock_db_session,
 ):
     mock_list_by_track_id = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.list_by_track_id",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.list_by_track_id",
         new_callable=mocker.AsyncMock,
     )
 
@@ -173,7 +173,7 @@ async def test_clip_list_with_no_clips_returns_empty_list(
     mock_db_session,
 ):
     mock_list = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.list_all",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.list_all",
         new_callable=mocker.AsyncMock,
         return_value=[],
     )
@@ -191,7 +191,7 @@ async def test_clip_list_with_track_id_filter_returns_filtered_clips(
     clip_2: Clip,  # noqa: ARG001
 ):
     mock_list_by_track_id = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.list_by_track_id",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.list_by_track_id",
         new_callable=mocker.AsyncMock,
         return_value=[clip_1],
     )
@@ -209,7 +209,7 @@ async def test_clip_list_with_non_existent_track_id_returns_empty_list(
     mock_db_session,
 ):
     mock_list_by_track_id = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.list_by_track_id",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.list_by_track_id",
         new_callable=mocker.AsyncMock,
         return_value=[],
     )
@@ -227,7 +227,7 @@ async def test_clip_read_returns_clip_dto_and_generates_url(
     clip_1: Clip,
 ):
     mock_get_by_id = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.get_by_id",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.get_by_id",
         new_callable=mocker.AsyncMock,
         return_value=clip_1,
     )
@@ -245,7 +245,7 @@ async def test_clip_read_with_missing_clip_raises_error(
     mock_db_session,
 ):
     mock_get_by_id = mocker.patch(
-        "jamflow.recordings.services.clip.ClipRepository.get_by_id",
+        "jamflow.recordings.services.clip.SQLModelClipRepository.get_by_id",
         new_callable=mocker.AsyncMock,
         return_value=None,
     )
