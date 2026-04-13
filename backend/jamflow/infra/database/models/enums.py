@@ -14,6 +14,10 @@ def str_enum_to_sa_column(
     This is needed because SQLModel uses the property name.
     """
     return Column(
-        SQLEnum(*(str(v) for v in str_enum), name=str_enum.__name__.lower()),
+        SQLEnum(
+            str_enum,
+            name=str_enum.__name__.lower(),
+            values_callable=lambda e: [str(v) for v in e],
+        ),
         **enum_kwargs,
     )
