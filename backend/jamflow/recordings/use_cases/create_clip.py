@@ -54,7 +54,7 @@ class CreateClip:
             )
             clip_format = track.format
             path = generate_clip_path(track.path, clip_id, clip_format)
-            content_type = self._audio_processor.get_mime_type(clip_format)
+            content_type = clip_format.mime_type
 
             await audio_storage.store_file(
                 file=clip_file,

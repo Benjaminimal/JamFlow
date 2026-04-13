@@ -9,7 +9,6 @@ from jamflow.core.utils import timezone_now
 from jamflow.infra.audio import (
     get_audio_duration,
     get_audio_file_format,
-    get_audio_mime_type,
 )
 from jamflow.infra.database.repositories import SQLModelTrackRepository
 from jamflow.infra.storage import get_audio_storage_service
@@ -26,7 +25,7 @@ async def track_create(
     track_create_dto: TrackCreateDto,
 ) -> TrackReadDto:
     format = get_audio_file_format(track_create_dto.upload_file.file)
-    content_type = get_audio_mime_type(format)
+    content_type = format.mime_type
 
     track_id = uuid.uuid4()
     path = generate_track_path(track_id, format)

@@ -6,7 +6,6 @@ from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.core.log import get_logger
 from jamflow.infra.audio import (
     clip_audio_file,
-    get_audio_mime_type,
     get_file_size,
 )
 from jamflow.infra.database.repositories import (
@@ -44,7 +43,7 @@ async def clip_create(
         )
         clip_format = track.format
         path = generate_clip_path(track.path, clip_id, clip_format)
-        content_type = get_audio_mime_type(clip_format)
+        content_type = clip_format.mime_type
 
         await audio_storage.store_file(
             file=clip_file,

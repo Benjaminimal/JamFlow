@@ -1,4 +1,3 @@
-from enum import StrEnum
 from tempfile import TemporaryFile
 from typing import BinaryIO
 
@@ -11,14 +10,6 @@ from pydub import AudioSegment  # type: ignore [import-untyped]
 
 from jamflow.core.exceptions import BusinessLogicError, ValidationError
 from jamflow.recordings.models import AudioFileFormat
-
-
-# TODO: reconsider who owns this
-#       as it's imported from infra into domain
-class AudioMimeType(StrEnum):
-    MP3 = "audio/mpeg"
-    OGG = "audio/ogg"
-    WAV = "audio/wav"
 
 
 class NativeAudioProcessor:
@@ -75,23 +66,6 @@ class NativeAudioProcessor:
         size = file.tell()
         file.seek(0)
         return size
-
-    @staticmethod
-    def get_mime_type(file_format: AudioFileFormat) -> AudioMimeType:
-        """
-        Returns the MIME type for a given audio file format.
-
-        :raises BusinessLogicError: If the file format is not supported.
-        """
-        match file_format:
-            case AudioFileFormat.MP3:
-                return AudioMimeType.MP3
-            case AudioFileFormat.OGG:
-                return AudioMimeType.OGG
-            case AudioFileFormat.WAV:
-                return AudioMimeType.WAV
-            case _:
-                raise BusinessLogicError(f"Unsupported file format: {file_format}")
 
     @staticmethod
     def clip(
@@ -152,7 +126,3 @@ def clip_audio_file(
 
 def get_file_size(file: BinaryIO) -> int:
     return audio_processor.get_size(file)
-
-
-def get_audio_mime_type(file_format: AudioFileFormat) -> AudioMimeType:
-    return audio_processor.get_mime_type(file_format)

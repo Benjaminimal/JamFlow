@@ -12,6 +12,18 @@ class AudioFileFormat(StrEnum):
     WAV = "wav"
     OGG = "ogg"
 
+    @property
+    def mime_type(self) -> str:
+        match self:
+            case self.MP3:
+                return "audio/mpeg"
+            case self.WAV:
+                return "audio/wav"
+            case self.OGG:
+                return "audio/ogg"
+            case other:
+                raise ValueError(f"Missing mime_type mapping for {other}")
+
 
 class Track(BaseSQLModel, table=True):
     title: str = Field(max_length=255)
