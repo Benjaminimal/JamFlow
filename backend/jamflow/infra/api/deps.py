@@ -18,7 +18,7 @@ from jamflow.recordings.protocols import (
     ClipRepository,
     TrackRepository,
 )
-from jamflow.recordings.use_cases.create_clip import CreateClip
+from jamflow.recordings.use_cases import CreateClip
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 

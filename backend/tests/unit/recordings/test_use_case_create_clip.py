@@ -4,7 +4,7 @@ import pytest
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.recordings.models import AudioFileFormat
-from jamflow.recordings.use_cases.create_clip import CreateClip
+from jamflow.recordings.use_cases import CreateClip
 from tests.unit.factories import ClipCreateDtoFactory, TrackFactory
 from tests.unit.fakes import (
     FakeAudioProcessor,
