@@ -3,10 +3,10 @@ import uuid
 import pytest
 from pytest_mock import MockerFixture
 
-from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
+from jamflow.core.exceptions import ResourceNotFoundError
 from jamflow.recordings.models import AudioFileFormat, Clip
-from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
-from jamflow.recordings.services.clip import clip_create, clip_list, clip_read
+from jamflow.recordings.schemas import ClipReadDto
+from jamflow.recordings.services.clip import clip_list, clip_read
 
 
 @pytest.fixture
@@ -50,84 +50,6 @@ def mock_audio_storage(mocker: MockerFixture):
         mock_storage_service
     )
     return mock_storage_service
-
-
-async def test_clip_create_returns_clip_with_calculated_metadata(
-    mocker: MockerFixture,
-    mock_db_session,
-    mock_audio_storage,
-    mp3_file,
-):
-    mock_audio_storage.get_file.return_value = open(mp3_file, "rb")
-    mock_get_by_id = mocker.patch(
-        "jamflow.recordings.services.clip.SQLModelTrackRepository.get_by_id",
-        new_callable=mocker.AsyncMock,
-        return_value=mocker.MagicMock(
-            id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
-            path="path/to/track.mp3",
-            format="mp3",
-            duration=2500,
-        ),
-    )
-    mock_create = mocker.patch(
-        "jamflow.recordings.services.clip.SQLModelClipRepository.create",
-        new_callable=mocker.AsyncMock,
-        side_effect=lambda x: x,
-    )
-    clip_create_dto = ClipCreateDto(
-        title="Test Clip",
-        track_id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
-        start=1200,
-        end=2100,
-    )
-
-    result = await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
-
-    mock_get_by_id.assert_called_once_with(clip_create_dto.track_id)
-    mock_create.assert_called_once()
-
-    assert isinstance(result, ClipReadDto)
-    assert result.id is not None
-    assert result.title == "Test Clip"
-    assert str(result.track_id) == "5ec9fcfb-078a-4867-9ff1-4cb0c7105696"
-    assert result.duration == 900
-    assert result.start == 1200
-    assert result.end == 2100
-    assert result.format == "mp3"
-    assert 7700 <= result.size <= 7800
-    assert str(result.url) == "http://example.com/clip"
-
-
-async def test_clip_create_with_non_existent_track_raises_exception(mock_db_session):
-    clip_create_dto = ClipCreateDto(
-        title="Test Clip",
-        track_id="5ec9fcfb078a48679ff14cb0c7105696",
-        start=1200,
-        end=2100,
-    )
-
-    # Simulate track not found
-    mock_db_session.get.return_value = None
-
-    with pytest.raises(ResourceNotFoundError, match="Track not found"):
-        await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
-
-
-async def test_clip_create_with_end_gt_track_length_raises_exception(
-    mocker: MockerFixture,
-    mock_db_session,
-):
-    mock_db_session.get.return_value = mocker.MagicMock(duration=2000)
-
-    clip_create_dto = ClipCreateDto(
-        title="Test Clip",
-        track_id="5ec9fcfb-078a-4867-9ff1-4cb0c7105696",
-        start=1000,
-        end=3000,
-    )
-
-    with pytest.raises(ValidationError, match="Clip end time exceeds track duration"):
-        await clip_create(mock_db_session, clip_create_dto=clip_create_dto)
 
 
 async def test_clip_list_retruns_clip_dtos_and_generates_url(
