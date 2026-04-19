@@ -97,7 +97,4 @@ class FakeAudioStorage:
         return self.files[path]
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
-        if path not in self.files:
-            raise StorageError(f"Unable to generate url for file: Invalid {path=}")
-
         return f"http://bogus.url/{path}?expiration={expiration}"
