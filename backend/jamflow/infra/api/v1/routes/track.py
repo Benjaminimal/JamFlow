@@ -1,17 +1,13 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Form, Query, status
+from fastapi import APIRouter, Form, status
 from pydantic import UUID4
 
 from jamflow.infra.api.deps import SessionDep
 from jamflow.recordings.schemas import (
     TrackCreateDto,
     TrackReadDto,
-    TrackSignedUrlDto,
 )
 from jamflow.recordings.services.track import (
     track_create,
-    track_generate_signed_urls,
     track_list,
     track_read,
 )
@@ -54,15 +50,3 @@ async def track_list_view(session: SessionDep) -> list[TrackReadDto]:
 async def track_read_view(session: SessionDep, track_id: UUID4) -> TrackReadDto:
     track = await track_read(session, track_id=track_id)
     return track
-
-
-@router.get("/urls")
-async def track_generate_signed_urls_view(
-    session: SessionDep,
-    track_ids: Annotated[list[UUID4], Query(..., min_length=1)],
-) -> list[TrackSignedUrlDto]:
-    track_generate_signed_url_dtos = await track_generate_signed_urls(
-        session,
-        track_ids=track_ids,
-    )
-    return track_generate_signed_url_dtos

@@ -1,12 +1,10 @@
 import uuid
-from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from jamflow.core.utils import timezone_now
 from jamflow.recordings.models import Track
 from jamflow.recordings.schemas import TrackReadDto
 
@@ -213,51 +211,3 @@ async def test_track_create_with_empty_file_returns_422(
     assert len(response_data["details"]) == 1
     assert response_data["details"][0]["field"] == "upload_file"
     assert response_data["details"][0]["message"] == "Value error, File is empty"
-
-
-@pytest.mark.usefixtures("track_3")
-async def test_track_get_urls_with_three_tracks_returns_urls_with_expiration_times(
-    client: AsyncClient,
-    track_1: TrackReadDto,
-    track_2: TrackReadDto,
-):
-    expires_at_min = timezone_now() + timedelta(hours=1)
-    expires_at_max = expires_at_min + timedelta(seconds=1)
-
-    response = await client.get(
-        "/api/v1/tracks/urls",
-        params={"track_ids": [track_1.id, track_2.id]},
-    )
-
-    assert response.status_code == status.HTTP_200_OK, response.content
-    response_data = response.json()
-    assert len(response_data) == 2
-    track_1_data, track_2_data = response_data
-    assert track_1_data.keys() | track_2_data.keys() == {
-        "track_id",
-        "url",
-        "expires_at",
-    }
-    assert track_1_data["track_id"] == str(track_1.id)
-    assert ".mp3" in track_1_data["url"]
-    assert (
-        expires_at_min
-        <= datetime.fromisoformat(track_1_data["expires_at"])
-        <= expires_at_max
-    )
-    assert track_2_data["track_id"] == str(track_2.id)
-    assert ".ogg" in track_2_data["url"]
-    assert (
-        expires_at_min
-        <= datetime.fromisoformat(track_2_data["expires_at"])
-        <= expires_at_max
-    )
-
-
-async def test_track_get_urls_with_no_existent_id_returns_422(client: AsyncClient):
-    response = await client.get("/api/v1/tracks/urls")
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST, response.content
-    response_data = response.json()
-    assert response_data["details"][0]["field"] == "track_ids"
-    assert response_data["details"][0]["message"] == "Field required"

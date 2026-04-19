@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, timedelta
+from datetime import date
 from io import BytesIO
 
 import pytest
@@ -7,15 +7,9 @@ from fastapi import UploadFile
 from pytest_mock import MockerFixture
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
-from jamflow.core.utils import timezone_now
 from jamflow.recordings.models import AudioFileFormat, Track
-from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto, TrackSignedUrlDto
-from jamflow.recordings.services.track import (
-    track_create,
-    track_generate_signed_urls,
-    track_list,
-    track_read,
-)
+from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto
+from jamflow.recordings.services.track import track_create, track_list, track_read
 
 
 @pytest.fixture
@@ -189,36 +183,3 @@ async def test_track_read_with_missing_track_rasies_error(
         await track_read(mock_db_session, track_id=uuid.uuid4())
 
     mock_get_by_id.assert_called_once()
-
-
-async def test_track_generate_signed_urls_returns_dtos_with_url_and_expiry(
-    mocker: MockerFixture,
-    mock_db_session,
-    mock_audio_storage,
-    track_1: Track,
-    track_2: Track,
-):
-    track_ids = [track_1.id, track_2.id]
-    mock_expiring_urls = ["http://example.com/track1", "http://example.com/track2"]
-    expires_at_min = timezone_now() + timedelta(hours=1)
-    expires_at_max = expires_at_min + timedelta(seconds=1)
-
-    mock_list_by_ids = mocker.patch(
-        "jamflow.recordings.services.track.SQLModelTrackRepository.list_by_ids",
-        new_callable=mocker.AsyncMock,
-        return_value=[track_1, track_2],
-    )
-    mock_audio_storage.generate_expiring_url.side_effect = mock_expiring_urls
-
-    result = await track_generate_signed_urls(
-        session=mock_db_session, track_ids=track_ids
-    )
-
-    assert len(result) == 2
-    for i, dto in enumerate(result):
-        assert isinstance(dto, TrackSignedUrlDto)
-        assert dto.track_id == track_ids[i]
-        assert dto.url == mock_expiring_urls[i]
-        assert expires_at_min <= dto.expires_at <= expires_at_max + timedelta(seconds=1)
-
-    mock_list_by_ids.assert_called_once_with(track_ids)
