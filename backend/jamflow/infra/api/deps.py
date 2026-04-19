@@ -18,7 +18,7 @@ from jamflow.recordings.protocols import (
     ClipRepository,
     TrackRepository,
 )
-from jamflow.recordings.use_cases import CreateClip, ListClip
+from jamflow.recordings.use_cases import CreateClip, ListClip, ReadClip
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
@@ -84,3 +84,18 @@ def get_list_clip(
 
 
 ListClipDep = Annotated[ListClip, Depends(get_list_clip)]
+
+
+def get_read_clip(
+    session: SessionDep,
+    clip_repo: ClipRepoDep,
+    audio_storage: AudioStorageDep,
+) -> ReadClip:
+    return ReadClip(
+        clip_repo=clip_repo,
+        session=session,
+        audio_storage=audio_storage,
+    )
+
+
+ReadClipDep = Annotated[ReadClip, Depends(get_read_clip)]

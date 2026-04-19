@@ -1,9 +1,8 @@
 from fastapi import APIRouter, status
 from pydantic import UUID4
 
-from jamflow.infra.api.deps import CreateClipDep, ListClipDep, SessionDep
+from jamflow.infra.api.deps import CreateClipDep, ListClipDep, ReadClipDep
 from jamflow.recordings.schemas import ClipCreateDto, ClipReadDto
-from jamflow.recordings.services.clip import clip_read
 
 router = APIRouter(prefix="/clips", tags=["clips"])
 
@@ -50,7 +49,7 @@ async def clip_list_view(
     },
 )
 async def clip_read_view(
-    session: SessionDep,
+    use_case: ReadClipDep,
     clip_id: UUID4,
 ) -> ClipReadDto:
-    return await clip_read(session, clip_id=clip_id)
+    return await use_case.execute(clip_id)
