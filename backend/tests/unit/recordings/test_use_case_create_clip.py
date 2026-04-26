@@ -1,11 +1,10 @@
 import uuid
-from typing import Awaitable, Callable
 
 import pytest
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
 from jamflow.infra.bootstrap import build_create_clip
-from jamflow.recordings.models import AudioFileFormat, Track
+from jamflow.recordings.models import AudioFileFormat
 from jamflow.recordings.use_cases import CreateClip
 from tests.unit.factories import ClipCreateDtoFactory, TrackFactory
 from tests.unit.fakes import (
@@ -14,6 +13,7 @@ from tests.unit.fakes import (
     FakeClipRepository,
     FakeTrackRepository,
 )
+from tests.unit.recordings.conftest import CreatePersistedTrack
 
 
 @pytest.fixture
@@ -31,24 +31,6 @@ def use_case(
         audio_storage=fake_audio_storage,
         session=mock_db_session,
     )
-
-
-CreatePersistedTrack = Callable[..., Awaitable[Track]]
-
-
-@pytest.fixture
-async def create_persisted_track(
-    fake_track_repo: FakeTrackRepository,
-    fake_audio_storage: FakeAudioStorage,
-) -> CreatePersistedTrack:
-    async def _create_persisted_track(track: Track | None = None) -> Track:
-        track = track or TrackFactory.build()
-        await fake_track_repo.create(track)
-        async with fake_audio_storage as storage:
-            await storage.store_file(b"", path=track.path, content_type="noone/cares")
-        return track
-
-    return _create_persisted_track
 
 
 async def test_non_existent_track_raises_exception(
