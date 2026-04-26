@@ -7,6 +7,7 @@ from jamflow.infra.bootstrap import (
     build_create_clip,
     build_create_track,
     build_list_clip,
+    build_list_track,
     build_read_clip,
     build_read_track,
 )
@@ -15,6 +16,7 @@ from jamflow.recordings.use_cases import (
     CreateClip,
     CreateTrack,
     ListClip,
+    ListTrack,
     ReadClip,
     ReadTrack,
 )
@@ -42,6 +44,16 @@ def get_read_track(session: SessionDep) -> ReadTrack:
 ReadTrackDep = Annotated[
     ReadTrack,
     Depends(get_read_track),
+]
+
+
+def get_list_track(session: SessionDep) -> ListTrack:
+    return build_list_track(session)
+
+
+ListTrackDep = Annotated[
+    ListTrack,
+    Depends(get_list_track),
 ]
 
 

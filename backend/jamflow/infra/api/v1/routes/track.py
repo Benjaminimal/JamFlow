@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Form, status
 from pydantic import UUID4
 
-from jamflow.infra.api.deps import CreateTrackDep, ReadTrackDep, SessionDep
+from jamflow.infra.api.deps import CreateTrackDep, ListTrackDep, ReadTrackDep
 from jamflow.recordings.schemas import (
     TrackCreateDto,
     TrackReadDto,
 )
-from jamflow.recordings.services.track import track_list
 
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
@@ -25,8 +24,8 @@ async def track_create_view(
     status_code=status.HTTP_200_OK,
     response_model=list[TrackReadDto],
 )
-async def track_list_view(session: SessionDep) -> list[TrackReadDto]:
-    tracks = await track_list(session)
+async def track_list_view(use_case: ListTrackDep) -> list[TrackReadDto]:
+    tracks = await use_case.execute()
     return tracks
 
 

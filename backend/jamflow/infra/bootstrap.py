@@ -17,6 +17,7 @@ from jamflow.recordings.use_cases import (
     CreateClip,
     CreateTrack,
     ListClip,
+    ListTrack,
     ReadClip,
     ReadTrack,
 )
@@ -58,6 +59,18 @@ def build_read_track(
     audio_storage: AudioStorage | None = None,
 ) -> ReadTrack:
     return ReadTrack(
+        session=session,
+        track_repo=track_repo or _default_track_repo(session),
+        audio_storage=audio_storage or _default_audio_storage(),
+    )
+
+
+def build_list_track(
+    session: AsyncSession,
+    track_repo: TrackRepository | None = None,
+    audio_storage: AudioStorage | None = None,
+) -> ListTrack:
+    return ListTrack(
         session=session,
         track_repo=track_repo or _default_track_repo(session),
         audio_storage=audio_storage or _default_audio_storage(),
