@@ -100,29 +100,3 @@ class NativeAudioProcessor:
 
 
 audio_processor = NativeAudioProcessor()
-
-
-# TODO: remove when services are gone
-def get_audio_file_format(file: BinaryIO) -> AudioFileFormat:
-    return audio_processor.get_format(file)
-
-
-def get_audio_duration(
-    file: BinaryIO,
-    file_format: AudioFileFormat,
-) -> int:
-    return audio_processor.get_duration(file, file_format)
-
-
-def clip_audio_file(
-    file: BinaryIO,
-    file_format: AudioFileFormat,
-    *,
-    start: int,
-    end: int,
-) -> BinaryIO:
-    return audio_processor.clip(file, file_format, start=start, end=end)
-
-
-def get_file_size(file: BinaryIO) -> int:
-    return audio_processor.get_size(file)

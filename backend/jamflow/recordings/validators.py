@@ -3,7 +3,7 @@ from collections.abc import Callable
 from fastapi import UploadFile
 
 from jamflow.core.exceptions import ValidationError
-from jamflow.infra.audio import get_audio_file_format
+from jamflow.infra.audio import audio_processor
 from jamflow.recordings.models import AudioFileFormat
 
 
@@ -12,7 +12,7 @@ def validate_audo_file_format(upload_file: UploadFile) -> UploadFile:
     Validates that a file is an audio file of an accepted format.
     """
     try:
-        get_audio_file_format(upload_file.file)
+        audio_processor.get_format(upload_file.file)
     except ValidationError as exc:
         raise ValueError(
             f"Unsupported file format. Supported formats: {', '.join(AudioFileFormat)}"
