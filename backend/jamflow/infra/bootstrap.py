@@ -1,7 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.config import settings
-from jamflow.infra.audio import native_audio_processor as default_audio_processor
+from jamflow.infra.audio import native_audio_processor
 from jamflow.infra.database.repositories import (
     SQLModelClipRepository,
     SQLModelTrackRepository,
@@ -23,20 +23,20 @@ from jamflow.recordings.use_cases import (
 )
 
 
-def _default_clip_repo(session: AsyncSession) -> ClipRepository:
+def default_clip_repo(session: AsyncSession) -> ClipRepository:
     return SQLModelClipRepository(session)
 
 
-def _default_track_repo(session: AsyncSession) -> TrackRepository:
+def default_track_repo(session: AsyncSession) -> TrackRepository:
     return SQLModelTrackRepository(session)
 
 
-def _default_audio_storage() -> AudioStorage:
+def default_audio_storage() -> AudioStorage:
     return S3StorageService(settings.STORAGE_NAME_AUDIO)
 
 
-def _default_audio_processor() -> AudioProcessor:
-    return default_audio_processor
+def default_audio_processor() -> AudioProcessor:
+    return native_audio_processor
 
 
 def build_create_track(
@@ -47,9 +47,9 @@ def build_create_track(
 ) -> CreateTrack:
     return CreateTrack(
         session=session,
-        track_repo=track_repo or _default_track_repo(session),
-        audio_processor=audio_processor or _default_audio_processor(),
-        audio_storage=audio_storage or _default_audio_storage(),
+        track_repo=track_repo or default_track_repo(session),
+        audio_processor=audio_processor or default_audio_processor(),
+        audio_storage=audio_storage or default_audio_storage(),
     )
 
 
@@ -60,8 +60,8 @@ def build_read_track(
 ) -> ReadTrack:
     return ReadTrack(
         session=session,
-        track_repo=track_repo or _default_track_repo(session),
-        audio_storage=audio_storage or _default_audio_storage(),
+        track_repo=track_repo or default_track_repo(session),
+        audio_storage=audio_storage or default_audio_storage(),
     )
 
 
@@ -72,8 +72,8 @@ def build_list_track(
 ) -> ListTrack:
     return ListTrack(
         session=session,
-        track_repo=track_repo or _default_track_repo(session),
-        audio_storage=audio_storage or _default_audio_storage(),
+        track_repo=track_repo or default_track_repo(session),
+        audio_storage=audio_storage or default_audio_storage(),
     )
 
 
@@ -84,8 +84,8 @@ def build_list_clip(
 ) -> ListClip:
     return ListClip(
         session=session,
-        clip_repo=clip_repo or _default_clip_repo(session),
-        audio_storage=audio_storage or _default_audio_storage(),
+        clip_repo=clip_repo or default_clip_repo(session),
+        audio_storage=audio_storage or default_audio_storage(),
     )
 
 
@@ -96,8 +96,8 @@ def build_read_clip(
 ) -> ReadClip:
     return ReadClip(
         session=session,
-        clip_repo=clip_repo or _default_clip_repo(session),
-        audio_storage=audio_storage or _default_audio_storage(),
+        clip_repo=clip_repo or default_clip_repo(session),
+        audio_storage=audio_storage or default_audio_storage(),
     )
 
 
@@ -110,8 +110,8 @@ def build_create_clip(
 ) -> CreateClip:
     return CreateClip(
         session=session,
-        clip_repo=clip_repo or _default_clip_repo(session),
-        track_repo=track_repo or _default_track_repo(session),
-        audio_processor=audio_processor or _default_audio_processor(),
-        audio_storage=audio_storage or _default_audio_storage(),
+        clip_repo=clip_repo or default_clip_repo(session),
+        track_repo=track_repo or default_track_repo(session),
+        audio_processor=audio_processor or default_audio_processor(),
+        audio_storage=audio_storage or default_audio_storage(),
     )
