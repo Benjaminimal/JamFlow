@@ -15,34 +15,11 @@ from tests.unit.fakes import (
 
 
 @pytest.fixture
-def fake_clip_repo() -> FakeClipRepository:
-    return FakeClipRepository()
-
-
-@pytest.fixture
-def fake_track_repo() -> FakeTrackRepository:
-    return FakeTrackRepository()
-
-
-@pytest.fixture
-def fake_audio_processor() -> FakeAudioProcessor:
-    return FakeAudioProcessor(
-        duration=3_000,
-        size=123,
-    )
-
-
-@pytest.fixture
-def fake_audio_storage() -> FakeAudioStorage:
-    return FakeAudioStorage()
-
-
-@pytest.fixture
 def use_case(
-    fake_clip_repo,
-    fake_track_repo,
-    fake_audio_processor,
-    fake_audio_storage,
+    fake_clip_repo: FakeClipRepository,
+    fake_track_repo: FakeTrackRepository,
+    fake_audio_processor: FakeAudioProcessor,
+    fake_audio_storage: FakeAudioStorage,
     mock_db_session,
 ) -> CreateClip:
     return CreateClip(
@@ -89,11 +66,14 @@ async def test_clip_create_returns_clip_with_correct_data(
     fake_track_repo: FakeTrackRepository,
     fake_audio_storage: FakeAudioStorage,
     fake_clip_repo: FakeClipRepository,
+    fake_audio_processor: FakeAudioProcessor,
 ):
     track = TrackFactory.build(duration=60_000, format=AudioFileFormat.WAV)
     await fake_track_repo.create(track)
     async with fake_audio_storage as storage:
         await storage.store_file(b"", path=track.path, content_type="noone/cares")
+    fake_audio_processor.duration = 3_000
+    fake_audio_processor.size = 123
 
     files_before = set(fake_audio_storage.files.keys())
 

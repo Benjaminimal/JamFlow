@@ -4,17 +4,7 @@ import pytest
 
 from jamflow.recordings.use_cases import ListClip
 from tests.unit.factories import ClipFactory
-from tests.unit.fakes import FakeAudioStorage, FakeClipRepository
-
-
-@pytest.fixture
-def fake_clip_repo() -> FakeClipRepository:
-    return FakeClipRepository()
-
-
-@pytest.fixture
-def fake_audio_storage() -> FakeAudioStorage:
-    return FakeAudioStorage()
+from tests.unit.fakes import FakeClipRepository
 
 
 @pytest.fixture

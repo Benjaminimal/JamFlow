@@ -9,19 +9,9 @@ from tests.unit.fakes import FakeAudioStorage, FakeClipRepository
 
 
 @pytest.fixture
-def fake_clip_repo() -> FakeClipRepository:
-    return FakeClipRepository()
-
-
-@pytest.fixture
-def fake_audio_storage() -> FakeAudioStorage:
-    return FakeAudioStorage()
-
-
-@pytest.fixture
 def use_case(
-    fake_clip_repo,
-    fake_audio_storage,
+    fake_clip_repo: FakeClipRepository,
+    fake_audio_storage: FakeAudioStorage,
     mock_db_session,
 ) -> ReadClip:
     return ReadClip(
