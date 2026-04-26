@@ -6,10 +6,10 @@ import pytest
 from fastapi import UploadFile
 from pytest_mock import MockerFixture
 
-from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
+from jamflow.core.exceptions import ResourceNotFoundError
 from jamflow.recordings.models import AudioFileFormat, Track
 from jamflow.recordings.schemas import TrackCreateDto, TrackReadDto
-from jamflow.recordings.services.track import track_create, track_list, track_read
+from jamflow.recordings.services.track import track_list, track_read
 
 
 @pytest.fixture
@@ -67,64 +67,6 @@ def track_2() -> Track:
         path="path/to/track.ogg",
         recorded_date=date.today(),
     )
-
-
-async def test_track_create_returns_valid_track_dto_and_stores_file(
-    mock_db_session,
-    mock_audio_storage,
-    track_create_dto: TrackCreateDto,
-):
-    track_read_dto = await track_create(
-        session=mock_db_session, track_create_dto=track_create_dto
-    )
-
-    assert isinstance(track_read_dto, TrackReadDto)
-    assert track_read_dto.id is not None
-    assert track_read_dto.created_at is not None
-    assert track_read_dto.updated_at is not None
-    assert track_read_dto.title == track_create_dto.title
-    assert 2400 <= track_read_dto.duration <= 2600
-    assert track_read_dto.size == track_create_dto.upload_file.size
-    assert track_read_dto.format == AudioFileFormat.MP3
-    assert track_read_dto.recorded_date == track_create_dto.recorded_date
-    assert track_read_dto.url is not None
-    assert str(track_read_dto.url).startswith("http://example.com/track")
-
-    mock_audio_storage.store_file.assert_called_once()
-    mock_audio_storage.generate_expiring_url.assert_called_once()
-
-
-async def test_track_create_with_wrong_extension_saves_with_correct_extension(
-    mock_db_session,
-    mock_audio_storage,
-    track_create_dto: TrackCreateDto,
-):
-    # even with a wrong extension
-    track_create_dto.upload_file.filename = "test.foo"
-    track_read_dto = await track_create(
-        session=mock_db_session, track_create_dto=track_create_dto
-    )
-
-    # the service should still be able to determine correct file format
-    assert track_read_dto.format == AudioFileFormat.MP3
-    # and save it with the correct extension
-    mock_audio_storage.store_file.assert_called_once()
-    path_kwarg = mock_audio_storage.store_file.call_args[1]["path"]
-    assert path_kwarg.endswith(".mp3")
-
-
-async def test_track_create_raises_validation_exception_when_audio_duration_fails(
-    mocker: MockerFixture,
-    mock_db_session,
-    track_create_dto: TrackCreateDto,
-):
-    mocker.patch(
-        "jamflow.recordings.services.track.get_audio_duration",
-        side_effect=ValidationError("Test error"),
-    )
-
-    with pytest.raises(ValidationError, match="Test error"):
-        await track_create(session=mock_db_session, track_create_dto=track_create_dto)
 
 
 async def test_track_list_returns_track_dtos_and_generates_url(

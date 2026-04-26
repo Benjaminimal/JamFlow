@@ -1,7 +1,7 @@
 import uuid
 from io import BytesIO
 from types import TracebackType
-from typing import BinaryIO, Self, Sequence
+from typing import BinaryIO, Literal, Self, Sequence
 
 from jamflow.core.exceptions import StorageError
 from jamflow.infra.database.models import BaseSQLModel
@@ -48,20 +48,40 @@ class FakeAudioProcessor:
         self.duration = duration
         self.size = size
         self.clip_bytes = clip_bytes
+        self._fail_on = {}
 
     def get_format(self, file: BinaryIO) -> AudioFileFormat:
+        self._maybe_fail("get_format")
         return self.file_format
 
     def get_duration(self, file: BinaryIO, file_format: AudioFileFormat) -> int:
+        self._maybe_fail("get_duration")
         return self.duration
 
     def get_size(self, file: BinaryIO) -> int:
+        self._maybe_fail("get_size")
         return self.size
 
     def clip(
         self, file: BinaryIO, file_format: AudioFileFormat, *, start: int, end: int
     ) -> BinaryIO:
+        self._maybe_fail("clip")
         return BytesIO(self.clip_bytes)
+
+    def fail_on(
+        self,
+        method_name: Literal["get_format", "get_duration", "get_size", "clip"],
+        exc: Exception | None = None,
+    ) -> Self:
+        self._fail_on[method_name] = exc or Exception(f"Failed {method_name}")
+        return self
+
+    def _maybe_fail(
+        self,
+        method_name: Literal["get_format", "get_duration", "get_size", "clip"],
+    ) -> None:
+        if exc := self._fail_on.get(method_name):
+            raise exc
 
 
 class FakeAudioStorage:
