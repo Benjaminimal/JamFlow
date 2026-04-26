@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 
+from jamflow.infra.bootstrap import build_list_clip
 from jamflow.recordings.use_cases import ListClip
 from tests.unit.factories import ClipFactory
 from tests.unit.fakes import FakeClipRepository
@@ -13,7 +14,7 @@ def use_case(
     fake_audio_storage,
     mock_db_session,
 ) -> ListClip:
-    return ListClip(
+    return build_list_clip(
         clip_repo=fake_clip_repo,
         audio_storage=fake_audio_storage,
         session=mock_db_session,

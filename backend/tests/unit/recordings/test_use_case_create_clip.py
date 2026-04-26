@@ -4,6 +4,7 @@ from typing import Awaitable, Callable
 import pytest
 
 from jamflow.core.exceptions import ResourceNotFoundError, ValidationError
+from jamflow.infra.bootstrap import build_create_clip
 from jamflow.recordings.models import AudioFileFormat, Track
 from jamflow.recordings.use_cases import CreateClip
 from tests.unit.factories import ClipCreateDtoFactory, TrackFactory
@@ -23,7 +24,7 @@ def use_case(
     fake_audio_storage: FakeAudioStorage,
     mock_db_session,
 ) -> CreateClip:
-    return CreateClip(
+    return build_create_clip(
         clip_repo=fake_clip_repo,
         track_repo=fake_track_repo,
         audio_processor=fake_audio_processor,

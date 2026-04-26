@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from jamflow.core.exceptions import ResourceNotFoundError
+from jamflow.infra.bootstrap import build_read_clip
 from jamflow.recordings.use_cases import ReadClip
 from tests.unit.factories import ClipFactory
 from tests.unit.fakes import FakeAudioStorage, FakeClipRepository
@@ -14,7 +15,7 @@ def use_case(
     fake_audio_storage: FakeAudioStorage,
     mock_db_session,
 ) -> ReadClip:
-    return ReadClip(
+    return build_read_clip(
         clip_repo=fake_clip_repo,
         audio_storage=fake_audio_storage,
         session=mock_db_session,
