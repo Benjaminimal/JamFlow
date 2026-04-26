@@ -2,14 +2,15 @@ import pytest
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import col, func, select
 
+from jamflow.infra.bootstrap import build_create_clip
 from jamflow.recordings.schemas import (
     ClipCreateDto,
     ClipReadDto,
     TrackCreateDto,
     TrackReadDto,
 )
-from jamflow.recordings.services.clip import clip_create
 from jamflow.recordings.services.track import track_create
+from jamflow.recordings.use_cases import CreateClip
 
 
 @pytest.fixture
@@ -85,9 +86,16 @@ async def track_3(
 
 
 @pytest.fixture
-async def clip_1(
+def create_clip(
     pg_session,
+) -> CreateClip:
+    return build_create_clip(pg_session)
+
+
+@pytest.fixture
+async def clip_1(
     audio_storage,  # noqa: ARG001
+    create_clip: CreateClip,
     track_1: TrackReadDto,
 ) -> ClipReadDto:
     clip_create_dto = ClipCreateDto(
@@ -96,13 +104,13 @@ async def clip_1(
         start=0,
         end=1000,
     )
-    return await clip_create(pg_session, clip_create_dto=clip_create_dto)
+    return await create_clip.execute(clip_create_dto)
 
 
 @pytest.fixture
 async def clip_2(
-    pg_session,
     audio_storage,  # noqa: ARG001
+    create_clip: CreateClip,
     track_2: TrackReadDto,
 ) -> ClipReadDto:
     clip_create_dto = ClipCreateDto(
@@ -111,4 +119,4 @@ async def clip_2(
         start=500,
         end=1400,
     )
-    return await clip_create(pg_session, clip_create_dto=clip_create_dto)
+    return await create_clip.execute(clip_create_dto)
