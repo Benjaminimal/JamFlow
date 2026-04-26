@@ -118,7 +118,7 @@ class FakeAudioStorage:
         return self.files[path]
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
-        return f"http://bogus.url/{path}?expiration={expiration}"
+        return f"http://bogus.url{path}?expiration={expiration}"
 
     def checkpoint(self) -> Self:
         """
