@@ -13,7 +13,13 @@ from jamflow.recordings.protocols import (
     ClipRepository,
     TrackRepository,
 )
-from jamflow.recordings.use_cases import CreateClip, CreateTrack, ListClip, ReadClip
+from jamflow.recordings.use_cases import (
+    CreateClip,
+    CreateTrack,
+    ListClip,
+    ReadClip,
+    ReadTrack,
+)
 
 
 def _default_clip_repo(session: AsyncSession) -> ClipRepository:
@@ -42,6 +48,18 @@ def build_create_track(
         session=session,
         track_repo=track_repo or _default_track_repo(session),
         audio_processor=audio_processor or _default_audio_processor(),
+        audio_storage=audio_storage or _default_audio_storage(),
+    )
+
+
+def build_read_track(
+    session: AsyncSession,
+    track_repo: TrackRepository | None = None,
+    audio_storage: AudioStorage | None = None,
+) -> ReadTrack:
+    return ReadTrack(
+        session=session,
+        track_repo=track_repo or _default_track_repo(session),
         audio_storage=audio_storage or _default_audio_storage(),
     )
 

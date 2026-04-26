@@ -8,9 +8,16 @@ from jamflow.infra.bootstrap import (
     build_create_track,
     build_list_clip,
     build_read_clip,
+    build_read_track,
 )
 from jamflow.infra.database import get_session
-from jamflow.recordings.use_cases import CreateClip, CreateTrack, ListClip, ReadClip
+from jamflow.recordings.use_cases import (
+    CreateClip,
+    CreateTrack,
+    ListClip,
+    ReadClip,
+    ReadTrack,
+)
 
 SessionDep = Annotated[
     AsyncSession,
@@ -25,6 +32,16 @@ def get_create_track(session: SessionDep) -> CreateTrack:
 CreateTrackDep = Annotated[
     CreateTrack,
     Depends(get_create_track),
+]
+
+
+def get_read_track(session: SessionDep) -> ReadTrack:
+    return build_read_track(session)
+
+
+ReadTrackDep = Annotated[
+    ReadTrack,
+    Depends(get_read_track),
 ]
 
 
