@@ -55,17 +55,3 @@ async def track_create(
     track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})
 
     return track_read_dto
-
-
-async def track_list(session: AsyncSession) -> list[TrackReadDto]:
-    track_repo = SQLModelTrackRepository(session)
-    tracks = await track_repo.list_all()
-    async with get_audio_storage_service() as audio_storage:
-        track_read_dtos = [
-            TrackReadDto.model_validate(
-                dict(track)
-                | {"url": await audio_storage.generate_expiring_url(track.path)}
-            )
-            for track in tracks
-        ]
-    return track_read_dtos
