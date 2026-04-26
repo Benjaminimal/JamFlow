@@ -99,15 +99,12 @@ async def test_stores_file_in_audio_storage(
     create_persisted_track: CreatePersistedTrack,
 ):
     track = await create_persisted_track()
-    files_before = set(fake_audio_storage.files.keys())
+    fake_audio_storage.checkpoint()
     clip_create_dto = ClipCreateDtoFactory.build(track_id=track.id)
 
     await use_case.execute(clip_create_dto)
 
-    files_after = set(fake_audio_storage.files.keys())
-    files_added = files_after - files_before
-
-    assert len(files_added) == 1
+    assert len(fake_audio_storage.new_files()) == 1
 
 
 async def test_returns_clip_with_correct_identity(

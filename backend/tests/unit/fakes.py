@@ -67,6 +67,7 @@ class FakeAudioProcessor:
 class FakeAudioStorage:
     def __init__(self):
         self.files: dict[str, BinaryIO] = {}
+        self._checkpoint: set[str] = set()
 
     async def __aenter__(self) -> Self:
         return self
@@ -98,3 +99,16 @@ class FakeAudioStorage:
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         return f"http://bogus.url/{path}?expiration={expiration}"
+
+    def checkpoint(self) -> Self:
+        """
+        Store the current state of files in the storage for to exclude them from a later `new_files` call.
+        """
+        self._checkpoint = set(self.files.keys())
+        return self
+
+    def new_files(self) -> set[str]:
+        """
+        Return the paths of files stored since the most recent call to `checkpoint`.
+        """
+        return set(self.files.keys()) - self._checkpoint
