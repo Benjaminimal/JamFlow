@@ -99,4 +99,4 @@ class NativeAudioProcessor:
         return temp_file
 
 
-audio_processor = NativeAudioProcessor()
+native_audio_processor = NativeAudioProcessor()
