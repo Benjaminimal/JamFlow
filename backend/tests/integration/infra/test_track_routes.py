@@ -8,7 +8,7 @@ from httpx import AsyncClient
 from jamflow.recordings.models import Track
 from jamflow.recordings.schemas import TrackReadDto
 
-pytestmark = pytest.mark.usefixtures("audio_storage")
+pytestmark = pytest.mark.usefixtures("audio_storage_isolation")
 
 
 @pytest.fixture

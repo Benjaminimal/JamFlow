@@ -25,6 +25,6 @@ from .fixtures.log import (  # noqa: F401
     assert_log_records,
 )
 from .fixtures.storage import (  # noqa: F401
-    audio_storage,
+    audio_storage_isolation,
     storage_name_override,
 )

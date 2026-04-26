@@ -51,7 +51,6 @@ def create_track(
 
 @pytest.fixture
 async def track_1(
-    audio_storage,  # noqa: ARG001
     create_track: CreateTrack,
     mp3_upload_file,
 ) -> TrackReadDto:
@@ -65,7 +64,6 @@ async def track_1(
 
 @pytest.fixture
 async def track_2(
-    audio_storage,  # noqa: ARG001
     create_track: CreateTrack,
     ogg_upload_file,
 ) -> TrackReadDto:
@@ -79,7 +77,6 @@ async def track_2(
 
 @pytest.fixture
 async def track_3(
-    audio_storage,  # noqa: ARG001
     create_track: CreateTrack,
     wav_upload_file,
 ) -> TrackReadDto:
@@ -100,7 +97,6 @@ def create_clip(
 
 @pytest.fixture
 async def clip_1(
-    audio_storage,  # noqa: ARG001
     create_clip: CreateClip,
     track_1: TrackReadDto,
 ) -> ClipReadDto:
@@ -115,7 +111,6 @@ async def clip_1(
 
 @pytest.fixture
 async def clip_2(
-    audio_storage,  # noqa: ARG001
     create_clip: CreateClip,
     track_2: TrackReadDto,
 ) -> ClipReadDto:

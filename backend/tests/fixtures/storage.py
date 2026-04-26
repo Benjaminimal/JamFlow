@@ -22,9 +22,7 @@ def storage_public_url_override():
 
 
 @pytest.fixture
-async def audio_storage(
-    storage_name_override,  # noqa: ARG001
-):
+async def audio_storage_isolation():
     yield
     async with get_audio_storage_service() as storage_service:
         # delete all files in the bucket
