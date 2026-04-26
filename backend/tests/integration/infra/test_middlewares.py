@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
+from tests.fixtures.log import AssertLogRecords
+
 
 async def test_request_id_in_response_headers(
     app: FastAPI,
@@ -32,7 +34,7 @@ async def test_request_details_logged(
     app: FastAPI,
     client: AsyncClient,
     mocker: MockerFixture,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ) -> None:
     static_uuid = "123e4567-e89b-12d3-a456-426614174000"
     mocker.patch("jamflow.infra.api.middlewares.uuid.uuid4", return_value=static_uuid)
@@ -46,7 +48,7 @@ async def test_request_details_logged(
     assert response.status_code == 200
 
     assert_log_records(
-        expected_events=[
+        [
             (
                 "Request received",
                 {

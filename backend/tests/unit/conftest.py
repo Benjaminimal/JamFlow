@@ -1,4 +1,5 @@
 from typing import AsyncGenerator
+from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
@@ -16,7 +17,7 @@ from tests.unit.fakes import (
 
 
 @pytest.fixture
-def mock_db_session(mocker: MockerFixture):
+def mock_db_session(mocker: MockerFixture) -> AsyncMock:
     """
     A fake database session for tests that don't touch the database.
     """

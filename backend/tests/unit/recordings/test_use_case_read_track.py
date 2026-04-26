@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -13,7 +14,7 @@ from tests.unit.recordings.conftest import CreatePersistedTrack
 def use_case(
     fake_track_repo: FakeTrackRepository,
     fake_audio_storage: FakeAudioStorage,
-    mock_db_session,
+    mock_db_session: AsyncMock,
 ) -> ReadTrack:
     return build_read_track(
         track_repo=fake_track_repo,

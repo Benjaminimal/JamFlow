@@ -1,4 +1,5 @@
 import pytest
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import col, func, select
 
@@ -52,7 +53,7 @@ def create_track(
 @pytest.fixture
 async def track_1(
     create_track: CreateTrack,
-    mp3_upload_file,
+    mp3_upload_file: UploadFile,
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track mp3",
@@ -65,7 +66,7 @@ async def track_1(
 @pytest.fixture
 async def track_2(
     create_track: CreateTrack,
-    ogg_upload_file,
+    ogg_upload_file: UploadFile,
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track ogg",
@@ -78,7 +79,7 @@ async def track_2(
 @pytest.fixture
 async def track_3(
     create_track: CreateTrack,
-    wav_upload_file,
+    wav_upload_file: UploadFile,
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track wav",

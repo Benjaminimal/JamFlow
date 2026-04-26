@@ -26,6 +26,7 @@ from jamflow.infra.api.exception_handlers import (
     get_error_code,
     get_http_status,
 )
+from tests.fixtures.log import AssertLogRecords
 
 
 @pytest.fixture
@@ -144,7 +145,7 @@ class MockLibraryError(Exception):
 async def test_application_exception_handler_4xx(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
     exception: Exception,
     expected_status: int,
     expected_response: dict,
@@ -203,7 +204,7 @@ async def test_application_exception_handler_4xx(
 async def test_application_exception_handler_500(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
     exception: Exception,
     expected_response: dict,
 ):
@@ -237,7 +238,7 @@ async def test_application_exception_handler_500(
 async def test_external_exception_handler(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
     exception: Exception,
 ):
     path = "/error"
@@ -305,7 +306,7 @@ async def test_timestamp_in_error_response(
 async def test_request_body_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ):
     path = "/error"
 
@@ -341,7 +342,7 @@ async def test_request_body_validation_error(
 async def test_path_param_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ):
     @temp_route("/error/{item_id}")
     async def error_route(item_id: int):
@@ -367,7 +368,7 @@ async def test_path_param_validation_error(
 async def test_query_param_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ):
     path = "/error"
 
@@ -403,7 +404,7 @@ async def test_query_param_validation_error(
 async def test_response_validation_error(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ):
     class ResponseSchema(BaseModel):
         name: str
@@ -434,7 +435,7 @@ async def test_response_validation_error(
 async def test_fast_api_http_exception_handler(
     non_raising_client: AsyncClient,
     temp_route,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ):
     path = "/error"
 
@@ -456,7 +457,7 @@ async def test_fast_api_http_exception_handler(
 
 async def test_fast_api_404_for_unknown_path(
     non_raising_client: AsyncClient,
-    assert_log_records,
+    assert_log_records: AssertLogRecords,
 ):
     response = await non_raising_client.get("/non-existent")
 

@@ -1,18 +1,19 @@
 import uuid
+from unittest.mock import AsyncMock
 
 import pytest
 
 from jamflow.infra.bootstrap import build_list_clip
 from jamflow.recordings.use_cases import ListClip
 from tests.unit.factories import ClipFactory
-from tests.unit.fakes import FakeClipRepository
+from tests.unit.fakes import FakeAudioStorage, FakeClipRepository
 
 
 @pytest.fixture
 def use_case(
-    fake_clip_repo,
-    fake_audio_storage,
-    mock_db_session,
+    fake_clip_repo: FakeClipRepository,
+    fake_audio_storage: FakeAudioStorage,
+    mock_db_session: AsyncMock,
 ) -> ListClip:
     return build_list_clip(
         clip_repo=fake_clip_repo,

@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -22,7 +23,7 @@ def use_case(
     fake_track_repo: FakeTrackRepository,
     fake_audio_processor: FakeAudioProcessor,
     fake_audio_storage: FakeAudioStorage,
-    mock_db_session,
+    mock_db_session: AsyncMock,
 ) -> CreateClip:
     return build_create_clip(
         clip_repo=fake_clip_repo,

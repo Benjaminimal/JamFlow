@@ -117,7 +117,7 @@ def test_get_size_on_closed_file_raises_value_error():
         native_audio_processor.get_size(file_like)
 
 
-def test_clip_returns_clipped_segment(wav_file):
+def test_clip_returns_clipped_segment(wav_file: Path):
     start, end = 1000, 2000
     with open(wav_file, "rb") as file_like:
         clipped_file = native_audio_processor.clip(
