@@ -1,7 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.config import settings
-from jamflow.infra.audio import native_audio_processor
+from jamflow.infra.audio import NativeAudioProcessor, native_audio_processor
 from jamflow.infra.database.repositories import (
     SQLModelClipRepository,
     SQLModelTrackRepository,
@@ -23,19 +23,19 @@ from jamflow.recordings.use_cases import (
 )
 
 
-def default_clip_repo(session: AsyncSession) -> ClipRepository:
+def default_clip_repo(session: AsyncSession) -> SQLModelClipRepository:
     return SQLModelClipRepository(session)
 
 
-def default_track_repo(session: AsyncSession) -> TrackRepository:
+def default_track_repo(session: AsyncSession) -> SQLModelTrackRepository:
     return SQLModelTrackRepository(session)
 
 
-def default_audio_storage() -> AudioStorage:
+def default_audio_storage() -> S3StorageService:
     return S3StorageService(settings.STORAGE_NAME_AUDIO)
 
 
-def default_audio_processor() -> AudioProcessor:
+def default_audio_processor() -> NativeAudioProcessor:
     return native_audio_processor
 
 
