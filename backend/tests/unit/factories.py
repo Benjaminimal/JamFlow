@@ -15,6 +15,8 @@ class ClipCreateDtoFactory(ModelFactory[ClipCreateDto]):
 
 
 class TrackFactory(ModelFactory[Track]):
+    duration = lambda: TrackFactory.__faker__.pyint(min_value=60_000, max_value=120_000)  # noqa: E731
+
     @post_generated
     @classmethod
     def path(cls, format: AudioFileFormat) -> str:
