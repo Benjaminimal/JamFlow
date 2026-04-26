@@ -31,7 +31,7 @@ def use_case(
     )
 
 
-async def test_create_clip_with_non_existent_track_raises_exception(
+async def test_non_existent_track_raises_exception(
     use_case: CreateClip,
 ):
     clip_create_dto = ClipCreateDtoFactory.build()
@@ -40,7 +40,7 @@ async def test_create_clip_with_non_existent_track_raises_exception(
         await use_case.execute(clip_create_dto)
 
 
-async def test_create_clip_with_end_exceeds_track_duration_raises_validation_error(
+async def test_end_exceeds_track_duration_raises_validation_error(
     use_case: CreateClip,
     fake_track_repo: FakeTrackRepository,
     fake_audio_storage: FakeAudioStorage,
@@ -61,7 +61,7 @@ async def test_create_clip_with_end_exceeds_track_duration_raises_validation_err
     assert not fake_audio_storage.files
 
 
-async def test_clip_create_returns_clip_with_correct_data(
+async def test_returns_clip_with_correct_data(
     use_case: CreateClip,
     fake_track_repo: FakeTrackRepository,
     fake_audio_storage: FakeAudioStorage,

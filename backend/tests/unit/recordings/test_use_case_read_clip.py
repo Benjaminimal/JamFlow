@@ -21,14 +21,14 @@ def use_case(
     )
 
 
-async def test_clip_read_with_missing_clip_raises_error(
+async def test_with_missing_clip_raises_error(
     use_case: ReadClip,
 ):
     with pytest.raises(ResourceNotFoundError, match="Clip not found"):
         await use_case.execute(uuid.uuid4())
 
 
-async def test_clip_read_returns_correct_clip(
+async def test_returns_correct_clip(
     use_case: ReadClip,
     fake_clip_repo: FakeClipRepository,
 ):

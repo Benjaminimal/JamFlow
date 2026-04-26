@@ -20,7 +20,7 @@ def use_case(
     )
 
 
-async def test_list_clip_without_track_id_returns_all_clips(
+async def test_without_track_id_returns_all_clips(
     use_case: ListClip,
     fake_clip_repo: FakeClipRepository,
 ):
@@ -35,7 +35,7 @@ async def test_list_clip_without_track_id_returns_all_clips(
     assert {clip_1.id, clip_2.id} == {c.id for c in clip_read_dtos}
 
 
-async def test_list_clip_filters_by_track_id(
+async def test_filters_by_track_id(
     use_case: ListClip,
     fake_clip_repo: FakeClipRepository,
 ):
@@ -51,7 +51,7 @@ async def test_list_clip_filters_by_track_id(
     assert {clip_2.id} == {c.id for c in clip_read_dtos}
 
 
-async def test_clip_list_with_no_clips_returns_empty_list(
+async def test_with_no_clips_returns_empty_list(
     use_case: ListClip,
 ):
     clip_read_dtos = await use_case.execute()
