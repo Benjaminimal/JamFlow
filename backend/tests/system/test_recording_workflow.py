@@ -5,7 +5,7 @@ import pytest
 from httpx import AsyncClient
 from pydub import AudioSegment
 
-pytestmark = pytest.mark.usefixtures("audio_storage")
+pytestmark = pytest.mark.usefixtures("audio_storage_isolation")
 
 
 @pytest.fixture

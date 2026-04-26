@@ -1,19 +1,10 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Form, Query, status
+from fastapi import APIRouter, Form, status
 from pydantic import UUID4
 
-from jamflow.infra.api.deps import SessionDep
+from jamflow.infra.api.deps import CreateTrackDep, ListTrackDep, ReadTrackDep
 from jamflow.recordings.schemas import (
     TrackCreateDto,
     TrackReadDto,
-    TrackSignedUrlDto,
-)
-from jamflow.recordings.services.track import (
-    track_create,
-    track_generate_signed_urls,
-    track_list,
-    track_read,
 )
 
 router = APIRouter(prefix="/tracks", tags=["tracks"])
@@ -21,10 +12,10 @@ router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=TrackReadDto)
 async def track_create_view(
-    session: SessionDep,
+    use_case: CreateTrackDep,
     data: TrackCreateDto = Form(..., media_type="multipart/form-data"),
 ) -> TrackReadDto:
-    track = await track_create(session, track_create_dto=data)
+    track = await use_case.execute(track_create_dto=data)
     return track
 
 
@@ -33,8 +24,8 @@ async def track_create_view(
     status_code=status.HTTP_200_OK,
     response_model=list[TrackReadDto],
 )
-async def track_list_view(session: SessionDep) -> list[TrackReadDto]:
-    tracks = await track_list(session)
+async def track_list_view(use_case: ListTrackDep) -> list[TrackReadDto]:
+    tracks = await use_case.execute()
     return tracks
 
 
@@ -51,18 +42,6 @@ async def track_list_view(session: SessionDep) -> list[TrackReadDto]:
         },
     },
 )
-async def track_read_view(session: SessionDep, track_id: UUID4) -> TrackReadDto:
-    track = await track_read(session, track_id=track_id)
+async def track_read_view(use_case: ReadTrackDep, track_id: UUID4) -> TrackReadDto:
+    track = await use_case.execute(track_id=track_id)
     return track
-
-
-@router.get("/urls")
-async def track_generate_signed_urls_view(
-    session: SessionDep,
-    track_ids: Annotated[list[UUID4], Query(..., min_length=1)],
-) -> list[TrackSignedUrlDto]:
-    track_generate_signed_url_dtos = await track_generate_signed_urls(
-        session,
-        track_ids=track_ids,
-    )
-    return track_generate_signed_url_dtos

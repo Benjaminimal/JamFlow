@@ -3,15 +3,12 @@ from typing import Sequence
 
 from sqlmodel import col, select
 
-from jamflow.infra.database.repositories import SQLModelBaseRepository
-from jamflow.recordings.models import Clip, Track
+from jamflow.recordings.models import Clip
+
+from .base import SQLModelBaseRepository
 
 
-class TrackRepository(SQLModelBaseRepository[Track]):
-    model_class = Track
-
-
-class ClipRepository(SQLModelBaseRepository[Clip]):
+class SQLModelClipRepository(SQLModelBaseRepository[Clip]):
     model_class = Clip
 
     async def list_by_track_id(self, track_id: uuid.UUID) -> Sequence[Clip]:

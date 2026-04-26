@@ -1,0 +1,61 @@
+import uuid
+from unittest.mock import AsyncMock
+
+import pytest
+
+from jamflow.infra.bootstrap import build_list_clip
+from jamflow.recordings.use_cases import ListClip
+from tests.unit.factories import ClipFactory
+from tests.unit.fakes import FakeAudioStorage, FakeClipRepository
+
+
+@pytest.fixture
+def use_case(
+    fake_clip_repo: FakeClipRepository,
+    fake_audio_storage: FakeAudioStorage,
+    mock_db_session: AsyncMock,
+) -> ListClip:
+    return build_list_clip(
+        clip_repo=fake_clip_repo,
+        audio_storage=fake_audio_storage,
+        session=mock_db_session,
+    )
+
+
+async def test_without_track_id_returns_all_clips(
+    use_case: ListClip,
+    fake_clip_repo: FakeClipRepository,
+):
+    clip_1 = ClipFactory.build(track_id=uuid.uuid4())
+    clip_2 = ClipFactory.build(track_id=uuid.uuid4())
+    await fake_clip_repo.create(clip_1)
+    await fake_clip_repo.create(clip_2)
+
+    clip_read_dtos = await use_case.execute()
+
+    assert len(clip_read_dtos) == 2
+    assert {clip_1.id, clip_2.id} == {c.id for c in clip_read_dtos}
+
+
+async def test_filters_by_track_id(
+    use_case: ListClip,
+    fake_clip_repo: FakeClipRepository,
+):
+    filter_id = uuid.uuid4()
+    clip_1 = ClipFactory.build(track_id=uuid.uuid4())
+    clip_2 = ClipFactory.build(track_id=filter_id)
+    await fake_clip_repo.create(clip_1)
+    await fake_clip_repo.create(clip_2)
+
+    clip_read_dtos = await use_case.execute(filter_id)
+
+    assert len(clip_read_dtos) == 1
+    assert {clip_2.id} == {c.id for c in clip_read_dtos}
+
+
+async def test_with_no_clips_returns_empty_list(
+    use_case: ListClip,
+):
+    clip_read_dtos = await use_case.execute()
+
+    assert len(clip_read_dtos) == 0

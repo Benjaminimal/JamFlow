@@ -1,4 +1,5 @@
 from typing import AsyncGenerator
+from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
@@ -7,9 +8,16 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from tests.unit.fakes import (
+    FakeAudioProcessor,
+    FakeAudioStorage,
+    FakeClipRepository,
+    FakeTrackRepository,
+)
+
 
 @pytest.fixture
-def mock_db_session(mocker: MockerFixture):
+def mock_db_session(mocker: MockerFixture) -> AsyncMock:
     """
     A fake database session for tests that don't touch the database.
     """
@@ -50,3 +58,23 @@ async def sqli_session(
                 yield session
             finally:
                 await transaction.rollback()
+
+
+@pytest.fixture
+def fake_clip_repo() -> FakeClipRepository:
+    return FakeClipRepository()
+
+
+@pytest.fixture
+def fake_track_repo() -> FakeTrackRepository:
+    return FakeTrackRepository()
+
+
+@pytest.fixture
+def fake_audio_storage() -> FakeAudioStorage:
+    return FakeAudioStorage()
+
+
+@pytest.fixture
+def fake_audio_processor() -> FakeAudioProcessor:
+    return FakeAudioProcessor()

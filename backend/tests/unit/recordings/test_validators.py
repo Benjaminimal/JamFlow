@@ -1,4 +1,7 @@
+from typing import Callable
+
 import pytest
+from fastapi import UploadFile
 
 from jamflow.recordings.validators import (
     get_file_size_validator,
@@ -22,20 +25,25 @@ def test_validate_audio_file_format_accepts_supported_formats(
     assert upload_file.file.tell() == 0
 
 
-def test_validate_audio_file_format_rejects_unsupported_format(txt_upload_file):
+def test_validate_audio_file_format_rejects_unsupported_format(
+    txt_upload_file: UploadFile,
+):
     txt_upload_file.filename = "test.txt"
     with pytest.raises(ValueError, match="Unsupported file format."):
         validate_audo_file_format(txt_upload_file)
 
 
+FileSizeValidator = Callable[[UploadFile], UploadFile]
+
+
 @pytest.fixture
-def file_size_2mb_max_validator():
+def file_size_2mb_max_validator() -> FileSizeValidator:
     return get_file_size_validator(2 * 1024 * 1024)  # 2 MB max
 
 
 def test_file_size_validator_accepts_file_within_limit(
-    mp3_upload_file,
-    file_size_2mb_max_validator,
+    mp3_upload_file: UploadFile,
+    file_size_2mb_max_validator: FileSizeValidator,
 ):
     mp3_upload_file.size = 2 * 1024 * 1024  # 2 MB
     validated_upload_file = file_size_2mb_max_validator(mp3_upload_file)
@@ -44,8 +52,8 @@ def test_file_size_validator_accepts_file_within_limit(
 
 
 def test_file_size_validator_rejects_file_too_large(
-    mp3_upload_file,
-    file_size_2mb_max_validator,
+    mp3_upload_file: UploadFile,
+    file_size_2mb_max_validator: FileSizeValidator,
 ):
     mp3_upload_file.size = 3 * 1024 * 1024 + 1  # 2 MB + 1 byte
     with pytest.raises(ValueError, match="File is larger than 2 MB"):
@@ -53,8 +61,8 @@ def test_file_size_validator_rejects_file_too_large(
 
 
 def test_file_size_validator_rejects_empty_file(
-    mp3_upload_file,
-    file_size_2mb_max_validator,
+    mp3_upload_file: UploadFile,
+    file_size_2mb_max_validator: FileSizeValidator,
 ):
     mp3_upload_file.size = 0
     with pytest.raises(ValueError, match="File is empty"):

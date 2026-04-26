@@ -1,10 +1,37 @@
+import uuid
 from types import TracebackType
-from typing import BinaryIO, Protocol, Self
+from typing import BinaryIO, Protocol, Self, Sequence
+
+from jamflow.core.protocols import Repository
+from jamflow.recordings.models import AudioFileFormat, Clip, Track
 
 
-class StorageService(Protocol):
+class TrackRepository(Repository[Track], Protocol): ...
+
+
+class ClipRepository(Repository[Clip], Protocol):
+    async def list_by_track_id(self, track_id: uuid.UUID) -> Sequence[Clip]: ...
+
+
+class AudioProcessor(Protocol):
+    def get_format(self, file: BinaryIO) -> AudioFileFormat: ...
+    def get_duration(self, file: BinaryIO, file_format: AudioFileFormat) -> int: ...
+    def get_size(self, file: BinaryIO) -> int: ...
+    def clip(
+        self, file: BinaryIO, file_format: AudioFileFormat, *, start: int, end: int
+    ) -> BinaryIO: ...
+
+
+class AudioStorage(Protocol):
     """
     Storage service used to interact with remote file storage.
+
+    Must be used as an async context manager on each call site:
+
+    ```
+    async with self.audio_storage as storage:
+        await storage.store_file(...)
+    ```
 
     :raises StorageError: if the storage can't be accessed.
     """
@@ -43,19 +70,11 @@ class StorageService(Protocol):
         """
         ...
 
-    async def purge(self) -> None:
-        """
-        Delete all files from storage.
-
-        :raises StorageError: if the storage could not be purged.
-        """
-        ...
-
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
         """
         Generate an URL for accessing a file that will expire after some time.
 
-        param path: The path to the file in storage.
+        :param path: The path to the file in storage.
         :param expiration: Time in seconds for the presigned URL to remain valid.
                            Defaults to 3600 seconds (1 hour).
         :raises StorageError: if the URL could not be generated.

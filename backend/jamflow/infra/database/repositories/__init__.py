@@ -1,5 +1,7 @@
-from .base import SQLModelBaseRepository
+from .clip import SQLModelClipRepository
+from .track import SQLModelTrackRepository
 
 __all__ = [
-    "SQLModelBaseRepository",
+    "SQLModelClipRepository",
+    "SQLModelTrackRepository",
 ]

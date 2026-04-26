@@ -1,15 +1,16 @@
 import pytest
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import col, func, select
 
+from jamflow.infra.bootstrap import build_create_clip, build_create_track
 from jamflow.recordings.schemas import (
     ClipCreateDto,
     ClipReadDto,
     TrackCreateDto,
     TrackReadDto,
 )
-from jamflow.recordings.services.clip import clip_create
-from jamflow.recordings.services.track import track_create
+from jamflow.recordings.use_cases import CreateClip, CreateTrack
 
 
 @pytest.fixture
@@ -43,51 +44,61 @@ def get_row(pg_session: AsyncSession):
 
 
 @pytest.fixture
-async def track_1(
+def create_track(
     pg_session,
-    audio_storage,  # noqa: ARG001
-    mp3_upload_file,
+) -> CreateTrack:
+    return build_create_track(pg_session)
+
+
+@pytest.fixture
+async def track_1(
+    create_track: CreateTrack,
+    mp3_upload_file: UploadFile,
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track mp3",
         recorded_date="2021-02-03",
         upload_file=mp3_upload_file,
     )
-    return await track_create(pg_session, track_create_dto=track_create_dto)
+    return await create_track.execute(track_create_dto=track_create_dto)
 
 
 @pytest.fixture
 async def track_2(
-    pg_session,
-    audio_storage,  # noqa: ARG001
-    ogg_upload_file,
+    create_track: CreateTrack,
+    ogg_upload_file: UploadFile,
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track ogg",
         recorded_date="2022-04-05",
         upload_file=ogg_upload_file,
     )
-    return await track_create(pg_session, track_create_dto=track_create_dto)
+    return await create_track.execute(track_create_dto=track_create_dto)
 
 
 @pytest.fixture
 async def track_3(
-    pg_session,
-    audio_storage,  # noqa: ARG001
-    wav_upload_file,
+    create_track: CreateTrack,
+    wav_upload_file: UploadFile,
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track wav",
         recorded_date="2023-06-07",
         upload_file=wav_upload_file,
     )
-    return await track_create(pg_session, track_create_dto=track_create_dto)
+    return await create_track.execute(track_create_dto=track_create_dto)
+
+
+@pytest.fixture
+def create_clip(
+    pg_session,
+) -> CreateClip:
+    return build_create_clip(pg_session)
 
 
 @pytest.fixture
 async def clip_1(
-    pg_session,
-    audio_storage,  # noqa: ARG001
+    create_clip: CreateClip,
     track_1: TrackReadDto,
 ) -> ClipReadDto:
     clip_create_dto = ClipCreateDto(
@@ -96,13 +107,12 @@ async def clip_1(
         start=0,
         end=1000,
     )
-    return await clip_create(pg_session, clip_create_dto=clip_create_dto)
+    return await create_clip.execute(clip_create_dto)
 
 
 @pytest.fixture
 async def clip_2(
-    pg_session,
-    audio_storage,  # noqa: ARG001
+    create_clip: CreateClip,
     track_2: TrackReadDto,
 ) -> ClipReadDto:
     clip_create_dto = ClipCreateDto(
@@ -111,4 +121,4 @@ async def clip_2(
         start=500,
         end=1400,
     )
-    return await clip_create(pg_session, clip_create_dto=clip_create_dto)
+    return await create_clip.execute(clip_create_dto)
