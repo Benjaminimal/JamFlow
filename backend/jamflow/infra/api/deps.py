@@ -3,13 +3,28 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from jamflow.infra.bootstrap import build_create_clip, build_list_clip, build_read_clip
+from jamflow.infra.bootstrap import (
+    build_create_clip,
+    build_create_track,
+    build_list_clip,
+    build_read_clip,
+)
 from jamflow.infra.database import get_session
-from jamflow.recordings.use_cases import CreateClip, ListClip, ReadClip
+from jamflow.recordings.use_cases import CreateClip, CreateTrack, ListClip, ReadClip
 
 SessionDep = Annotated[
     AsyncSession,
     Depends(get_session),
+]
+
+
+def get_create_track(session: SessionDep) -> CreateTrack:
+    return build_create_track(session)
+
+
+CreateTrackDep = Annotated[
+    CreateTrack,
+    Depends(get_create_track),
 ]
 
 
