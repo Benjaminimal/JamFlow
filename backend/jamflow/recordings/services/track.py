@@ -3,11 +3,7 @@ import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
 from structlog import get_logger
 
-from jamflow.core.exceptions import ResourceNotFoundError
-from jamflow.infra.audio import (
-    get_audio_duration,
-    get_audio_file_format,
-)
+from jamflow.infra.audio import get_audio_duration, get_audio_file_format
 from jamflow.infra.database.repositories import SQLModelTrackRepository
 from jamflow.infra.storage import get_audio_storage_service
 from jamflow.recordings.models import Track
@@ -73,14 +69,3 @@ async def track_list(session: AsyncSession) -> list[TrackReadDto]:
             for track in tracks
         ]
     return track_read_dtos
-
-
-async def track_read(session: AsyncSession, *, track_id: uuid.UUID) -> TrackReadDto:
-    track_repo = SQLModelTrackRepository(session)
-    track = await track_repo.get_by_id(track_id)
-    if track is None:
-        raise ResourceNotFoundError("Track not found")
-    async with get_audio_storage_service() as audio_storage:
-        track_url = await audio_storage.generate_expiring_url(track.path)
-    track_read_dto = TrackReadDto.model_validate(dict(track) | {"url": track_url})
-    return track_read_dto
