@@ -1,4 +1,5 @@
 from .create_clip import CreateClip
+from .create_track import CreateTrack
 from .list_clip import ListClip
 from .read_clip import ReadClip
 
@@ -6,4 +7,5 @@ __all__ = [
     "CreateClip",
     "ListClip",
     "ReadClip",
+    "CreateTrack",
 ]
