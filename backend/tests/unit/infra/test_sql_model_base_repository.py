@@ -9,7 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.exceptions import DuplicateEntityError
 from jamflow.infra.database.models import BaseSQLModel
-from jamflow.infra.database.repositories import SQLModelBaseRepository
+from jamflow.infra.database.repositories.base import SQLModelBaseRepository
 
 pytestmark = [pytest.mark.asyncio]
 

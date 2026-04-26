@@ -3,8 +3,9 @@ from typing import Sequence
 
 from sqlmodel import col, select
 
-from jamflow.infra.database.repositories import SQLModelBaseRepository
 from jamflow.recordings.models import Clip
+
+from .base import SQLModelBaseRepository
 
 
 class SQLModelClipRepository(SQLModelBaseRepository[Clip]):
