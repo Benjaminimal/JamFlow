@@ -1,12 +1,12 @@
 from tempfile import TemporaryFile
 from typing import BinaryIO
 
-import filetype  # type: ignore [import-untyped]
-from mutagen import MutagenError  # type: ignore [attr-defined]
+import filetype
+from mutagen import MutagenError
 from mutagen.mp3 import MP3
 from mutagen.oggvorbis import OggVorbis
 from mutagen.wave import WAVE
-from pydub import AudioSegment  # type: ignore [import-untyped]
+from pydub import AudioSegment
 
 from jamflow.core.exceptions import BusinessLogicError, ValidationError
 from jamflow.recordings.models import AudioFileFormat

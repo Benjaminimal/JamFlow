@@ -91,7 +91,7 @@ class S3StorageService:
                 objects = [{"Key": obj["Key"]} for obj in response["Contents"]]
                 await self._client.delete_objects(
                     Bucket=self._bucket_name,
-                    Delete={"Objects": objects},  # type: ignore [typeddict-item]
+                    Delete={"Objects": objects},
                 )
 
                 await logger.ainfo(
