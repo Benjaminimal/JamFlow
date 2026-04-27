@@ -9,7 +9,7 @@ pytestmark = pytest.mark.usefixtures("audio_storage_isolation")
 
 
 @pytest.fixture
-def track_data():
+def track_data() -> dict:
     return {
         "title": "Test Track",
         "recorded_date": "2021-02-03",
@@ -17,15 +17,15 @@ def track_data():
 
 
 @pytest.fixture
-def track_file(wav_file: Path):
+def track_file(wav_file: Path) -> dict:
     return {"upload_file": ("dummy.wav", wav_file.read_bytes(), "audio/wav")}
 
 
 async def test_track_upload_and_clip_create(
     client: AsyncClient,
     public_client: AsyncClient,
-    track_file,
-    track_data,
+    track_file: dict,
+    track_data: dict,
 ):
     # Upload a wav file and verify it is successfully stored
     response = await client.post("/api/v1/tracks", files=track_file, data=track_data)

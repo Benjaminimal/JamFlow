@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 import pytest
 from types_aiobotocore_s3.client import S3Client
 
@@ -9,7 +11,7 @@ TEST_BUCKET_NAME = "test-storage-service-bucket"
 
 
 @pytest.fixture
-async def s3_client() -> S3Client:
+async def s3_client() -> AsyncGenerator[S3Client]:
     client = await get_storage_client()
 
     try:

@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+from typing import Generator
 
 import pytest
 from fastapi import UploadFile
@@ -8,7 +9,7 @@ from pytest import TempPathFactory
 
 
 @pytest.fixture(scope="module")
-def temp_test_dir(tmp_path_factory: TempPathFactory) -> Path:
+def temp_test_dir(tmp_path_factory: TempPathFactory) -> Generator[Path]:
     """Fixture that provides a temporary directory for all generated audio files."""
     # Create a temporary directory for audio test files
     dir_path = tmp_path_factory.mktemp("test_files")
@@ -37,19 +38,19 @@ def audio_file_factory(temp_test_dir: Path):
 
 
 @pytest.fixture(scope="module")
-def wav_file(audio_file_factory) -> Path:
+def wav_file(audio_file_factory) -> Generator[Path]:
     """Fixture to generate a 2.4-second WAV file."""
     yield from audio_file_factory("wav")
 
 
 @pytest.fixture(scope="module")
-def mp3_file(audio_file_factory) -> Path:
+def mp3_file(audio_file_factory) -> Generator[Path]:
     """Fixture to generate a 2.4-second MP3 file."""
     yield from audio_file_factory("mp3")
 
 
 @pytest.fixture(scope="module")
-def ogg_file(audio_file_factory) -> Path:
+def ogg_file(audio_file_factory) -> Generator[Path]:
     """Fixture to generate a 2.4-second OGG file."""
     yield from audio_file_factory("ogg")
 
