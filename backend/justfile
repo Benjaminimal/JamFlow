@@ -17,7 +17,7 @@ formatcheck: setup
     uv run ruff format --check jamflow tests
 
 typecheck: setup
-    uv run mypy .
+    uv run ty check .
 
 setup:
     uv sync --frozen --group dev --group test

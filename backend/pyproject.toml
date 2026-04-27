@@ -27,7 +27,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   # Type checking
-  "mypy>=1.15.0",
+  "ty~=0.0.32",
   "types-aiobotocore[s3]>=2.19.0",
   # Code quality
   "pre-commit>=4.1.0",
@@ -45,6 +45,9 @@ test = [
   "polyfactory>=3.3.0",
 ]
 
+[tool.ty.src]
+exclude = ["./migrations"]
+
 [tool.ruff.lint]
 select = [
   "E",      # pycodestyle errors
@@ -61,10 +64,6 @@ ignore = [
   "B008",  # do not perform function calls in argument defaults
   "UP035", # warn about deprecated imports, we still want to import type hints from typing
 ]
-
-[tool.mypy]
-strict = true
-exclude = ["^migrations/", "^tests/", "^.*/__pycache__/", "^.venv/"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore star import for migration generation
