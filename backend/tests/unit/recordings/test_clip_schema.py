@@ -23,7 +23,10 @@ def test_clip_create_dto_constructs_sucessfully(track_id: uuid.UUID):
     assert dto.end == 2100
 
 
-@pytest.mark.parametrize("start, end", [(1200, 1200), (2100, 1200)])
+@pytest.mark.parametrize(
+    ("start", " end"),
+    [(1200, 1200), (2100, 1200)],
+)
 def test_clip_create_dto_with_overlapping_times_raises_error(
     start,
     end,
@@ -63,7 +66,7 @@ def test_clip_create_dto_with_negative_end_raises_error(track_id: uuid.UUID):
 
 
 @pytest.mark.parametrize(
-    "title,expected_message",
+    ("title", "expected_message"),
     [
         ("", "String should have at least 1 character"),
         (" ", "String should have at least 1 character"),

@@ -7,7 +7,10 @@ from pydantic import ValidationError
 from jamflow.recordings.schemas import TrackCreateDto
 
 
-@pytest.mark.parametrize("recorded_date", ["", None, date.today()])
+@pytest.mark.parametrize(
+    "recorded_date",
+    ["", None, date.today()],
+)
 def test_track_create_dto_constructs_sucessfully(
     recorded_date,
     mp3_upload_file: UploadFile,
@@ -25,7 +28,7 @@ def test_track_create_dto_constructs_sucessfully(
 
 
 @pytest.mark.parametrize(
-    "title,expected_message",
+    ("title", "expected_message"),
     [
         ("", "String should have at least 1 character"),
         (" ", "String should have at least 1 character"),
@@ -63,7 +66,7 @@ def huge_mp3_upload_file(mp3_upload_file: UploadFile) -> UploadFile:
 
 
 @pytest.mark.parametrize(
-    "upload_file,expected_message",
+    ("upload_file", "expected_message"),
     [
         (
             "empty_mp3_upload_file",

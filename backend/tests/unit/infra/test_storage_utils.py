@@ -4,7 +4,7 @@ from jamflow.infra.storage.utils import replace_base_url
 
 
 @pytest.mark.parametrize(
-    "url, new_base, expected_url",
+    ("url", " new_base", " expected_url"),
     [
         (
             "http://internal/",
@@ -58,7 +58,7 @@ def test_replace_site(url, new_base, expected_url):
 
 
 @pytest.mark.parametrize(
-    "url, new_base",
+    ("url", " new_base"),
     [
         ("", "https://external/"),
         ("http://internal/", ""),

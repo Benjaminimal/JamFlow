@@ -48,27 +48,57 @@ test = [
 [tool.ty.src]
 exclude = ["./migrations"]
 
-[tool.ruff.lint]
-# https://docs.astral.sh/ruff/rules/
-select = [
-  "E",      # pycodestyle errors
-  "W",      # pycodestyle warnings
-  "F",      # pyflakes
-  "I",      # isort
-  "B",      # flake8-bugbear
-  "C4",     # flake8-comprehensions
-  "UP",     # pyupgrade
-  "ARG001", # unused arguments in functions
+[tool.ruff]
+exclude = [
+  "migrations/versions/*", # don't lint generated migration code
 ]
+
+[tool.ruff.lint]
+# activate all rules and ignore what we don't care about
+# https://docs.astral.sh/ruff/rules/
+select = ["ALL"]
 ignore = [
-  "E501",  # line too long, handled by formatter
+  "E501",   # line too long, handled by formatter
+  "COM812", # trailing commas are formatter concern
+  # TODO: reconsider this ignore
   "B008",  # do not perform function calls in argument defaults
   "UP035", # warn about deprecated imports, we still want to import type hints from typing
+  # we don't lint for docstrings in for all that is public
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  "TD003",  # we don't use issue numbers
+  "TD002",  # it's ok not have authors in TODO
+  "FIX",    # we are ok with TODO and FIXME comments
+  "RET504", # unnecessary assigns can make debugging easier
+  "PTH123", # it's fine to use `open`
+  "EM",     # slight error message duplication in tracebacks are fine
+  "TRY003", # we don't want to move all exception string construction into __init__
+  "ANN204", # no need to provide return tupes for special methods
+  # TODO: resolve below
+  "DTZ",
+  "PT011",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore star import for migration generation
-"migrations/env.py" = ["F403"]
+"migrations/env.py" = [
+  "F403", # Ignore star import for migration generation
+]
+"jamflow/core/config.py" = [
+  "N802", # config may have unconventional function names
+]
+"tests/**/*.py" = [
+  "ANN",      # tests don't need to be strictly annotated
+  "ASYNC230", # allow sync file operations in test
+  "S101",     # allow asserts in tests
+  "ARG002",   # fakes objects may have unused function parameters
+  "PLR2004",  # test asserts can use magic values
+]
 
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.

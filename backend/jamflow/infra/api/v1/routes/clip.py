@@ -10,7 +10,6 @@ router = APIRouter(prefix="/clips", tags=["clips"])
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
-    response_model=ClipReadDto,
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "Track not found",
@@ -28,7 +27,6 @@ async def clip_create_view(
 @router.get(
     "",
     status_code=status.HTTP_200_OK,
-    response_model=list[ClipReadDto],
 )
 async def clip_list_view(
     use_case: ListClipDep,
@@ -40,7 +38,6 @@ async def clip_list_view(
 @router.get(
     "/{clip_id}",
     status_code=status.HTTP_200_OK,
-    response_model=ClipReadDto,
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "Clip not found",

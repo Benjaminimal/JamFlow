@@ -72,7 +72,7 @@ def test_get_duration_without_metadata_raises_audio_service_exception(
 
 
 @pytest.mark.parametrize(
-    "audio_file,file_format",
+    ("audio_file", "file_format"),
     [
         ("wav_file", AudioFileFormat.WAV),
         ("ogg_file", AudioFileFormat.OGG),

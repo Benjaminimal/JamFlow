@@ -14,11 +14,6 @@ def assert_log_records(
     """
     Utility function to assert that specific log events were captured.
     """
-    # TODO: uncomment or remove
-
-    # assert len(log.events) >= len(expected_events), (
-    #     f"Expected at least {len(expected_events)} log records, got {len(log.events)} events in {log.events}"
-    # )
 
     def _assert_log_records(expected_events: list[LogEvent]) -> None:
         for message, context in expected_events:

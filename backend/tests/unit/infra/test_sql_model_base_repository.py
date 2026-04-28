@@ -90,16 +90,14 @@ async def test_create__with_duplicate_instance_raises_exception(
     persisted = await repo.create(dummy_1)
     dummy_2 = make_dummy("Second dummy", id=persisted.id)
 
-    with (
-        warnings.catch_warnings(),
-        pytest.raises(DuplicateEntityError),
-    ):
+    with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore",
             category=SAWarning,
             message=".*conflicts with persistent instance.*",
         )
-        await repo.create(dummy_2)
+        with pytest.raises(DuplicateEntityError):
+            await repo.create(dummy_2)
 
 
 async def test_get_by_id__for_existing_instance_returns_the_correct_instance(

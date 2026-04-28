@@ -75,7 +75,7 @@ class MockLibraryError(Exception):
 
 
 @pytest.mark.parametrize(
-    "exception,expected_status,expected_response",
+    ("exception", "expected_status", "expected_response"),
     [
         (
             ValidationError("Validation failed"),
@@ -165,7 +165,7 @@ async def test_application_exception_handler_4xx(
 
 
 @pytest.mark.parametrize(
-    "exception,expected_response",
+    ("exception", "expected_response"),
     [
         (
             StorageError("Storage operation failed"),

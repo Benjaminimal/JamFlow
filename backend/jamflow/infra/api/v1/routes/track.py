@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Form, status
 from pydantic import UUID4
 
@@ -10,10 +12,10 @@ from jamflow.recordings.schemas import (
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=TrackReadDto)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def track_create_view(
     use_case: CreateTrackDep,
-    data: TrackCreateDto = Form(..., media_type="multipart/form-data"),
+    data: Annotated[TrackCreateDto, Form(..., media_type="multipart/form-data")],
 ) -> TrackReadDto:
     track = await use_case.execute(track_create_dto=data)
     return track
@@ -22,7 +24,6 @@ async def track_create_view(
 @router.get(
     "",
     status_code=status.HTTP_200_OK,
-    response_model=list[TrackReadDto],
 )
 async def track_list_view(use_case: ListTrackDep) -> list[TrackReadDto]:
     tracks = await use_case.execute()
@@ -32,7 +33,6 @@ async def track_list_view(use_case: ListTrackDep) -> list[TrackReadDto]:
 @router.get(
     "/{track_id:uuid}",
     status_code=status.HTTP_200_OK,
-    response_model=TrackReadDto,
     responses={
         status.HTTP_404_NOT_FOUND: {
             "description": "Track not found",
