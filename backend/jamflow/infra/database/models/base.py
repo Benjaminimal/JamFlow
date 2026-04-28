@@ -11,11 +11,11 @@ class BaseSQLModel(SQLModel):
 
     id: uuid.UUID = Field(primary_key=True, default_factory=uuid.uuid4)
     created_at: datetime = Field(
-        sa_type=DateTime(timezone=True),  # type: ignore [call-overload]
+        sa_type=DateTime(timezone=True),  # ty: ignore [invalid-argument-type]
         default_factory=timezone_now,
     )
     updated_at: datetime = Field(
-        sa_type=DateTime(timezone=True),  # type: ignore [call-overload]
+        sa_type=DateTime(timezone=True),  # ty: ignore [invalid-argument-type]
         sa_column_kwargs={"onupdate": timezone_now},
         default_factory=timezone_now,
     )

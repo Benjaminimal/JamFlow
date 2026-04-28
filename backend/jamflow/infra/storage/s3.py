@@ -91,7 +91,7 @@ class S3StorageService:
                 objects = [{"Key": obj["Key"]} for obj in response["Contents"]]
                 await self._client.delete_objects(
                     Bucket=self._bucket_name,
-                    Delete={"Objects": objects},  # type: ignore [typeddict-item]
+                    Delete={"Objects": objects},
                 )
 
                 await logger.ainfo(
@@ -181,9 +181,10 @@ def _get_error_context(exc: BotoCoreError | ClientError) -> dict[str, Any]:
     """
     Extract s3 specific error context from a BotoCoreError or ClientError.
     """
-    if hasattr(exc, "response") and "Error" in exc.response:
+    response = getattr(exc, "response", None)
+    if isinstance(response, dict) and "Error" in response:
         return {
-            "s3_error_code": exc.response["Error"].get("Code"),
-            "s3_error_message": exc.response["Error"].get("Message"),
+            "s3_error_code": response["Error"].get("Code"),
+            "s3_error_message": response["Error"].get("Message"),
         }
     return {}

@@ -121,7 +121,7 @@ def test_clip_returns_clipped_segment(wav_file: Path):
     start, end = 1000, 2000
     with open(wav_file, "rb") as file_like:
         clipped_file = native_audio_processor.clip(
-            file_like, "wav", start=start, end=end
+            file_like, AudioFileFormat.WAV, start=start, end=end
         )
 
     clipped_segment = AudioSegment.from_file(clipped_file, format="wav")
@@ -133,19 +133,30 @@ def test_clip_returns_clipped_segment(wav_file: Path):
 
 def test_clip_with_invalid_format_raises_exception():
     with pytest.raises(ValidationError, match="Unsupported file format: invalid"):
-        native_audio_processor.clip(BytesIO(b"test data"), "invalid", start=0, end=1000)
+        native_audio_processor.clip(
+            BytesIO(b"test data"),
+            "invalid",  # ty: ignore[invalid-argument-type]
+            start=0,
+            end=1000,
+        )
 
 
 def test_clip_with_negative_start_raises_exception():
     with pytest.raises(ValidationError, match="Start cannot be negative"):
-        native_audio_processor.clip(BytesIO(b"test data"), "mp3", start=-1000, end=1000)
+        native_audio_processor.clip(
+            BytesIO(b"test data"), AudioFileFormat.MP3, start=-1000, end=1000
+        )
 
 
 def test_clip_with_invalid_range_raises_exception():
     with pytest.raises(ValidationError, match="Start must be less than end"):
-        native_audio_processor.clip(BytesIO(b"test data"), "mp3", start=2000, end=1000)
+        native_audio_processor.clip(
+            BytesIO(b"test data"), AudioFileFormat.MP3, start=2000, end=1000
+        )
 
 
 def test_clip_with_empty_file_raises_exception():
     with pytest.raises(ValidationError, match="Cannot clip an empty file"):
-        native_audio_processor.clip(BytesIO(b""), "mp3", start=0, end=1000)
+        native_audio_processor.clip(
+            BytesIO(b""), AudioFileFormat.MP3, start=0, end=1000
+        )

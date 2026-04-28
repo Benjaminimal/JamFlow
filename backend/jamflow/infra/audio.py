@@ -1,12 +1,12 @@
 from tempfile import TemporaryFile
-from typing import BinaryIO
+from typing import Any, BinaryIO, cast
 
-import filetype  # type: ignore [import-untyped]
-from mutagen import MutagenError  # type: ignore [attr-defined]
+import filetype
+from mutagen import MutagenError
 from mutagen.mp3 import MP3
 from mutagen.oggvorbis import OggVorbis
 from mutagen.wave import WAVE
-from pydub import AudioSegment  # type: ignore [import-untyped]
+from pydub import AudioSegment
 
 from jamflow.core.exceptions import BusinessLogicError, ValidationError
 from jamflow.recordings.models import AudioFileFormat
@@ -55,7 +55,8 @@ class NativeAudioProcessor:
         if metadata is None or metadata.info is None:
             raise ValidationError("No metadata found")
 
-        return int(metadata.info.length * 1000)
+        info = cast(Any, metadata.info)
+        return int(info.length * 1000)
 
     @staticmethod
     def get_size(file: BinaryIO) -> int:

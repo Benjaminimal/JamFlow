@@ -178,7 +178,7 @@ async def test_list_clip_with_track_id_filter_returns_filtered_clips(
     clip_2: ClipReadDto,  # noqa: ARG001
     track_1: TrackReadDto,
 ):
-    response = await client.get("/api/v1/clips", params={"track_id": track_1.id})
+    response = await client.get("/api/v1/clips", params={"track_id": str(track_1.id)})
     assert response.status_code == status.HTTP_200_OK, response.content
     clips = response.json()
 
