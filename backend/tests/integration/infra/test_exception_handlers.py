@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Callable
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 from unittest import mock
 
 import pytest
@@ -30,7 +30,7 @@ from tests.fixtures.log import AssertLogRecords
 
 
 @pytest.fixture
-async def non_raising_client(app: FastAPI) -> AsyncClient:
+async def non_raising_client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
     """
     Fixture to create an ASGI test client that does not raise exceptions.
     This is useful for testing exception handling without having unhandled

@@ -1,7 +1,9 @@
+from datetime import date
+
 import pytest
 from fastapi import UploadFile
-from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlmodel import col, func, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.infra.bootstrap import build_create_clip, build_create_track
 from jamflow.recordings.schemas import (
@@ -57,7 +59,7 @@ async def track_1(
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track mp3",
-        recorded_date="2021-02-03",
+        recorded_date=date(2021, 2, 3),
         upload_file=mp3_upload_file,
     )
     return await create_track.execute(track_create_dto=track_create_dto)
@@ -70,7 +72,7 @@ async def track_2(
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track ogg",
-        recorded_date="2022-04-05",
+        recorded_date=date(2021, 4, 5),
         upload_file=ogg_upload_file,
     )
     return await create_track.execute(track_create_dto=track_create_dto)
@@ -83,7 +85,7 @@ async def track_3(
 ) -> TrackReadDto:
     track_create_dto = TrackCreateDto(
         title="Test Track wav",
-        recorded_date="2023-06-07",
+        recorded_date=date(2021, 6, 7),
         upload_file=wav_upload_file,
     )
     return await create_track.execute(track_create_dto=track_create_dto)

@@ -59,7 +59,7 @@ def configure_logging() -> None:
             # render the current stack trace in the "stack" key.
             processors.StackInfoRenderer(),
             # Choose how to render the exception info
-            _get_exec_info_processor(),  # type: ignore [no-untyped-call]
+            _get_exec_info_processor(),
             # If some value is in bytes, decode it to a Unicode str.
             processors.UnicodeDecoder(),
             # Add callsite parameters.
@@ -97,7 +97,7 @@ def _get_renderer() -> processors.JSONRenderer | dev.ConsoleRenderer:
     return dev.ConsoleRenderer()
 
 
-def _get_exec_info_processor():  # type: ignore [no-untyped-def]
+def _get_exec_info_processor():
     """
     Get the exception info processor based on the settings.
     """
