@@ -15,23 +15,17 @@ def get_logger() -> stdlib.BoundLogger:
 
 
 def clear_log_context() -> None:
-    """
-    Reset the current log context.
-    """
+    """Reset the current log context."""
     contextvars.clear_contextvars()
 
 
 def bind_log_context(**kwargs: Any) -> None:
-    """
-    Add key-value pairs to the current log context.
-    """
+    """Add key-value pairs to the current log context."""
     contextvars.bind_contextvars(**kwargs)
 
 
 def unbind_log_context(*keys: str) -> None:
-    """
-    Remove keys from the current log context.
-    """
+    """Remove keys from the current log context."""
     contextvars.unbind_contextvars(*keys)
 
 
@@ -89,18 +83,14 @@ def configure_logging() -> None:
 
 
 def _get_renderer() -> processors.JSONRenderer | dev.ConsoleRenderer:
-    """
-    Get the appropriate renderer based on the settings.
-    """
+    """Get the appropriate renderer based on the settings."""
     if settings.LOG_JSON:
         return processors.JSONRenderer()
     return dev.ConsoleRenderer()
 
 
 def _get_exec_info_processor():
-    """
-    Get the exception info processor based on the settings.
-    """
+    """Get the exception info processor based on the settings."""
     if settings.LOG_JSON:
         # If the "exc_info" key in the event dict is either true or a
         # sys.exc_info() tuple, remove "exc_info" and render the exception
@@ -110,8 +100,6 @@ def _get_exec_info_processor():
 
 
 def _should_cache_logger() -> bool:
-    """
-    Determine if the logger should be cached.
-    """
+    """Determine if the logger should be cached."""
     # TODO: find a cleaner way to detect if we should cache the logger
     return "pytest" not in sys.modules

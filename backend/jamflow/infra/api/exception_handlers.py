@@ -52,9 +52,7 @@ async def application_exception_handler(
     request: Request,  # noqa: ARG001
     exc: ApplicationError,
 ) -> Response:
-    """
-    Map exceptions directly raised by the application to HTTP responses.
-    """
+    """Map exceptions directly raised by the application to HTTP responses."""
     exec_type = type(exc)
     status_code = get_http_status(exec_type)
     error_code = get_error_code(status_code)
@@ -81,9 +79,7 @@ async def fast_api_validation_exception_handler(
     request: Request,  # noqa: ARG001
     exc: RequestValidationError,
 ) -> Response:
-    """
-    Map Exceptions raised by FastAPI request validation to HTTP responses.
-    """
+    """Map Exceptions raised by FastAPI request validation to HTTP responses."""
     await logger.ainfo("FastAPI validation exception handled", exc_info=exc)
 
     details = []
@@ -109,16 +105,12 @@ async def fast_api_validation_exception_handler(
         content=error_content.model_dump(exclude_none=True),
     )
 
-    pass
-
 
 async def fast_api_http_exception_handler(
     request: Request,  # noqa: ARG001
     exc: HTTPException,
 ) -> Response:
-    """
-    Map generic HTTP exceptions raised by FastAPI to HTTP responses.
-    """
+    """Map generic HTTP exceptions raised by FastAPI to HTTP responses."""
     await logger.ainfo("FastAPI HTTP exception handled", exc_info=exc)
 
     error_code = get_error_code(exc.status_code)
@@ -138,9 +130,7 @@ async def external_exception_handler(
     request: Request,  # noqa: ARG001
     exc: Exception,
 ) -> Response:
-    """
-    Map library raised or unhandled exceptions to HTTP responses.
-    """
+    """Map library raised or unhandled exceptions to HTTP responses."""
     await logger.aexception("Unhandled external exception", exec_info=exc)
 
     error_content = ApiErrorDto(
@@ -156,11 +146,9 @@ async def external_exception_handler(
 
 async def page_not_found_handler(
     request: Request,  # noqa: ARG001
-    exc: Exception,  # noqa: ARG001
+    exc: Exception,
 ) -> Response:
-    """
-    Map HTTP 404 Not Found errors to the custom error response format.
-    """
+    """Map HTTP 404 Not Found errors to the custom error response format."""
     await logger.ainfo("Page not found", exc_info=exc)
 
     error_content = ApiErrorDto(
@@ -175,8 +163,7 @@ async def page_not_found_handler(
 
 
 def get_http_status(exec_type: type[ApplicationError]) -> int:
-    """
-    Get the HTTP status code for a given application error type.
+    """Get the HTTP status code for a given application error type.
 
     :rasises KeyError: If no status code is registered for the error type.
     """
@@ -184,8 +171,7 @@ def get_http_status(exec_type: type[ApplicationError]) -> int:
 
 
 def get_error_code(status_code: int) -> ErrorCode:
-    """
-    Get the API error code for a given http status code.
+    """Get the API error code for a given http status code.
 
     :raises KeyError: If no error code is registered for the status code.
     """

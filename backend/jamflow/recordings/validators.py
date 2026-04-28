@@ -8,9 +8,7 @@ from jamflow.recordings.models import AudioFileFormat
 
 
 def validate_audo_file_format(upload_file: UploadFile) -> UploadFile:
-    """
-    Validates that a file is an audio file of an accepted format.
-    """
+    """Validates that a file is an audio file of an accepted format."""
     try:
         native_audio_processor.get_format(upload_file.file)
     except ValidationError as exc:
@@ -21,9 +19,7 @@ def validate_audo_file_format(upload_file: UploadFile) -> UploadFile:
 
 
 def get_file_size_validator(max_size: int) -> Callable[[UploadFile], UploadFile]:
-    """
-    Returns a file size validator with a specific max size.
-    """
+    """Returns a file size validator with a specific max size."""
 
     def validate_file_size(upload_file: UploadFile) -> UploadFile:
         if not upload_file.size:

@@ -10,9 +10,7 @@ from jamflow.infra.database import get_session
 
 @pytest.fixture
 async def simple_client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
-    """
-    Fixture to create an ASGI test client.
-    """
+    """Fixture to create an ASGI test client."""
     async with AsyncClient(
         transport=ASGITransport(app),
         base_url="http://test",
@@ -26,9 +24,7 @@ async def client(
     app: FastAPI,
     pg_session: AsyncSession,
 ) -> AsyncGenerator[AsyncClient]:
-    """
-    Fixture to create an ASGI test client with a database session dependency override.
-    """
+    """Fixture to create an ASGI test client with a database session dependency override."""
 
     def override_get_session():
         return pg_session
@@ -40,8 +36,6 @@ async def client(
 
 @pytest.fixture
 async def public_client() -> AsyncGenerator[AsyncClient]:
-    """
-    Fixture to create an general purpose test client without a base URL.
-    """
+    """Fixture to create an general purpose test client without a base URL."""
     async with AsyncClient() as c:
         yield c

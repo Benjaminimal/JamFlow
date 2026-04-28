@@ -15,8 +15,7 @@ from jamflow.recordings.models import AudioFileFormat
 class NativeAudioProcessor:
     @staticmethod
     def get_format(file: BinaryIO) -> AudioFileFormat:
-        """
-        Guesses the file type of an audio file.
+        """Guesses the file type of an audio file.
 
         :raises ValidationError: If the file type cannot be guessed or is not supported.
         """
@@ -30,8 +29,7 @@ class NativeAudioProcessor:
 
     @staticmethod
     def get_duration(file: BinaryIO, file_format: AudioFileFormat) -> int:
-        """
-        Gets the duration of an audio file in milliseconds.
+        """Gets the duration of an audio file in milliseconds.
 
         :raises BusinessLogicError: If the file format is not supported.
         :raises ValidationError: If the duration cannot be read.
@@ -60,9 +58,7 @@ class NativeAudioProcessor:
 
     @staticmethod
     def get_size(file: BinaryIO) -> int:
-        """
-        Gets the size of an audio file in bytes.
-        """
+        """Gets the size of an audio file in bytes."""
         file.seek(0, 2)
         size = file.tell()
         file.seek(0)
@@ -72,8 +68,7 @@ class NativeAudioProcessor:
     def clip(
         file: BinaryIO, file_format: AudioFileFormat, *, start: int, end: int
     ) -> BinaryIO:
-        """
-        Clips an audio file from `start` to `end` in milliseconds.
+        """Clips an audio file from `start` to `end` in milliseconds.
 
         :raises ValidationError: If the start or end times are invalid,
             or if the file is empty.

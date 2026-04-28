@@ -23,8 +23,7 @@ class AudioProcessor(Protocol):
 
 
 class AudioStorage(Protocol):
-    """
-    Storage service used to interact with remote file storage.
+    """Storage service used to interact with remote file storage.
 
     Must be used as an async context manager on each call site:
 
@@ -52,8 +51,7 @@ class AudioStorage(Protocol):
         path: str,
         content_type: str,
     ) -> None:
-        """
-        Put a file into storage under a given path.
+        """Put a file into storage under a given path.
 
         :param path: The path where the file should be stored.
         :param file: The file data to be stored, as bytes or a file-like object.
@@ -62,8 +60,7 @@ class AudioStorage(Protocol):
         ...
 
     async def get_file(self, path: str) -> BinaryIO:
-        """
-        Get a file from storage.
+        """Get a file from storage.
 
         :param path: The path to the file in storage.
         :raises StorageError: if the file could not be retrieved.
@@ -71,8 +68,7 @@ class AudioStorage(Protocol):
         ...
 
     async def generate_expiring_url(self, path: str, expiration: int = 3600) -> str:
-        """
-        Generate an URL for accessing a file that will expire after some time.
+        """Generate an URL for accessing a file that will expire after some time.
 
         :param path: The path to the file in storage.
         :param expiration: Time in seconds for the presigned URL to remain valid.

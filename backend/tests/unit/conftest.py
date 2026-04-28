@@ -18,9 +18,7 @@ from tests.unit.fakes import (
 
 @pytest.fixture
 def mock_db_session(mocker: MockerFixture) -> AsyncMock:
-    """
-    A fake database session for tests that don't touch the database.
-    """
+    """A fake database session for tests that don't touch the database."""
     session = mocker.AsyncMock()
     session.add = mocker.Mock()  # Explicitly mock `add` as a synchronous method
     return session
@@ -47,8 +45,7 @@ async def sqli_engine() -> AsyncGenerator[AsyncEngine]:
 async def sqli_session(
     sqli_engine: AsyncEngine,
 ) -> AsyncGenerator[AsyncSession]:
-    """
-    Create a new connection and transaction for each test.
+    """Create a new connection and transaction for each test.
     This ensures that tests using the database are isolated and the session has its own dedicated connection.
     """
     async with sqli_engine.connect() as conn:

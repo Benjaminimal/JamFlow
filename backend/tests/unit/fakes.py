@@ -121,14 +121,10 @@ class FakeAudioStorage:
         return f"http://bogus.url{path}?expiration={expiration}"
 
     def checkpoint(self) -> Self:
-        """
-        Store the current state of files in the storage for to exclude them from a later `new_files` call.
-        """
+        """Store the current state of files in the storage for to exclude them from a later `new_files` call."""
         self._checkpoint = set(self.files.keys())
         return self
 
     def new_files(self) -> set[str]:
-        """
-        Return the paths of files stored since the most recent call to `checkpoint`.
-        """
+        """Return the paths of files stored since the most recent call to `checkpoint`."""
         return set(self.files.keys()) - self._checkpoint

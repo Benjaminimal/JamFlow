@@ -31,8 +31,7 @@ from tests.fixtures.log import AssertLogRecords
 
 @pytest.fixture
 async def non_raising_client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
-    """
-    Fixture to create an ASGI test client that does not raise exceptions.
+    """Fixture to create an ASGI test client that does not raise exceptions.
     This is useful for testing exception handling without having unhandled
     exceptions bubble up.
     """
@@ -45,9 +44,7 @@ async def non_raising_client(app: FastAPI) -> AsyncGenerator[AsyncClient]:
 
 @pytest.fixture
 def temp_route(app: FastAPI):
-    """
-    Fixture to create temporary routes for testing.
-    """
+    """Fixture to create temporary routes for testing."""
     registered_paths = []
 
     def decorator(path: str, method: str = "GET", **kwargs):
@@ -68,8 +65,7 @@ def temp_route(app: FastAPI):
 
 
 class MockLibraryError(Exception):
-    """
-    Mock error to simulate an unhandled external library exception
+    """Mock error to simulate an unhandled external library exception
     bubbling up to the api layer.
     """
 

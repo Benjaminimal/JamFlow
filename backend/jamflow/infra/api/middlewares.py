@@ -12,10 +12,7 @@ async def request_id_middleware(
     request: Request,
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
-    """
-    Make a unique request ID available in the request state and response headers.
-    """
-
+    """Make a unique request ID available in the request state and response headers."""
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
 
@@ -29,9 +26,7 @@ async def request_bind_log_context_middleware(
     request: Request,
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
-    """
-    Log the request and bind related information to the log context.
-    """
+    """Log the request and bind related information to the log context."""
     clear_log_context()
 
     bind_log_context(

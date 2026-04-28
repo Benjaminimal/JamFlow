@@ -178,9 +178,7 @@ class S3StorageService:
 
 
 def _get_error_context(exc: BotoCoreError | ClientError) -> dict[str, Any]:
-    """
-    Extract s3 specific error context from a BotoCoreError or ClientError.
-    """
+    """Extract s3 specific error context from a BotoCoreError or ClientError."""
     response = getattr(exc, "response", None)
     if isinstance(response, dict) and "Error" in response:
         return {

@@ -11,9 +11,7 @@ AssertLogRecords = Callable[[list[LogEvent]], None]
 def assert_log_records(
     log: StructuredLogCapture,
 ) -> AssertLogRecords:
-    """
-    Utility function to assert that specific log events were captured.
-    """
+    """Utility function to assert that specific log events were captured."""
 
     def _assert_log_records(expected_events: list[LogEvent]) -> None:
         for message, context in expected_events:

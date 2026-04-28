@@ -88,7 +88,6 @@ async def ogg_upload_file(ogg_file: Path) -> UploadFile:
 @pytest.fixture
 def txt_upload_file() -> UploadFile:
     """Fixture to return a FastAPI UploadFile for TXT."""
-
     file_content = b"testtext"
     return UploadFile(
         filename="test.mp3", file=BytesIO(file_content), size=len(file_content)

@@ -2,8 +2,7 @@ from urllib.parse import urlparse, urlunparse
 
 
 def replace_base_url(url: str, new_base: str) -> str:
-    """
-    Replace the protocol, host and port of the given URL with those from new_site.
+    """Replace the protocol, host and port of the given URL with those from new_site.
 
     :raises ValueError: if the original URL or new_base is invalid
 

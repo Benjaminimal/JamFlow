@@ -20,9 +20,7 @@ from jamflow.infra.api.middlewares import (
 
 
 def create_app() -> FastAPI:
-    """
-    Create and configure the FastAPI application.
-    """
+    """Create and configure the FastAPI application."""
     configure_logging()
 
     app = FastAPI()

@@ -4,8 +4,7 @@ from typing import Protocol, Sequence
 
 class Repository[M](Protocol):
     async def create(self, model: M) -> M:
-        """
-        Persist a model instance for the first time.
+        """Persist a model instance for the first time.
         :raises core.exceptions.DuplicateEntityError: if the instance was previously persisted.
         """
         ...

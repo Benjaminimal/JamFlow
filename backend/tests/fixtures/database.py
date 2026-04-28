@@ -15,9 +15,7 @@ TEST_DB_URI = TEST_DB_NAME.join(
 
 @pytest_asyncio.fixture(scope="session", loop_scope="session")
 async def pg_engine():
-    """
-    Set up and tear down a fresh test database including tables for the entire test session.
-    """
+    """Set up and tear down a fresh test database including tables for the entire test session."""
     # Create a fresh test database
     root_engine = create_async_engine(
         str(settings.SQLALCHEMY_DATABASE_ROOT_URI), isolation_level="AUTOCOMMIT"
@@ -54,8 +52,7 @@ async def pg_engine():
 
 @pytest.fixture
 async def pg_session(pg_engine: AsyncEngine):
-    """
-    Create a new connection and transaction for each test.
+    """Create a new connection and transaction for each test.
     This ensures that tests using the database are isolated and the session has its own dedicated connection.
     """
     async with pg_engine.connect() as conn:

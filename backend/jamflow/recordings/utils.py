@@ -4,8 +4,7 @@ from jamflow.core.utils import timezone_now
 
 
 def generate_track_path(unique_id: uuid.UUID, extension: str) -> str:
-    """
-    Generate a path including the file name for storing track files in a structured
+    """Generate a path including the file name for storing track files in a structured
     format based on the current time.
 
     :raise ValueError: If the extension is empty.
@@ -32,8 +31,7 @@ def generate_track_path(unique_id: uuid.UUID, extension: str) -> str:
 
 
 def generate_clip_path(track_path: str, clip_id: uuid.UUID, extension: str) -> str:
-    """
-    Generate a path including the file name for storing clip files within the track's
+    """Generate a path including the file name for storing clip files within the track's
     directory.
 
     :raise ValueError: If the extension is empty or if the track path does not contain
