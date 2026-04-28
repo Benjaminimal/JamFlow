@@ -46,6 +46,7 @@ test = [
 ]
 
 [tool.ruff.lint]
+# https://docs.astral.sh/ruff/rules/
 select = [
   "E",      # pycodestyle errors
   "W",      # pycodestyle warnings
