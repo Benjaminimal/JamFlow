@@ -180,7 +180,7 @@ def get_http_status(exec_type: type[ApplicationError]) -> int:
 
     :rasises KeyError: If no status code is registered for the error type.
     """
-    return _APP_ERROR_HTTP_STATUS_MAP[exec_type]
+    return _APP_ERROR_HTTP_STATUS_MAP[exec_type]  # ty: ignore[invalid-argument-type]
 
 
 def get_error_code(status_code: int) -> ErrorCode:
