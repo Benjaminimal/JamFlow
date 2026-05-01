@@ -1,17 +1,6 @@
 # JamFlow
 
-A web-based audio recording management tool.
-
-## Description
-
-Ever listened to long audio recordings and wished you could easily find specific parts?
-With JamFlow you can easily clip parts of your uploaded audio files, making it easy to locate, share, and chat about the interesting parts.
-
-## Features
-
-- Upload tracks (MP3, WAV, OGG)
-- Clip specific sections of a track
-- Listen to tracks and clips
+Ever recorded a jam session and spent ages scrubbing through audio to find the one good take? JamFlow is a personal tool I built to solve exactly that. Upload long audio recordings, clip out the parts worth keeping, and have them ready to share or revisit.
 
 ## Tech Stack
 
@@ -22,6 +11,11 @@ With JamFlow you can easily clip parts of your uploaded audio files, making it e
 - SQLAlchemy
 - PostgreSQL
 - S3 compatible storage
+
+**Frontend**:
+- TypeScript
+- React
+- howler.js
 
 ## Development Setup
 
@@ -50,20 +44,3 @@ cd JamFlow
 ## API Documentation
 
 You can find the API documentation at http://localhost:8000/docs
-
-## Project Status
-
-**Complete:**
-
-- Core API operations (track upload, clip creation, playback)
-- PostgreSQL + S3 storage integration
-
-**Planned:**
-
-- Authentication & authorization
-- Web frontend
-- Sharing tracks & clips
-- Discussions on clips
-- Production deployment
-- Test coverage
-- Clip comments
