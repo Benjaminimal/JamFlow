@@ -32,7 +32,7 @@ dev = [
   # Code quality
   "pre-commit~=4.6.1",
   "ruff~=0.16.1",
-  "rich~=13.9.4",
+  "rich~=15.0.0",
 ]
 test = [
   # Testing
