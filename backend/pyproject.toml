@@ -36,7 +36,7 @@ dev = [
 ]
 test = [
   # Testing
-  "pytest~=9.0.3",
+  "pytest~=9.1.1",
   "httpx~=0.28.1",
   "pytest-asyncio~=1.4.0",
   "pytest-mock~=3.14.0",
