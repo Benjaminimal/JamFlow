@@ -28,7 +28,7 @@ dependencies = [
 dev = [
   # Type checking
   "ty~=0.0.32",
-  "types-aiobotocore[s3]~=2.19.0",
+  "types-aiobotocore[s3]~=2.26.0.post2",
   # Code quality
   "pre-commit~=4.6.1",
   "ruff~=0.16.1",
