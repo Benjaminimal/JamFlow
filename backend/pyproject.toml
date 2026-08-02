@@ -14,7 +14,7 @@ dependencies = [
   "sqlmodel~=0.0.22",
   "alembic~=1.14.1",
   # Logging
-  "structlog~=25.1.0",
+  "structlog~=25.5.0",
   # File storage
   "aiobotocore~=2.26.0",
   # Audio processing
