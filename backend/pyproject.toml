@@ -12,7 +12,7 @@ dependencies = [
   # Database
   "asyncpg~=0.31.0",
   "sqlmodel~=0.0.22",
-  "alembic~=1.14.1",
+  "alembic~=1.18.5",
   # Logging
   "structlog~=25.1.0",
   # File storage
