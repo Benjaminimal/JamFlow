@@ -19,7 +19,7 @@ dependencies = [
   "aiobotocore~=2.19.0",
   # Audio processing
   "filetype~=1.2.0",
-  "mutagen~=1.47.0",
+  "mutagen~=1.48.1",
   "pydub~=0.25.1",
   "audioop-lts~=0.2.1",
 ]
