@@ -6,7 +6,7 @@ requires-python = ">=3.13"
 dependencies = [
   # Web
   "fastapi[standard]~=0.141.1",
-  "uvicorn~=0.34.0",
+  "uvicorn~=0.52.1",
   # Configuration
   "pydantic-settings~=2.7.1",
   # Database
