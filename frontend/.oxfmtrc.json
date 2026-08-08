@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 80,
+  "sortPackageJson": false,
+  "sortTailwindcss": {},
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "build",
+    ".out",
+    ".cache",
+    ".vite",
+    "*.min.js",
+    "*.bundle.js",
+    "*.lock",
+    "coverage",
+    "*.log",
+    "*.gz",
+    "*.zip",
+    "*.tar",
+    "*.rar",
+    "*.7z",
+    ".DS_Store",
+    ".env"
+  ]
+}
