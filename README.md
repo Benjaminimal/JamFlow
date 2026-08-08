@@ -13,6 +13,7 @@ Ever recorded a jam session and spent ages scrubbing through audio to find the o
 - S3 compatible storage
 
 **Frontend**:
+
 - TypeScript
 - React
 - howler.js
@@ -22,7 +23,7 @@ Ever recorded a jam session and spent ages scrubbing through audio to find the o
 ### Prerequisites
 
 - uv
-- npm
+- pnpm
 - Docker
 
 ### Installation
@@ -36,11 +37,11 @@ cd JamFlow
 
 **Local services:**
 
-- Frontend application http://localhost:5173
-- Backend server http://localhost:8000
-- MinIO interface http://localhost:9090
+- Frontend application <http://localhost:5173>
+- Backend server <http://localhost:8000>
+- MinIO interface <http://localhost:9090>
 - PostgreSQL localhost:5432
 
 ## API Documentation
 
-You can find the API documentation at http://localhost:8000/docs
+You can find the API documentation at <http://localhost:8000/docs>

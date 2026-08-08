@@ -23,7 +23,7 @@ cd ..
 # Frontend setup
 echo "Setting up frontend..."
 cd frontend
-npm install
+pnpm install --frozen-lockfile
 cp .env.example .env
 cd ..
 
@@ -40,4 +40,4 @@ echo "    source .env.docker-compose && docker compose up -d db storage"
 echo "  3. Run backend"
 echo "    cd backend && source .venv/bin/activate && fastapi run --reload jamflow/main.py"
 echo "  3. Run frontend"
-echo "    cd frontend && npm run dev"
+echo "    cd frontend && pnpm dev"

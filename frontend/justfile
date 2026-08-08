@@ -8,19 +8,19 @@ default:
 # =======================================================================
 
 test: setup
-    npm run test
+    pnpm test
 
 lint: setup
-    npm run lint:check
+    pnpm lint:check
 
 formatcheck: setup
-    npm run format:check
+    pnpm format:check
 
 typecheck: setup
-    npm run typecheck
+    pnpm typecheck
 
 setup:
-    npm install
+    pnpm install
 
 #=======================================================================
 # Private Interface
