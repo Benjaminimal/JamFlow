@@ -26,7 +26,7 @@
     },
     {
       "managers": ["docker-compose"],
-      "paths": ["docker-compose.yml"]
+      "paths": ["docker-compose.yaml"]
     },
     {
       "managers": ["pre-commit"],
