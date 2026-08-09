@@ -8,7 +8,7 @@ dependencies = [
   "fastapi[standard]~=0.141.1",
   "uvicorn~=0.34.0",
   # Configuration
-  "pydantic-settings~=2.7.1",
+  "pydantic-settings~=2.14.2",
   # Database
   "asyncpg~=0.31.0",
   "sqlmodel~=0.0.22",
