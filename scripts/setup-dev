@@ -5,6 +5,10 @@ echo "Setting up JamFlow development environment..."
 
 # Check dependencies
 echo "Checking dependencies..."
+command -v just >/dev/null 2>&1 || {
+	echo "just not found. Install from https://just.systems/man/en/installation.html"
+	exit 1
+}
 command -v uv >/dev/null 2>&1 || {
 	echo "uv not found. Install from https://docs.astral.sh/uv/"
 	exit 1
@@ -20,16 +24,13 @@ command -v prek >/dev/null 2>&1 || {
 
 # Backend setup
 echo "Setting up backend..."
-just setup backend
-cd backend && cp .env.example .env
-cd ..
+just backend setup
+cp ./backend/.env.example ./backend/.env
 
 # Frontend setup
 echo "Setting up frontend..."
-cd frontend
-pnpm install --frozen-lockfile
-cp .env.example .env
-cd ..
+just frontend setup
+cp ./frontend/.env.example ./frontend/.env
 
 # Install git hooks
 echo "Installing git hooks..."
