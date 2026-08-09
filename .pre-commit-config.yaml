@@ -1,22 +1,55 @@
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
+# Repository-wide hooks.
+
+# Backend-specific hooks live in backend/.pre-commit-config.yaml.
+# Frontend-specific hooks live in frontend/.pre-commit-config.yaml.
+
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+  # Basic repository hygiene.
+  - repo: builtin
     hooks:
-      - id: check-added-large-files
-      - id: check-toml
-      - id: check-yaml
-        args:
-          - --unsafe
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-illegal-windows-names
+      - id: check-symlinks
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: fix-byte-order-marker
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
 
-  # TODO: run type checking for the backend!
+  # YAML formatting.
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
+  # TOML formatting.
+  - repo: https://github.com/ComPWA/taplo-pre-commit
     rev: v0.9.3
     hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
+      - id: taplo-format
+
+  # Dockerfile formatting.
+  - repo: https://github.com/reteps/dockerfmt
+    rev: v0.5.0
+    hooks:
+      - id: dockerfmt
+        args: [--indent=4, --newline, --write]
+
+  # Shell formatting.
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.12.0-2
+    hooks:
+      - id: shfmt
+        args: [--write]
+
+  # Markdown formatting.
+  - repo: https://github.com/hukkin/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-gfm
