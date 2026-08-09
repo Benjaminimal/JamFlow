@@ -9,6 +9,10 @@ command -v just >/dev/null 2>&1 || {
 	echo "just not found. Install from https://just.systems/man/en/installation.html"
 	exit 1
 }
+command -v docker >/dev/null 2>&1 || {
+	echo "docker not found. Install from https://docs.docker.com/engine/install/"
+	exit 1
+}
 command -v uv >/dev/null 2>&1 || {
 	echo "uv not found. Install from https://docs.astral.sh/uv/"
 	exit 1
