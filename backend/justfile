@@ -7,7 +7,7 @@ default:
 # infrastructure
 # =======================================================================
 
-test *ARGS:
+test *ARGS: setup
     uv run pytest {{ ARGS }}
 
 lint: setup
@@ -19,5 +19,22 @@ formatcheck: setup
 typecheck: setup
     uv run ty check .
 
+build:
+    docker build --tag jamflow-backend:local .
+
+start: setup start-infra
+    uv run fastapi dev jamflow/main.py
+
 setup:
     uv sync --frozen --all-groups
+
+#=======================================================================
+# Private Interface
+# Only available within the scope of this project.
+# =======================================================================
+
+start-infra:
+    docker compose up -d
+
+migrate: start-infra
+  uv run alembic upgrade head

@@ -33,7 +33,7 @@ Ever recorded a jam session and spent ages scrubbing through audio to find the o
 git clone https://github.com/Benjaminimal/JamFlow.git
 cd JamFlow
 # Run setup script and follow its instructions
-./scripts/setup-dev.sh
+./scripts/setup-dev
 ```
 
 **Local services:**
