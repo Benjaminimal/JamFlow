@@ -19,6 +19,9 @@ formatcheck: setup
 typecheck: setup
     pnpm typecheck
 
+start: setup
+    pnpm dev
+
 setup:
     pnpm install --frozen-lockfile
 

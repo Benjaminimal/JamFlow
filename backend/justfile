@@ -19,5 +19,8 @@ formatcheck: setup
 typecheck: setup
     uv run ty check .
 
+start: setup
+    uv run fastapi dev jamflow/main.py
+
 setup:
     uv sync --frozen --all-groups
