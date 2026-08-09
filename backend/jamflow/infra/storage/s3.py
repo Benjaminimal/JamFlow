@@ -20,13 +20,14 @@ logger = get_logger()
 async def get_storage_client() -> S3Client:
     session = get_session()
     try:
-        async with session.create_client(
+        client = session.create_client(
             "s3",
             endpoint_url=str(settings.STORAGE_URL),
             aws_access_key_id=settings.STORAGE_ACCESS_KEY,
             aws_secret_access_key=settings.STORAGE_SECRET_KEY,
-        ) as client:
-            return client
+        )
+
+        return await client.__aenter__()
     except BotoCoreError as exc:
         raise StorageError(
             "Failed to create storage client",
