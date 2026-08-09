@@ -20,4 +20,4 @@ typecheck: setup
     uv run ty check .
 
 setup:
-    uv sync --frozen --group dev --group test
+    uv sync --frozen --all-groups

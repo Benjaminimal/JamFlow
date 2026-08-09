@@ -20,7 +20,7 @@ typecheck: setup
     pnpm typecheck
 
 setup:
-    pnpm install
+    pnpm install --frozen-lockfile
 
 #=======================================================================
 # Private Interface
