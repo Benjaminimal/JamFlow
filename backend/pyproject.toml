@@ -45,6 +45,9 @@ test = [
   "polyfactory~=3.3.0",
 ]
 
+[tool.uv]
+exclude-newer = "3 days"
+
 [tool.ty.src]
 exclude = ["./migrations"]
 

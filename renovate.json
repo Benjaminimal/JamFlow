@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended",
+    "security:minimumReleaseAgeNpm",
+    "security:minimumReleaseAgePyPI"
+  ],
   "baseBranchPatterns": ["develop"],
   "labels": ["dependencies"],
   "prHourlyLimit": 2,
