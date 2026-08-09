@@ -20,6 +20,6 @@ jobs:
           runtime: node@24
           install: false
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
       - name: Run tests
         run: just frontend test

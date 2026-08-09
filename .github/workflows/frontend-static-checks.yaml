@@ -20,7 +20,7 @@ jobs:
           runtime: node@24
           install: false
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
       - name: Lint
         run: just frontend lint || echo "lint failed" > lint-failed
         continue-on-error: true
