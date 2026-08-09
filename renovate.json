@@ -3,7 +3,8 @@
   "extends": [
     "config:recommended",
     "security:minimumReleaseAgeNpm",
-    "security:minimumReleaseAgePyPI"
+    "security:minimumReleaseAgePyPI",
+    ":maintainLockFilesWeekly"
   ],
   "baseBranchPatterns": ["develop"],
   "labels": ["dependencies"],
