@@ -1,5 +1,4 @@
 name: Backend Static Checks
-
 on:
   push:
     branches:
@@ -8,7 +7,6 @@ on:
     types:
       - opened
       - synchronize
-
 jobs:
   backend-lint:
     runs-on: ubuntu-latest
@@ -23,19 +21,15 @@ jobs:
         uses: astral-sh/setup-uv@v5
       - name: Install just
         uses: extractions/setup-just@v3
-
       - name: Lint
         run: just backend lint || echo "lint failed" > lint-failed
         continue-on-error: true
-
       - name: Typecheck
         run: just backend typecheck || echo "typecheck failed" > typecheck-failed
         continue-on-error: true
-
       - name: Formatcheck
         run: just backend formatcheck || echo "formatcheck failed" > formatcheck-failed
         continue-on-error: true
-
       - name: Check Results
         run: |
           printf "%-20s | %-10s\n" "Check" "Status"

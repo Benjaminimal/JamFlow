@@ -1,5 +1,4 @@
 name: Frontend Test
-
 on:
   push:
     branches:
@@ -8,7 +7,6 @@ on:
     types:
       - opened
       - synchronize
-
 jobs:
   frontend-test:
     runs-on: ubuntu-latest
@@ -23,6 +21,5 @@ jobs:
           install: false
       - name: Install just
         uses: extractions/setup-just@v3
-
       - name: Run tests
         run: just frontend test

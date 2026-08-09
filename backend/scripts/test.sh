@@ -4,10 +4,10 @@ set -e
 set -x
 
 if [ -v CI ]; then
-  pytest \
-    --disable-warnings \
-    --tb=short \
-    --cache-clear
+	pytest \
+		--disable-warnings \
+		--tb=short \
+		--cache-clear
 else
-  pytest
+	pytest
 fi
