@@ -48,6 +48,7 @@ test = [
 
 [tool.uv]
 exclude-newer = "3 days"
+default-groups = ["dev", "test"]
 
 [tool.ty.src]
 exclude = ["./migrations"]
