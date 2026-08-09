@@ -7,7 +7,7 @@ default:
 # infrastructure
 # =======================================================================
 
-test *ARGS:
+test *ARGS: setup
     uv run pytest {{ ARGS }}
 
 lint: setup
