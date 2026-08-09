@@ -19,6 +19,9 @@ formatcheck: setup
 typecheck: setup
     uv run ty check .
 
+build:
+    docker build --tag jamflow-backend:local .
+
 start: setup start-infra
     uv run fastapi dev jamflow/main.py
 

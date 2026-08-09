@@ -19,6 +19,9 @@ formatcheck: setup
 typecheck: setup
     pnpm typecheck
 
+build: setup
+    npm run build
+
 start: setup
     pnpm dev
 
@@ -29,6 +32,3 @@ setup:
 # Private Interface
 # Only available within the scope of this project.
 # =======================================================================
-
-build: setup
-    npm run build
