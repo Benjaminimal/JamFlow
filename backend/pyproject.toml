@@ -83,4 +83,8 @@ keep-runtime-typing = true
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 # https://docs.pytest.org/en/stable/how-to/capture-warnings.html#controlling-warnings
-filterwarnings = ["ignore::DeprecationWarning:botocore.auth"]
+filterwarnings = [
+  # treat all warnings as errors
+  "error",
+  "ignore::DeprecationWarning:botocore.auth",
+]
