@@ -6,12 +6,16 @@ echo "Setting up JamFlow development environment..."
 # Check dependencies
 echo "Checking dependencies..."
 command -v uv >/dev/null 2>&1 || {
-  echo "uv not found. Install from https://docs.astral.sh/uv/"
-  exit 1
+	echo "uv not found. Install from https://docs.astral.sh/uv/"
+	exit 1
 }
 command -v node >/dev/null 2>&1 || {
-  echo "Node.js not found. Install from https://nodejs.org/"
-  exit 1
+	echo "Node.js not found. Install from https://nodejs.org/"
+	exit 1
+}
+command -v prek >/dev/null 2>&1 || {
+	echo "prek not found. Installing with uv..."
+	uv tool install prek
 }
 
 # Backend setup
@@ -29,7 +33,7 @@ cd ..
 
 # Install git hooks
 echo "Installing git hooks..."
-./scripts/install-hooks.sh
+prek install -f
 
 echo "Development environment ready!"
 echo ""

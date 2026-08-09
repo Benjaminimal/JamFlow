@@ -11,10 +11,10 @@
 #### Entering Clipping Mode
 
 1. User is listening at position `43:20`
-2. User clicks "Create Clip" button
-3. **Save current position as `resumePosition: 43:20`**
-4. Enter clipping mode with initial clip bounds around current time
-5. Pause main playback
+1. User clicks "Create Clip" button
+1. **Save current position as `resumePosition: 43:20`**
+1. Enter clipping mode with initial clip bounds around current time
+1. Pause main playback
 
 #### Adjusting Clip Bounds
 

@@ -27,10 +27,9 @@ dependencies = [
 [dependency-groups]
 dev = [
   # Type checking
-  "ty~=0.0.32",
+  "ty~=0.0.69",
   "types-aiobotocore[s3]~=3.9.0",
   # Code quality
-  "pre-commit~=4.6.1",
   "ruff~=0.16.1",
   "rich~=15.0.0",
 ]

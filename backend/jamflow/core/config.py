@@ -65,4 +65,4 @@ class Settings(
             return value.split(",")
 
 
-settings = Settings()  # ty: ignore[missing-argument]
+settings = Settings()

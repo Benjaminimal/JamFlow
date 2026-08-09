@@ -17,7 +17,6 @@ services:
       timeout: 10s
     networks:
       - jamflow
-
   storage:
     image: minio/minio:latest
     command: server --console-address ":9090" /data
@@ -37,7 +36,6 @@ services:
       timeout: 10s
     networks:
       - jamflow
-
   backend:
     build:
       context: ./backend
@@ -62,7 +60,6 @@ services:
       timeout: 2s
     networks:
       - jamflow
-
   frontend:
     build:
       context: ./frontend
@@ -73,10 +70,8 @@ services:
       - "8080:80"
     networks:
       - jamflow
-
 networks:
   jamflow:
-
 volumes:
   db_data: {}
   storage_data: {}

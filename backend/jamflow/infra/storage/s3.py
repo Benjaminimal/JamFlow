@@ -1,6 +1,6 @@
 from tempfile import TemporaryFile
 from types import TracebackType
-from typing import Any, BinaryIO, Self
+from typing import TYPE_CHECKING, Any, BinaryIO, Self
 
 from aiobotocore.session import get_session
 from botocore.exceptions import BotoCoreError, ClientError
@@ -10,6 +10,9 @@ from jamflow.core.config import settings
 from jamflow.core.exceptions import StorageError
 from jamflow.core.log import bind_log_context, get_logger, unbind_log_context
 from jamflow.infra.storage.utils import replace_base_url
+
+if TYPE_CHECKING:
+    from types_aiobotocore_s3.type_defs import ObjectIdentifierTypeDef
 
 logger = get_logger()
 
@@ -88,7 +91,9 @@ class S3StorageService:
                     object_count=object_count,
                 )
 
-                objects = [{"Key": obj["Key"]} for obj in response["Contents"]]
+                objects: list[ObjectIdentifierTypeDef] = [
+                    {"Key": obj["Key"]} for obj in response["Contents"]
+                ]
                 await self._client.delete_objects(
                     Bucket=self._bucket_name,
                     Delete={"Objects": objects},

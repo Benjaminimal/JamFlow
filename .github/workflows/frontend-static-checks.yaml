@@ -1,5 +1,4 @@
 name: Frontend Static Checks
-
 on:
   push:
     branches:
@@ -8,7 +7,6 @@ on:
     types:
       - opened
       - synchronize
-
 jobs:
   frontend-lint:
     runs-on: ubuntu-latest
@@ -23,19 +21,15 @@ jobs:
           install: false
       - name: Install just
         uses: extractions/setup-just@v3
-
       - name: Lint
         run: just frontend lint || echo "lint failed" > lint-failed
         continue-on-error: true
-
       - name: Typecheck
         run: just frontend typecheck || echo "typecheck failed" > typecheck-failed
         continue-on-error: true
-
       - name: Formatcheck
         run: just frontend formatcheck || echo "formatcheck failed" > formatcheck-failed
         continue-on-error: true
-
       - name: Check Results
         run: |
           printf "%-20s | %-10s\n" "Check" "Status"
