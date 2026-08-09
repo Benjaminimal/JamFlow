@@ -23,6 +23,7 @@ Ever recorded a jam session and spent ages scrubbing through audio to find the o
 ### Prerequisites
 
 - uv
+- prek
 - pnpm
 - Docker
 
