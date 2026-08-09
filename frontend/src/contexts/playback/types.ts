@@ -58,4 +58,5 @@ export type PlaybackEventCallback = (e: PlaybackEvent) => void;
 export type PlaybackEventUnsubscribe = () => void;
 
 export type PlaybackEvent =
-  { type: "seek"; target: number } | { type: "progress"; position: number };
+  | { type: "seek"; target: number }
+  | { type: "progress"; position: number };

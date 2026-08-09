@@ -22,11 +22,6 @@
     {
       "managers": ["docker-compose"],
       "paths": ["docker-compose.yml"]
-    },
-    {
-      "matchPackageNames": ["typescript"],
-      "allowedVersions": "<7",
-      "description": "Hold TypeScript 7 until typescript-eslint and ecosystem tooling support it"
     }
   ]
 }

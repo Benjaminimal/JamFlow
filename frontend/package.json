@@ -3,15 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@11.20.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "format": "prettier --write '**/*.{js,ts,tsx,json,css,scss,md}'",
-    "format:check": "prettier --check '**/*.{js,ts,tsx,json,css,scss,md}'",
-    "lint": "eslint --fix 'src/**/*.{ts,tsx,js,jsx}'",
-    "lint:check": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --fix src",
+    "lint:check": "oxlint src",
     "typecheck": "tsc --project tsconfig.app.json"
   },
   "dependencies": {
@@ -38,38 +39,31 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@eslint/js": "^9.30.1",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.0",
     "@types/howler": "^2.2.12",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^6.0.0",
-    "@vitest/eslint-plugin": "^1.3.4",
-    "eslint": "^9.30.1",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.5.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
-    "eslint-plugin-unused-imports": "^4.1.4",
-    "globals": "^17.0.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "jsdom": "^30.0.0",
     "lint-staged": "^17.0.0",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.8.0",
+    "oxfmt": "^0.62.0",
+    "oxlint": "^1.77.0",
     "tw-animate-css": "^1.3.8",
-    "typescript": "~6.0.0",
-    "typescript-eslint": "^8.35.1",
+    "typescript": "~7.0.0",
     "vite": "^8.0.0",
     "vite-tsconfig-paths": "^6.0.0",
     "vitest": "^4.0.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
+      "oxlint --fix",
+      "oxfmt"
     ],
     "*.{json,css,scss,md}": [
-      "prettier --write"
+      "oxfmt"
     ]
   }
 }
