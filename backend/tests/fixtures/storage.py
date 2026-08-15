@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 
 from jamflow.core.config import settings
-from jamflow.services.storage import get_audio_storage_service
+from jamflow.infra.bootstrap import default_audio_storage
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -22,10 +22,8 @@ def storage_public_url_override():
 
 
 @pytest.fixture
-async def audio_storage(
-    storage_name_override,  # noqa: ARG001
-):
+async def audio_storage_isolation():
     yield
-    async with get_audio_storage_service() as storage_service:
+    async with default_audio_storage() as storage:
         # delete all files in the bucket
-        await storage_service.purge()
+        await storage.purge()

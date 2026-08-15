@@ -2,8 +2,8 @@ from .fixtures.app import (  # noqa: F401
     app,
 )
 from .fixtures.database import (  # noqa: F401
-    db_engine,
-    db_session,
+    pg_engine,
+    pg_session,
 )
 from .fixtures.files import (  # noqa: F401
     audio_file_factory,
@@ -25,6 +25,6 @@ from .fixtures.log import (  # noqa: F401
     assert_log_records,
 )
 from .fixtures.storage import (  # noqa: F401
-    audio_storage,
+    audio_storage_isolation,
     storage_name_override,
 )

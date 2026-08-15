@@ -91,6 +91,18 @@ class DataIntegrityError(ApplicationError):
     """
 
 
+class DuplicateEntityError(DataIntegrityError):
+    """
+    Raised when trying to create or update a resource that would violate a uniqueness constraint.
+
+    Examples:
+        - Creating a user with an email that already exists
+        - Adding a record with a unique reference ID that already exists
+    """
+
+    pass
+
+
 class RateLimitError(ApplicationError):
     """
     Rate limit exceeded for an external request.

@@ -1,0 +1,22 @@
+repos:
+  - repo: https://github.com/oxc-project/mirrors-oxlint
+    rev: v1.76.0
+    hooks:
+      - id: oxlint
+        args: [--fix]
+
+  - repo: https://github.com/oxc-project/mirrors-oxfmt
+    rev: v0.61.0
+    hooks:
+      - id: oxfmt
+
+  - repo: local
+    hooks:
+      - id: typecheck
+        name: typecheck
+        entry: pnpm exec tsc --project tsconfig.app.json
+        language: system
+        types_or:
+          - ts
+          - tsx
+        pass_filenames: false

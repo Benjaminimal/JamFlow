@@ -1,0 +1,16 @@
+name: Backend Build
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  backend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install just
+        uses: extractions/setup-just@v4
+      - name: Build backend
+        run: just backend build

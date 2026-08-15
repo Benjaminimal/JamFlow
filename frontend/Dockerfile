@@ -1,10 +1,11 @@
 # Stage 1: build frontend
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+RUN corepack enable
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: serve with nginx
 FROM nginx:alpine

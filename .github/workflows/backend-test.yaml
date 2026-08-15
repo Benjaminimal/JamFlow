@@ -1,39 +1,35 @@
 name: Backend Test
-
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types:
       - opened
       - synchronize
-
 jobs:
   backend-test:
     runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: ./backend/docker-compose.yaml
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Create frontend dummy env
-        run: touch ./frontend/.env
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: "backend/pyproject.toml"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+      - name: Install just
+        uses: extractions/setup-just@v4
       - name: Set up backend config
         run: mv ./backend/.env.test ./backend/.env
-      - name: Build Docker image
-        run: |
-          source .env.docker-compose
-          docker compose build backend
+      - name: Setup FFmpeg
+        uses: AnimMouse/setup-ffmpeg@v1
       - name: Start services
         run: |
-          source .env.docker-compose
           docker compose up --detach db storage
-          docker ps
+          docker compose ps
       - name: Run tests
-        run: |
-          source .env.docker-compose
-          docker compose run -e CI=1 backend scripts/test.sh
+        run: just backend test
       - name: Clean up
         if: always()
-        run: |
-          source .env.docker-compose
-          docker compose down db storage --volumes
+        run: docker compose down db storage --volumes

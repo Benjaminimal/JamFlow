@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Setting up JamFlow development environment..."
+
+# Check dependencies
+echo "Checking dependencies..."
+command -v just >/dev/null 2>&1 || {
+	echo "just not found. Install from https://just.systems/man/en/installation.html"
+	exit 1
+}
+command -v docker >/dev/null 2>&1 || {
+	echo "docker not found. Install from https://docs.docker.com/engine/install/"
+	exit 1
+}
+command -v uv >/dev/null 2>&1 || {
+	echo "uv not found. Install from https://docs.astral.sh/uv/"
+	exit 1
+}
+command -v node >/dev/null 2>&1 || {
+	echo "Node.js not found. Install from https://nodejs.org/"
+	exit 1
+}
+command -v prek >/dev/null 2>&1 || {
+	echo "prek not found. Installing with uv..."
+	uv tool install prek
+}
+
+# Backend setup
+echo "Setting up backend..."
+just backend setup
+cp ./backend/.env.example ./backend/.env
+
+# Frontend setup
+echo "Setting up frontend..."
+just frontend setup
+cp ./frontend/.env.example ./frontend/.env
+
+# Install git hooks
+echo "Installing git hooks..."
+prek install -f
+
+echo "Development environment ready!"
+echo ""
+echo "Next steps:"
+echo "  1. Configure environment variables in backend/.env and frontend/.env"
+echo "  2. Start services"
+echo "    source .env.docker-compose && docker compose up -d db storage"
+echo "  3. Run backend"
+echo "    cd backend && source .venv/bin/activate && fastapi run --reload jamflow/main.py"
+echo "  3. Run frontend"
+echo "    cd frontend && pnpm dev"

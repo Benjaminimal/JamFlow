@@ -30,7 +30,7 @@ class Settings(
     DB_PASSWORD: str
     DB_ROOT_NAME: str
 
-    @computed_field  # type: ignore[prop-decorator]
+    @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         return PostgresDsn.build(
@@ -42,7 +42,7 @@ class Settings(
             password=self.DB_PASSWORD,
         )
 
-    @computed_field  # type: ignore[prop-decorator]
+    @computed_field
     @property
     def SQLALCHEMY_DATABASE_ROOT_URI(self) -> PostgresDsn:
         return PostgresDsn.build(
@@ -65,4 +65,4 @@ class Settings(
             return value.split(",")
 
 
-settings = Settings()  # type: ignore[call-arg]
+settings = Settings()

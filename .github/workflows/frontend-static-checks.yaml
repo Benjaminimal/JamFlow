@@ -1,0 +1,52 @@
+name: Frontend Static Checks
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+jobs:
+  frontend-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup pnpm
+        uses: pnpm/setup@v2
+        with:
+          package-json-file: frontend/package.json
+          runtime: node@24
+          install: false
+      - name: Install just
+        uses: extractions/setup-just@v4
+      - name: Lint
+        run: just frontend lint || echo "lint failed" > lint-failed
+        continue-on-error: true
+      - name: Typecheck
+        run: just frontend typecheck || echo "typecheck failed" > typecheck-failed
+        continue-on-error: true
+      - name: Formatcheck
+        run: just frontend formatcheck || echo "formatcheck failed" > formatcheck-failed
+        continue-on-error: true
+      - name: Check Results
+        run: |
+          printf "%-20s | %-10s\n" "Check" "Status"
+          printf "%-20s | %-10s\n" "--------------------" "----------"
+          if [ -f lint-failed ]; then
+            printf "%-20s | %-10s\n" "Linting" "❌ Failed"
+          else
+            printf "%-20s | %-10s\n" "Linting" "✅ Passed"
+          fi
+          if [ -f typecheck-failed ]; then
+            printf "%-20s | %-10s\n" "Type Checking" "❌ Failed"
+          else
+            printf "%-20s | %-10s\n" "Type Checking" "✅ Passed"
+          fi
+          if [ -f formatcheck-failed ]; then
+            printf "%-20s | %-10s\n" "Formatting" "❌ Failed"
+          else
+            printf "%-20s | %-10s\n" "Formatting" "✅ Passed"
+          fi
+          if [ -f lint-failed ] || [ -f typecheck-failed ] || [ -f formatcheck-failed ]; then
+            exit 1
+          fi
+        shell: bash

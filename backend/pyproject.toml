@@ -2,46 +2,53 @@
 name = "JamFlow-backend"
 version = "0.1.0"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
   # Web
-  "fastapi[standard]>=0.115.7",
-  "uvicorn>=0.34.0",
+  "fastapi[standard]~=0.141.1",
+  "uvicorn~=0.52.1",
   # Configuration
-  "pydantic-settings>=2.7.1",
+  "pydantic-settings~=2.15.0",
   # Database
-  "asyncpg>=0.30.0",
-  "sqlmodel>=0.0.22",
-  "alembic>=1.14.1",
+  "asyncpg~=0.31.0",
+  "sqlmodel~=0.0.22",
+  "alembic~=1.19.0",
   # Logging
-  "structlog>=25.1.0",
+  "structlog~=26.1.0",
   # File storage
-  "aiobotocore>=2.19.0",
+  "aiobotocore~=3.9.0",
   # Audio processing
-  "filetype>=1.2.0",
-  "mutagen>=1.47.0",
-  "pydub>=0.25.1",
-  "audioop-lts>=0.2.1", # pydub dependency
+  "filetype~=1.2.0",
+  "mutagen~=1.48.1",
+  "pydub~=0.25.1",
+  "audioop-lts~=0.2.1",
 ]
 
 [dependency-groups]
 dev = [
   # Type checking
-  "mypy>=1.15.0",
-  "types-aiobotocore[s3]>=2.19.0",
+  "ty~=0.0.69",
+  "types-aiobotocore[s3]~=3.9.0",
   # Code quality
-  "pre-commit>=4.1.0",
-  "ruff>=0.9.3",
-  "rich>=13.9.4",
+  "ruff~=0.16.1",
+  "rich~=15.0.0",
 ]
 test = [
   # Testing
-  "pytest>=8.3.4",
-  "httpx>=0.28.1",
-  "pytest-asyncio>=0.25.3",
-  "pytest-mock>=3.14.0",
-  "pytest-structlog>=1.1",
+  "pytest~=9.1.1",
+  "httpx~=0.28.1",
+  "pytest-asyncio~=1.4.0",
+  "pytest-mock~=3.15.1",
+  "pytest-structlog~=1.1",
+  "aiosqlite~=0.22.1",
+  "polyfactory~=3.3.0",
 ]
+
+[tool.uv]
+exclude-newer = "3 days"
+
+[tool.ty.src]
+exclude = ["./migrations"]
 
 [tool.ruff.lint]
 select = [
@@ -55,13 +62,10 @@ select = [
   "ARG001", # unused arguments in functions
 ]
 ignore = [
-  "E501", # line too long, handled by formatter
-  "B008", # do not perform function calls in argument defaults
+  "E501",  # line too long, handled by formatter
+  "B008",  # do not perform function calls in argument defaults
+  "UP035", # warn about deprecated imports, we still want to import type hints from typing
 ]
-
-[tool.mypy]
-strict = true
-exclude = ["^migrations/", "^tests/", "^.*/__pycache__/", "^.venv/"]
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore star import for migration generation

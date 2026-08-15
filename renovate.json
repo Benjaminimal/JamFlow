@@ -1,7 +1,47 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "baseBranchPatterns": ["develop"],
+  "extends": [
+    "config:recommended",
+    "security:minimumReleaseAgeNpm",
+    "security:minimumReleaseAgePypi",
+    ":maintainLockFilesWeekly"
+  ],
+  "baseBranchPatterns": ["main"],
   "labels": ["dependencies"],
-  "prHourlyLimit": 2
+  "prHourlyLimit": 2,
+  "enabledManagers": [
+    "npm",
+    "pep621",
+    "dockerfile",
+    "docker-compose",
+    "pre-commit",
+    "github-actions"
+  ],
+  "packageRules": [
+    {
+      "managers": ["npm"],
+      "paths": ["frontend/package.json"]
+    },
+    {
+      "managers": ["pep621"],
+      "packagePatterns": ["*"],
+      "paths": ["backend/pyproject.toml"]
+    },
+    {
+      "managers": ["dockerfile"],
+      "paths": ["frontend/Dockerfile", "backend/Dockerfile"]
+    },
+    {
+      "managers": ["docker-compose"],
+      "paths": ["docker-compose.yaml"]
+    },
+    {
+      "managers": ["pre-commit"],
+      "paths": [
+        ".pre-commit-config.yaml",
+        "backend/.pre-commit-config.yaml",
+        "frontend/.pre-commit-config.yaml"
+      ]
+    }
+  ]
 }

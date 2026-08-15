@@ -1,0 +1,34 @@
+default:
+    @just --list --list-submodules
+
+#=======================================================================
+# Public Interface
+# These recipes must be implemented by this justfile as the top level
+# expects them to be defined.
+# =======================================================================
+
+test: setup
+    pnpm test
+
+lint: setup
+    pnpm lint:check
+
+formatcheck: setup
+    pnpm format:check
+
+typecheck: setup
+    pnpm typecheck
+
+build: setup
+    npm run build
+
+start: setup
+    pnpm dev
+
+setup:
+    pnpm install --frozen-lockfile
+
+#=======================================================================
+# Private Interface
+# Only available within the scope of this project.
+# =======================================================================

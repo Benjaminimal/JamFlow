@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.14-slim
 
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 
@@ -10,10 +10,10 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Install ffmpeg
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-  ffmpeg \
-  postgresql-client \
-  && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends \
+        ffmpeg \
+        postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
 # Place executables in the environment at the front of the path
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
@@ -28,14 +28,14 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 COPY ./pyproject.toml ./uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --frozen --no-install-project --group test
+    uv sync --frozen --no-install-project --group test
 
 # Make jamflow package available in python
 ENV PYTHONPATH=/app
 
 # Non-root runtime user
 RUN groupadd -r app \
-  && useradd -r -g app -d /app -s /sbin/nologin app
+    && useradd -r -g app -d /app -s /sbin/nologin app
 
 # Copy code and config files
 COPY --chown=app:app ./alembic.ini /app/

@@ -1,0 +1,40 @@
+default:
+    @just --list --list-submodules
+
+#=======================================================================
+# Local Checks
+# Run directly on the host for speed as these recipes don't need
+# infrastructure
+# =======================================================================
+
+test *ARGS: setup
+    uv run pytest {{ ARGS }}
+
+lint: setup
+    uv run ruff check jamflow tests
+
+formatcheck: setup
+    uv run ruff format --check jamflow tests
+
+typecheck: setup
+    uv run ty check .
+
+build:
+    docker build --tag jamflow-backend:local .
+
+start: setup start-infra
+    uv run fastapi dev jamflow/main.py
+
+setup:
+    uv sync --frozen --all-groups
+
+#=======================================================================
+# Private Interface
+# Only available within the scope of this project.
+# =======================================================================
+
+start-infra:
+    docker compose up -d
+
+migrate: start-infra
+  uv run alembic upgrade head
