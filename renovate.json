@@ -6,7 +6,7 @@
     "security:minimumReleaseAgePypi",
     ":maintainLockFilesWeekly"
   ],
-  "baseBranchPatterns": ["develop"],
+  "baseBranchPatterns": ["main"],
   "labels": ["dependencies"],
   "prHourlyLimit": 2,
   "enabledManagers": [

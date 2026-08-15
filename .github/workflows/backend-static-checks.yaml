@@ -1,8 +1,5 @@
 name: Backend Static Checks
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types:
       - opened
