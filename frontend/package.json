@@ -49,7 +49,7 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "jsdom": "^30.0.0",
     "lint-staged": "^17.0.0",
-    "oxfmt": "^0.63.0",
+    "oxfmt": "^0.64.0",
     "oxlint": "^1.77.0",
     "tw-animate-css": "^1.3.8",
     "typescript": "~7.0.0",
