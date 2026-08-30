@@ -1,7 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from jamflow.core.config import settings
-from jamflow.infra.audio import NativeAudioProcessor, native_audio_processor
+from jamflow.infra.audio.processor import NativeAudioProcessor, native_audio_processor
 from jamflow.infra.database.repositories import (
     SQLModelClipRepository,
     SQLModelTrackRepository,
