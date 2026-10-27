@@ -1,58 +1,28 @@
 from io import BytesIO
 from pathlib import Path
-from typing import Generator
 
 import pytest
 from fastapi import UploadFile
-from pydub.generators import WhiteNoise
-from pytest import TempPathFactory
+
+AUDIO_DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 @pytest.fixture(scope="module")
-def temp_test_dir(tmp_path_factory: TempPathFactory) -> Generator[Path]:
-    """Fixture that provides a temporary directory for all generated audio files."""
-    # Create a temporary directory for audio test files
-    dir_path = tmp_path_factory.mktemp("test_files")
-
-    yield dir_path
-
-    # Cleanup any files when the test session ends
-    for file in dir_path.iterdir():
-        file.unlink()  # Delete the file
-    dir_path.rmdir()  # Delete the directory
-
-
-@pytest.fixture(scope="module")
-def audio_file_factory(temp_test_dir: Path):
-    def _audio_file_factory(file_format: str):
-        file_path = temp_test_dir / f"test.{file_format}"
-        white_noise = WhiteNoise().to_audio_segment(duration=2400)
-        white_noise.export(file_path, format=file_format)
-
-        yield file_path
-
-        if file_path.exists():
-            file_path.unlink()
-
-    return _audio_file_factory
-
-
-@pytest.fixture(scope="module")
-def wav_file(audio_file_factory) -> Generator[Path]:
+def wav_file() -> Path:
     """Fixture to generate a 2.4-second WAV file."""
-    yield from audio_file_factory("wav")
+    return AUDIO_DATA_DIR / "sine-440hz-2.4s-mono-44khz.wav"
 
 
 @pytest.fixture(scope="module")
-def mp3_file(audio_file_factory) -> Generator[Path]:
+def mp3_file() -> Path:
     """Fixture to generate a 2.4-second MP3 file."""
-    yield from audio_file_factory("mp3")
+    return AUDIO_DATA_DIR / "sine-440hz-2.4s-mono-44khz.mp3"
 
 
 @pytest.fixture(scope="module")
-def ogg_file(audio_file_factory) -> Generator[Path]:
+def ogg_file() -> Path:
     """Fixture to generate a 2.4-second OGG file."""
-    yield from audio_file_factory("ogg")
+    return AUDIO_DATA_DIR / "sine-440hz-2.4s-mono-44khz.ogg"
 
 
 @pytest.fixture
